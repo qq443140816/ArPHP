@@ -80,7 +80,13 @@ class Ar {
 
     static public function autoLoader($class)
     {
-        $classFile = FRAME_PATH . str_replace('\\', DS, $class) . '.class.php';
+        if (strpos($class, '\\') === false) :
+            preg_match("#[A-Z]{1}[a-z0-9]+$#", $class, $match);
+            $classFile = APP_PATH . $match[0] . DS . $class . '.class.php';
+        else :
+            $classFile = FRAME_PATH . str_replace('\\', DS, $class) . '.class.php';
+        endif;
+
         if (is_file($classFile))
             require_once $classFile;
         else

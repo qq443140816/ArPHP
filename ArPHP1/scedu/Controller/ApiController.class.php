@@ -12,7 +12,7 @@
  */
 class ApiController extends ArController {
 
-     /**
+    /**
      * just the example of get contents.
      *
      * @return void
@@ -47,19 +47,44 @@ class ApiController extends ArController {
     {
         $id = (int)$_GET['id'];
 
-        $cate = Ar::c('db.dbmysql')->read()->table('config_categories')->select('types')->where(array('id' => $id))->queryRow();
+        $limit = 8;
+        $condition = array('title !=' => '');
+        $cate = Ar::c('db.dbmysql')->read()->table('config_categories')->select('types,children')->where(array('id' => $id))->queryRow();
+        $table = $cate['types'] . '_content as A';
+        $order = 'dex desc, top desc, hot desc , rec desc';
+        $columns = 'id,title,href,etime';
 
-        $table = $cate['types'] . '_content';
+        switch ($id) {
+            // 办事服务
+            case '5005' :
+                $table = 'config_categories';
+                $condition = array();
+                $condition['not'] = 5005;
+                $limit = 16;
+                $order = 'od desc,id asc';
+                $columns = 'id,displayname,name,href';
+                break;
+            case '5482' :
+            case '5484' :
+                $condition = array();
+                $condition['categories'] = explode(',', trim($cate['children'], ','));
+                $order = 'A.dex DESC,A.top DESC,A.hot DESC,A.rec DESC,A.etime desc';
+                break;
+            default:
+                $condition['categories'] = $id;
+                break;
+        }
 
-        $result = Ar::c('db.dbmysql')->read()->select('id,title,href,etime')
 
-            ->where(array('categories' => $id, 'title !=' => ''))
+        $result = Ar::c('db.dbmysql')->read()->select($columns)
+
+            ->where($condition)
 
             ->table($table)
 
-            ->limit(8)
+            ->limit($limit)
             
-            ->order('dex desc, top desc, hot desc , rec desc')
+            ->order($order)
 
             ->queryAll();
 
@@ -111,6 +136,7 @@ class ApiController extends ArController {
                 'article' => 'article',
                 'banshi' => 'second',
             );
+
         $table = $tableMap[$type] . '_content';
         $result = Ar::c('db.dbmysql')->read()->select('')
 
@@ -119,6 +145,10 @@ class ApiController extends ArController {
             ->table($table)
 
             ->queryRow();
+
+        $result = Ar::c('format.format')->timeToDate($result, 'ctime');
+        $result = Ar::c('format.format')->replace(array('{:$system.img:}', '{:$system.upload:}'), array('http://www.scedu.net/front/', 'upfileload'), $result);
+
         $this->showJson($result);
 
     }
@@ -191,7 +221,7 @@ class ApiController extends ArController {
         $str = Ar::c('hash.mcrypt')->decrypt($str);
 
         $url = str_replace('http://www.scedu.net/', '', $str);
-        
+
         if (strpos($url, 'banshi') !== false)
             $tablePrefix = 'second';
         else
@@ -207,7 +237,95 @@ class ApiController extends ArController {
 
             ->queryRow();
 
+        $result = Ar::c('format.format')->timeToDate($result, 'ctime');
+        $result = Ar::c('format.format')->replace(array('{:$system.img:}', '{:$system.upload:}'), array('http://www.scedu.net/front/', 'upfileload'), $result);
+
         $this->showJson($result);
 
     }
+    // 热点信息分类
+    public function redianCatesAction()
+    {
+        $table = 'config_categories';
+        $condition = array();
+        $condition['not'] = 5005;
+        $limit = 16;
+        $order = 'od desc,id asc';
+        $columns = 'id,displayname,name,href,types';
+        $result = Ar::c('db.dbmysql')->read()->select($columns)
+
+            ->where($condition)
+
+            ->table($table)
+
+            ->limit($limit)
+            
+            ->order($order)
+
+            ->queryAll();
+
+        $result = Ar::c('format.format')->timeToDate($result, 'etime');
+
+        $this->showJson($result);
+
+    }
+
+    // 热点子分类
+    public function redianSubCatesByFidAction()
+    {
+        error_log(var_export($_GET, 1));
+        $fid = (int)$_GET['fid'];
+        $table = 'config_categories';
+        $condition = array();
+        $condition['not'] = $fid;
+        $limit = 16;
+        $order = 'od desc,id asc';
+        $columns = 'id,displayname,name,href,types';
+        $result = Ar::c('db.dbmysql')->read()->select($columns)
+
+            ->where($condition)
+
+            ->table($table)
+
+            ->limit($limit)
+            
+            ->order($order)
+
+            ->queryAll();
+
+        $result = Ar::c('format.format')->timeToDate($result, 'etime');
+
+        $this->showJson($result);
+
+    }
+
+    // 热点文章
+    public function redianArticlesAction()
+    {
+        $table = 'second_content As A';
+        $condition = array();
+        $condition['categories'] = $_GET['id'];
+        $condition['crontabitem'] = 0;
+        $limit = 16;
+        $order = 'A.`dex` desc,A.`top` desc,A.`hot` desc, A.`rec` desc,A.`etime` desc';
+        $columns = 'A.`href`,A.`title`,A.`etime`,A.`id`';
+        $result = Ar::c('db.dbmysql')->read()->select($columns)
+
+            ->where($condition)
+
+            ->table($table)
+
+            ->limit($limit)
+            
+            ->order($order)
+
+            ->queryAll();
+
+        $result = Ar::c('format.format')->timeToDate($result, 'etime');
+
+        $this->showJson($result);
+
+    }
+
+
 }

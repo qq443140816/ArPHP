@@ -4,17 +4,18 @@ class ArFormat extends ArComponent {
 
     public function timeToDate($obj, $key = '')
     {
-        if (is_array($obj)) :
-            if (empty($obj[$key])) :
-                foreach ($obj as &$time) :
-                    $time = $this->timeToDate($time, $key);
-                endforeach;
-            else :
+        if (Ar::c('validator.validator')->checkMutiArray($obj)) :
+            foreach ($obj as &$time) :
+                $time = $this->timeToDate($time, $key);
+            endforeach;
+        elseif (is_array($obj)) :
+            if (isset($obj[$key])) :
                 $obj[$key] = $this->timeToDate($obj[$key]);
             endif;
         else :
             $obj = date('Y-m-d', Ar::c('validator.validator')->checkNumber($obj) ? $obj : strtotime($obj));
         endif;
+
         return $obj;
 
     }
@@ -41,6 +42,60 @@ class ArFormat extends ArComponent {
         else :
             $obj = stripslashes($obj); 
         endif;
+        return $obj;
+
+    }
+
+    public function encrypt($obj, $key = '')
+    {
+        if (is_array($obj)) :
+            if (empty($obj[$key])) :
+                foreach ($obj as &$eObj) :
+                    $eObj = $this->encrypt($eObj, $key);
+                endforeach;
+            else :
+                $obj[$key] = $this->encrypt($obj[$key]);
+            endif;
+        else :
+            $obj = Ar::c('hash.mcrypt')->encrypt($obj);
+        endif;
+
+        return $obj;
+
+    }
+
+    public function urldecode($obj, $key = '')
+    {
+        if (is_array($obj)) :
+            if (empty($obj[$key])) :
+                foreach ($obj as &$eObj) :
+                    $eObj = $this->urldecode($eObj, $key);
+                endforeach;
+            else :
+                $obj[$key] = $this->urldecode($obj[$key]);
+            endif;
+        else :
+            $obj = urldecode($obj);
+        endif;
+        
+        return $obj;
+
+    }
+
+    public function urlencode($obj, $key = '')
+    {
+        if (is_array($obj)) :
+            if (empty($obj[$key])) :
+                foreach ($obj as &$eObj) :
+                    $eObj = $this->urlencode($eObj, $key);
+                endforeach;
+            else :
+                $obj[$key] = $this->urlencode($obj[$key]);
+            endif;
+        else :
+            $obj = urlencode($obj);
+        endif;
+
         return $obj;
 
     }
