@@ -38,23 +38,27 @@ class ArController {
             throw new ArException('view : ' . $viewFile . ' not found');
     }
 
-    public function showJson($data)
+    public function showJson($data, $showJson = true)
     {
-        header('charset:utf-8');
-        $retArr = array(
-                'ret_code' => '1000',
-                'ret_msg' => '',
-            );
-        if (is_array($data)) :
-            if (empty($data['retcode']) || empty($data['errormsg'])) :
-                $retArr['data'] = $data;
-                $retArr['total_lines'] = Ar::c('validator.validator')->checkMutiArray($data) ? (string)count($data) : 1;
-            else :
-                $retArr = array_merge($retArr, $data);
+        if ($showJson) :
+            header('charset:utf-8');
+            header('Content-type:text/plain');
+            $retArr = array(
+                    'ret_code' => '1000',
+                    'ret_msg' => '',
+                );
+            if (is_array($data)) :
+                if (empty($data['retcode']) || empty($data['errormsg'])) :
+                    $retArr['data'] = $data;
+                    $retArr['total_lines'] = Ar::c('validator.validator')->checkMutiArray($data) ? (string)count($data) : 1;
+                else :
+                    $retArr = array_merge($retArr, $data);
+                endif;
             endif;
+            echo json_encode($retArr);
+        else :
+            return $data;
         endif;
-
-        echo urldecode(json_encode($retArr));
 
     }
 

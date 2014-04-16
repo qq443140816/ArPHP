@@ -89,7 +89,7 @@ class Ar {
             COMP_PATH . 'Validator' . DS,
             COMP_PATH . 'Hash' . DS,
             APP_CONTROLLER_PATH,
-            APP_PATH . 'Model',
+            APP_PATH . 'Model' . DS,
         );
         foreach ($autoLoadPaths as $path) :
             $classFile = $path . $class . '.class.php';

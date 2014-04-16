@@ -12,7 +12,7 @@ use \Core\Ar;
 /**
  * Default Controller of webapp.
  */
-class Model extends \Core\ArModel {
+class MyModel extends \Core\ArModel {
 
     public function index() {
         echo 'model';
@@ -34,6 +34,20 @@ class Model extends \Core\ArModel {
         endif;
 
         return $data;
+
+    }
+
+    /**
+     * user result.
+     *
+     * @return array
+     */
+    public function doUserResultForPhone($result)
+    {
+        foreach ($result as &$val) :
+            $val['title'] = $val['title'] . '-' . $val['content'];
+        endforeach;
+        return $result;
 
     }
 

@@ -101,5 +101,5 @@ class ArFormat extends \Components\ArComponent {
         return $obj;
 
     }
-    
+
 }

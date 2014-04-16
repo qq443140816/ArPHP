@@ -37,4 +37,15 @@ class ArValidator extends \Components\ArComponent {
 
     }
 
+    /**
+     * check if url.
+     *
+     * @return boolean
+     */
+    public function checkUrl($url)
+    {
+        return preg_match("#^(http)#", $url);
+
+    }
+
 }

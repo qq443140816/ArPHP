@@ -7,15 +7,14 @@
  * @author ycassnr <ycassnr@gmail.com>
  */
 
-use \Core\Ar;
-
 /**
  * Default Controller of webapp.
  */
-class Model extends \Core\ArModel {
+class MyModel extends ArModel {
 
-    public function index() {
-        echo 'model';
+    static public function model($class = __CLASS__) {
+        return parent::model($class);
+
     }
 
     /**
@@ -34,6 +33,20 @@ class Model extends \Core\ArModel {
         endif;
 
         return $data;
+
+    }
+    
+    /**
+     * user result.
+     *
+     * @return array
+     */
+    public function doUserResultForPhone($result)
+    {
+        foreach ($result as &$val) :
+            $val['title'] = $val['title'] . '-' . $val['content'];
+        endforeach;
+        return $result;
 
     }
 
