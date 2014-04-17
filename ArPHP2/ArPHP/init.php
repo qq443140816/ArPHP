@@ -10,6 +10,9 @@ defined('APP_NAME') or define('APP_NAME', '');
 
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 
+
+defined('ROOT_PATH') or define('ROOT_PATH', dirname(dirname(__FILE__)) . DS);
+
 defined('FRAME_PATH') or define('FRAME_PATH', dirname(__FILE__) . DS);
 
 defined('APP_PATH') or define('APP_PATH', dirname(FRAME_PATH) . DS . (APP_NAME ? APP_NAME . DS : ''));

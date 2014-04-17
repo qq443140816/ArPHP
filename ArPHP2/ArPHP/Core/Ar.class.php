@@ -22,7 +22,8 @@ class Ar {
     {
         self::$_config = array_merge(
                 Ar::import(CONFIG_PATH . 'default.config.php'),
-                Ar::import(APP_CONFIG_PATH . 'app.config.php')
+                Ar::import(ROOT_PATH . 'public.config.php', true),
+                Ar::import(APP_CONFIG_PATH . 'app.config.php', true)
             );
         ArApp::run();
 
@@ -34,12 +35,23 @@ class Ar {
 
     }
 
-    static public function getConfig($ckey = '')
+    static public function getConfig($ckey = '', $rt = array())
     {
-        if (empty($ckey))
+        if (empty($ckey)) :
             return self::$_config;
-        else
-            return self::$_config[$ckey];
+        else :
+            if (isset(self::$_config[$ckey]))
+                return self::$_config[$ckey];
+            else 
+                return $rt;
+        endif;
+
+    }
+
+    static public function setConfig($ckey = '', $value = array())
+    {
+        if (!empty($ckey))
+            self::$_config[$ckey] = $value;
 
     }
 
@@ -82,7 +94,7 @@ class Ar {
     {
         if (strpos($class, '\\') === false) :
             preg_match("#[A-Z]{1}[a-z0-9]+$#", $class, $match);
-            $classFile = APP_PATH . $match[0] . DS . $class . '.class.php';
+            $classFile = ROOT_PATH . Ar::getConfig('requestRoute')['m'] . DS . $match[0] . DS . $class . '.class.php';
         else :
             $classFile = FRAME_PATH . str_replace('\\', DS, $class) . '.class.php';
         endif;
@@ -106,23 +118,21 @@ class Ar {
 
     }
 
-    static public function setConfig(array $config)
-    {
-        self::$_config = $config;
-
-    }
-
-    static public function import($path)
+    static public function import($path, $allowTry = false)
     {
         if (strpos($path, DS) === false)
-            $fileName = str_replace(array('c.', 'ext.', 'app.', '.'), array('Controller.', 'Extensions.', rtrim(APP_PATH, '/') . '.', DS), $path) . '.class.php';
+            $fileName = str_replace(array('c.', 'ext.', 'app.', '.'), array('Controller.', 'Extensions.', rtrim(ROOT_PATH, DS) . '.', DS), $path) . '.class.php';
         else
             $fileName = $path;
 
-        if (is_file($fileName))
+        if (is_file($fileName)) :
             return require_once $fileName;
-        else
-            throw new ArException('import not found file :' . $fileName);
+        else :
+            if ($allowTry)
+                return array();
+            else
+                throw new ArException('import not found file :' . $fileName);
+        endif;
 
     }
     

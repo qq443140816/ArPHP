@@ -1,6 +1,8 @@
 <?php
 namespace Components\Url;
 
+use \Core\Ar;
+
 class ArRoute extends \Components\ArComponent {
     static public $config = array();
     
@@ -21,15 +23,22 @@ class ArRoute extends \Components\ArComponent {
 
         $requestUrl = trim($requestUrl, '/');
         $pathArr = explode('/', $requestUrl);
+        $temp = array_shift($pathArr);
 
-        $c = array_shift($pathArr);
+        $m = in_array($temp, Ar::getConfig('moduleLists', array())) ? $temp : APP_NAME;
+
+        $c = in_array($temp, Ar::getConfig('moduleLists', array())) ? array_shift($pathArr) : $temp;
+
         $a = array_shift($pathArr);
 
         while ($gkey = array_shift($pathArr)) :
             $_GET[$gkey] = array_shift($pathArr);
         endwhile;
 
-        return array('c' => $c, 'a' => $a);
+        $requestRoute = array('m' => $m, 'c' => $c, 'a' => $a);
+
+        Ar::setConfig('requestRoute', $requestRoute);
+        return $requestRoute;
 
     }
 

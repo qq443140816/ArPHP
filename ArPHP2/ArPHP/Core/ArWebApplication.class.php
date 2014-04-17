@@ -32,7 +32,7 @@ class ArWebApplication extends ArApplication {
 
     public function runController($route)
     {
-        $path = 'app.c.';
+        $path = 'app.'. $route['m'] .'.c.';
 
         if (empty($route['c'])) :
             $path .= $c = 'Index';

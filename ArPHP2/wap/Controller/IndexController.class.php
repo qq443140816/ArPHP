@@ -21,8 +21,9 @@ class IndexController extends \Core\ArController {
      */
     public function testAction()
     {
-       echo 12; 
-        myModel::model()->hh();
+       echo 'wap c'; 
+
+       myModel::model()->hh();
 
     }
 

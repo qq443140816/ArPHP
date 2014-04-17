@@ -53,8 +53,8 @@ class MyModel extends \Core\ArModel {
 
     public function hh()
     {
-        echo 'index hh';
-        
+        echo 'wap hh';
+
     }
 
 }

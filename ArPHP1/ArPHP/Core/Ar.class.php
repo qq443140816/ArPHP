@@ -20,7 +20,8 @@ class Ar {
     {
         self::$_config = array_merge(
                 Ar::import(CONFIG_PATH . 'default.config.php'),
-                Ar::import(APP_CONFIG_PATH . 'app.config.php')
+                Ar::import(ROOT_PATH . 'public.config.php', true),
+                Ar::import(APP_CONFIG_PATH . 'app.config.php', true)
             );
         ArApp::run();
 
@@ -117,22 +118,29 @@ class Ar {
 
     }
 
-    static public function setConfig(array $config)
+    static public function setConfig($ckey = '', $value = array())
     {
-        self::$_config = $config;
+        if (!empty($ckey))
+            self::$_config[$ckey] = $value;
 
     }
 
-    static public function import($path)
+
+    static public function import($path, $allowTry = false)
     {
         if (strpos($path, DS) === false)
-            $fileName = str_replace(array('c.', 'ext.', 'app.', '.'), array('Controller.', 'Extensions.', rtrim(APP_PATH, '/') . '.', DS), $path) . '.class.php';
+            $fileName = str_replace(array('c.', 'ext.', 'app.', '.'), array('Controller.', 'Extensions.', rtrim(ROOT_PATH, DS) . '.', DS), $path) . '.class.php';
         else
             $fileName = $path;
-        if (is_file($fileName))
+
+        if (is_file($fileName)) :
             return require_once $fileName;
-        else
-            throw new ArException('import not found file :' . $fileName);
+        else :
+            if ($allowTry)
+                return array();
+            else
+                throw new ArException('import not found file :' . $fileName);
+        endif;
 
     }
     
