@@ -25,9 +25,9 @@ defined('APP_CONFIG_PATH') or define('APP_CONFIG_PATH', APP_PATH . 'Conf' . DS);
 
 defined('APP_CONTROLLER_PATH') or define('APP_CONTROLLER_PATH', APP_PATH . 'Controller' . DS);
 
-defined('EXT_PATH') or define('EXT_PATH', FRAME_PATH . DS . 'Extensions' . DS);
+defined('EXT_PATH') or define('EXT_PATH', FRAME_PATH . 'Extensions' . DS);
 
-defined('COMP_PATH') or define('COMP_PATH', FRAME_PATH . DS . 'Components' . DS);
+defined('COMP_PATH') or define('COMP_PATH', FRAME_PATH . 'Components' . DS);
 
 require_once (CORE_PATH . 'Ar.class.php');
 

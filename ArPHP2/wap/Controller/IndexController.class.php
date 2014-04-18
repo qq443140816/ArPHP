@@ -21,9 +21,10 @@ class IndexController extends \Core\ArController {
      */
     public function testAction()
     {
-       echo 'wap c'; 
-
-       myModel::model()->hh();
+     $apiR = Ar::c('rpc.json')->callApi('categories');
+        
+        var_dump($apiR);
+        exit;
 
     }
 

@@ -5,6 +5,6 @@
  * @author ycassnr <ycassnr@gmail.com>
  */
 return array(
-        'components' => array(
-            ),
+        // 'components' => array(
+            // ),
     );

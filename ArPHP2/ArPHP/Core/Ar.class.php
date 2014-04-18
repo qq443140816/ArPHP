@@ -22,8 +22,7 @@ class Ar {
     {
         self::$_config = array_merge(
                 Ar::import(CONFIG_PATH . 'default.config.php'),
-                Ar::import(ROOT_PATH . 'public.config.php', true),
-                Ar::import(APP_CONFIG_PATH . 'app.config.php', true)
+                Ar::import(ROOT_PATH . 'CONF' . DS . 'public.config.php', true)
             );
         ArApp::run();
 
@@ -52,6 +51,8 @@ class Ar {
     {
         if (!empty($ckey))
             self::$_config[$ckey] = $value;
+        else
+            self::$_config = $value;
 
     }
 
@@ -63,8 +64,21 @@ class Ar {
 
     static public function c($cname)
     {
-        if (!isset(self::$_c[$cname]))
-            self::setC($cname);
+        if (!isset(self::$_c[$cname])) :
+            $cKey = strtolower($cname);
+
+            $confC = self::getConfig('components');
+
+            $cArr = explode('.', $cKey);
+
+            $conf = self::getConfig(strtolower($cArr[0]));
+            if (!empty($confC[$cArr[0]]) && !empty($confC[$cArr[0]]['config']))
+                $config = $confC[$cArr[0]]['config'];
+            else
+                $config = array();
+            self::setC($cname, $config);
+        endif;
+
         return self::$_c[$cname];
 
     }
@@ -104,17 +118,20 @@ class Ar {
         else
             throw new ArException('class : ' . $classFile . ' does not exist !');
 
-    }
+        $m = self::getConfig('requestRoute');
 
-    static public function exceptionHandler($e)
-    {
-        echo get_class($e) . ' : ' . $e->getMessage();
+        if (!empty($m['m'])) :
 
-    }
+            $appMoudle = ROOT_PATH . $m['m'] . DS;
 
-    static public function errorHandler($errno, $errstr)
-    {
-        echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
+            $appConfigFile = $appMoudle . 'Conf' . DS . 'app.config.php';
+
+            $appConfig = self::import($appConfigFile, true);
+
+            if (is_array($appConfig)) :
+                self::setConfig('', array_merge(self::getConfig(), $appConfig));
+            endif;
+        endif;
 
     }
 
@@ -135,5 +152,18 @@ class Ar {
         endif;
 
     }
+
+    static public function exceptionHandler($e)
+    {
+        echo get_class($e) . ' : ' . $e->getMessage();
+
+    }
+
+    static public function errorHandler($errno, $errstr)
+    {
+        echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
+
+    }
+
     
 }

@@ -20,8 +20,7 @@ class Ar {
     {
         self::$_config = array_merge(
                 Ar::import(CONFIG_PATH . 'default.config.php'),
-                Ar::import(ROOT_PATH . 'public.config.php', true),
-                Ar::import(APP_CONFIG_PATH . 'app.config.php', true)
+                Ar::import(ROOT_PATH . 'Conf' . DS . 'public.config.php', true)
             );
         ArApp::run();
 
@@ -33,12 +32,25 @@ class Ar {
 
     }
 
-    static public function getConfig($ckey = '')
+    static public function getConfig($ckey = '', $rt = array())
     {
-        if (empty($ckey))
+        if (empty($ckey)) :
             return self::$_config;
+        else :
+            if (isset(self::$_config[$ckey]))
+                return self::$_config[$ckey];
+            else 
+                return $rt;
+        endif;
+
+    }
+
+    static public function setConfig($ckey = '', $value = array())
+    {
+        if (!empty($ckey))
+            self::$_config[$ckey] = $value;
         else
-            return self::$_config[$ckey];
+            self::$_config = $value;
 
     }
 
@@ -50,8 +62,23 @@ class Ar {
 
     static public function c($cname)
     {
-        if (!isset(self::$_c[$cname]))
-            self::setC($cname);
+        if (!isset(self::$_c[$cname])) :
+
+            $cKey = strtolower($cname);
+
+            $confC = self::getConfig('components');
+
+            $cArr = explode('.', $cKey);
+
+            $conf = self::getConfig(strtolower($cArr[0]));
+
+            if (!empty($confC[$cArr[0]]) && !empty($confC[$cArr[0]]['config']))
+                $config = $confC[$cArr[0]]['config'];
+            else
+                $config = array();
+            self::setC($cname, $config);
+        endif;
+
         return self::$_c[$cname];
 
     }
@@ -60,7 +87,11 @@ class Ar {
     {
         $cKey = strtolower($component);
 
+        if (isset(self::$_c[$cKey]))
+            return false;
+
         $cArr = explode('.', $component);
+        
 
         array_unshift($cArr, 'components');
 
@@ -72,8 +103,7 @@ class Ar {
 
         $classFile = implode($cArr, '\\');
 
-        if (!isset(self::$_c[$cKey]))
-            self::$_c[$cKey] = call_user_func_array("$className::init", array($config, $className));
+        self::$_c[$cKey] = call_user_func_array("$className::init", array($config, $className));
 
     }
     
@@ -89,9 +119,29 @@ class Ar {
             COMP_PATH . 'Format' . DS,
             COMP_PATH . 'Validator' . DS,
             COMP_PATH . 'Hash' . DS,
-            APP_CONTROLLER_PATH,
-            APP_PATH . 'Model' . DS,
+            COMP_PATH . 'Rpc' . DS,
         );
+
+        $m = self::getConfig('requestRoute');
+
+        if (!empty($m['m'])) :
+
+            $appMoudle = ROOT_PATH . $m['m'] . DS;
+            array_push($autoLoadPaths, $appMoudle);
+
+            $appConfigFile = $appMoudle . 'Conf' . DS . 'app.config.php';
+            $appConfig = self::import($appConfigFile, true);
+
+            if (is_array($appConfig))
+                self::setConfig('', array_merge(self::getConfig(), $appConfig));
+
+            if (preg_match("#[A-Z]{1}[a-z0-9]+$#", $class, $match)) :
+                $appEnginePath = $appMoudle . $match[0] . DS;
+                array_push($autoLoadPaths, $appEnginePath);
+            endif;
+
+        endif;
+
         foreach ($autoLoadPaths as $path) :
             $classFile = $path . $class . '.class.php';
             if (is_file($classFile)) :
@@ -106,6 +156,29 @@ class Ar {
 
     }
 
+    static public function import($path, $allowTry = false)
+    {
+        if (strpos($path, DS) === false)
+            $fileName = str_replace(array('c.', 'ext.', 'app.', '.'), array('Controller.', 'Extensions.', rtrim(ROOT_PATH, DS) . '.', DS), $path) . '.class.php';
+        else
+            $fileName = $path;
+
+        if (is_file($fileName)) :
+            $file = require_once($fileName);
+            if ($file === true) :
+                return array();
+            else :
+                return $file;
+            endif;
+        else :
+            if ($allowTry)
+                return array();
+            else
+                throw new ArException('import not found file :' . $fileName);
+        endif;
+
+    }
+
     static public function exceptionHandler($e)
     {
         echo get_class($e) . ' : ' . $e->getMessage();
@@ -115,32 +188,6 @@ class Ar {
     static public function errorHandler($errno, $errstr)
     {
         echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
-
-    }
-
-    static public function setConfig($ckey = '', $value = array())
-    {
-        if (!empty($ckey))
-            self::$_config[$ckey] = $value;
-
-    }
-
-
-    static public function import($path, $allowTry = false)
-    {
-        if (strpos($path, DS) === false)
-            $fileName = str_replace(array('c.', 'ext.', 'app.', '.'), array('Controller.', 'Extensions.', rtrim(ROOT_PATH, DS) . '.', DS), $path) . '.class.php';
-        else
-            $fileName = $path;
-
-        if (is_file($fileName)) :
-            return require_once $fileName;
-        else :
-            if ($allowTry)
-                return array();
-            else
-                throw new ArException('import not found file :' . $fileName);
-        endif;
 
     }
     

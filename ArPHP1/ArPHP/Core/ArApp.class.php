@@ -23,8 +23,12 @@ class ArApp {
     static private function initComponents(array $config)
     {
         foreach ($config as $driver => $component) :
+
+            if (!empty($component['lazy']) && $component['lazy'] == true)
+                continue;
             $configC = !empty($component['config']) ? $component['config'] : array();
             Ar::setC($driver . '.' . $component['class'], $configC);
+
         endforeach;
 
     }

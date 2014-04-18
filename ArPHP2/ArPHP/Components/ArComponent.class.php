@@ -12,7 +12,7 @@ namespace Components;
  */
 class ArComponent {
 
-    static protected $config = array();
+    static public $config = array();
 
     static public function init($config = array())
     {
