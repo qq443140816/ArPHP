@@ -137,7 +137,10 @@ class Ar {
 
             if (preg_match("#[A-Z]{1}[a-z0-9]+$#", $class, $match)) :
                 $appEnginePath = $appMoudle . $match[0] . DS;
-                array_push($autoLoadPaths, $appEnginePath);
+
+                $extPath = $appMoudle . 'Ext' . DS;
+
+                array_push($autoLoadPaths, $appEnginePath, $extPath);
             endif;
 
         endif;

@@ -11,7 +11,7 @@
  * Default Controller of webapp.
  */
 class ApiController extends ArController {
-        /**
+    /**
      * just the example of get contents.
      *
      * @return void
@@ -66,7 +66,8 @@ class ApiController extends ArController {
             endif;
         endif;
 
-        $limit = 8;
+        $limit = !empty($_GET['pageRow']) ? (int)$_GET['pageRow'] : 8;
+
         $condition = array('title !=' => '');
         $cate = Ar::c('db.dbmysql')->read()->table('config_categories')->select('not,types,children')->where(array('id' => $id))->queryRow();
         $table = $cate['types'] . '_content as A';
@@ -126,6 +127,12 @@ class ApiController extends ArController {
                 }
         endif;
 
+        $total = Ar::c('db.dbmysql')->where($condition)->table($table)->count();
+        // 导入外部类
+        $page = new Page($total, $limit);
+
+        $limit = $page->limit();
+
         $result = Ar::c('db.dbmysql')->read()->select($columns)
 
             ->where($condition)
@@ -138,6 +145,10 @@ class ApiController extends ArController {
 
             ->queryAll();
 
+        $pageInfo = array();
+
+        $pageInfo['page'] = $page->pageInfo();
+
         $result = Ar::c('format.format')->timeToDate($result, 'etime');
         $result = Ar::c('format.format')->timeToDate($result, 'ctime');
         $result = MyModel::model()->addClumns($result, 'isCateGory', $isCateGory);
@@ -148,7 +159,10 @@ class ApiController extends ArController {
         if ($id == 6000)
             $result = MyModel::model()->doUserResultForPhone($result);
 
-        return $this->showJson($result, $showJson);
+        if ($pageInfo['page']['nowPage'] > $pageInfo['page']['totalPages'])
+            $result = array();
+
+        return $this->showJson($result, $showJson, $pageInfo);
 
     }
     
@@ -336,9 +350,16 @@ class ApiController extends ArController {
         $table = 'config_categories';
         $condition = array();
         $condition['not'] = 5005;
-        $limit = 16;
+        // $limit = 16;
+        $limit = !empty($_GET['pageRow']) ? (int)$_GET['pageRow'] : 16;
+
         $order = 'od desc,id asc';
         $columns = 'id,displayname,name,href,types';
+
+        $total = Ar::c('db.dbmysql')->where($condition)->table($table)->count();
+        // 导入外部类
+        $page = new Page($total, $limit);
+        $limit = $page->limit();
         $result = Ar::c('db.dbmysql')->read()->select($columns)
 
             ->where($condition)
@@ -360,14 +381,19 @@ class ApiController extends ArController {
     // 热点子分类
     public function redianSubCatesByFidAction()
     {
-        error_log(var_export($_GET, 1));
         $fid = (int)$_GET['fid'];
         $table = 'config_categories';
         $condition = array();
         $condition['not'] = $fid;
-        $limit = 16;
+        $limit = !empty($_GET['pageRow']) ? (int)$_GET['pageRow'] : 16;
         $order = 'od desc,id asc';
         $columns = 'id,displayname,name,href,types';
+
+        $total = Ar::c('db.dbmysql')->where($condition)->table($table)->count();
+        // 导入外部类
+        $page = new Page($total, $limit);
+        $limit = $page->limit();
+
         $result = Ar::c('db.dbmysql')->read()->select($columns)
 
             ->where($condition)
@@ -393,9 +419,16 @@ class ApiController extends ArController {
         $condition = array();
         $condition['categories'] = $_GET['id'];
         $condition['crontabitem'] = 0;
-        $limit = 16;
+
+        $limit = !empty($_GET['pageRow']) ? (int)$_GET['pageRow'] : 16;
         $order = 'A.`dex` desc,A.`top` desc,A.`hot` desc, A.`rec` desc,A.`etime` desc';
         $columns = 'A.`href`,A.`title`,A.`ctime`,A.`etime`,A.`id`';
+
+        $total = Ar::c('db.dbmysql')->where($condition)->table($table)->count();
+        // 导入外部类
+        $page = new Page($total, $limit);
+        $limit = $page->limit();
+
         $result = Ar::c('db.dbmysql')->read()->select($columns)
 
             ->where($condition)
@@ -408,10 +441,17 @@ class ApiController extends ArController {
 
             ->queryAll();
 
+        $pageInfo = array();
+
+        $pageInfo['page'] = $page->pageInfo();
+
         $result = Ar::c('format.format')->timeToDate($result, 'etime');
         $result = Ar::c('format.format')->timeToDate($result, 'ctime');
 
-        $this->showJson($result);
+        if ($pageInfo['page']['nowPage'] > $pageInfo['page']['totalPages'])
+            $result = array();
+
+        $this->showJson($result, true, $pageInfo);
 
     }
 

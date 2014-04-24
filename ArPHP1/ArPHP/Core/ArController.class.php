@@ -35,7 +35,7 @@ class ArController {
             throw new ArException('view : ' . $viewFile . ' not found');
     }
 
-    public function showJson($data, $showJson = true)
+    public function showJson($data, $showJson = true, $options = array())
     {
         if ($showJson) :
             header('charset:utf-8');
@@ -44,10 +44,15 @@ class ArController {
                     'ret_code' => '1000',
                     'ret_msg' => '',
                 );
+
+            if (empty($options))
+                $options = array();
+            
             if (is_array($data)) :
                 if (empty($data['retcode']) || empty($data['errormsg'])) :
                     $retArr['data'] = $data;
                     $retArr['total_lines'] = Ar::c('validator.validator')->checkMutiArray($data) ? (string)count($data) : 1;
+                    $retArr = array_merge($retArr, $options);
                 else :
                     $retArr = array_merge($retArr, $data);
                 endif;

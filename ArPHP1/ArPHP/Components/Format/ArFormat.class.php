@@ -1,6 +1,5 @@
 <?php
 class ArFormat extends ArComponent {
-    static public $config = array();
 
     public function timeToDate($obj, $key = '')
     {

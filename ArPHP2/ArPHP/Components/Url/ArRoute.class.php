@@ -4,7 +4,6 @@ namespace Components\Url;
 use \Core\Ar;
 
 class ArRoute extends \Components\ArComponent {
-    static public $config = array();
     
     public function parse()
     {

@@ -25,4 +25,10 @@ class IndexController extends ArController {
 
     }
 
+    public function pageAction()
+    {
+        $obj = new Page;
+        $obj->index();
+    }
+
 }

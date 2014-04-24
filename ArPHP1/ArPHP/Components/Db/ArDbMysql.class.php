@@ -62,6 +62,17 @@ class ArDbMysql extends ArDb
 
     }
 
+    public function count()
+    {
+        $result = $this->select(array('COUNT(\'*\') as t'))->queryRow();
+        if (empty($result))
+            $total = 0;
+        else
+            $total = (int)$result['t'];
+        return $total;
+
+    }
+
     public function queryRow()
     {
         $this->limit(1);
@@ -126,7 +137,7 @@ class ArDbMysql extends ArDb
     public function select($fields = '')
     {
         if(is_string($fields) && strpos($fields, ',')) {
-            $fields    = explode(',', $fields);
+            $fields = explode(',', $fields);
         }
         if(is_array($fields)) {
             $array   =  array();
@@ -216,6 +227,9 @@ class ArDbMysql extends ArDb
                         $v_1[$k_2] = '`'.trim($v_2).'`';
                     }
                     $v[$k_1] = implode('.', $v_1);
+                }
+                elseif (preg_match('#\(.+\)#', $v_1)) {
+                    $v[$k_1] = $v_1;
                 }
                 else
                 {

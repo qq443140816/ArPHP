@@ -7,6 +7,20 @@
                             'config' => array(
                                 'read' => array(
                                     'default' => array(
+                                            // 'dsn' => 'mysql:host=10.10.1.21;dbname=scedu;port=3306',
+
+                                            // 'user' => 'root',
+
+                                            // 'pass' => 'abcd~!@#$%^&*()_+',
+
+                                            // 'prefix' => 'jieqi_', 
+
+                                            // 'option' => array(
+                                            //         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                                            //         PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+                                            //         PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\'',
+                                            //     ),
+
                                             'dsn' => 'mysql:host=localhost;dbname=scedu;port=3306',
 
                                             'user' => 'root',
@@ -16,7 +30,9 @@
                                             'prefix' => 'jieqi_', 
 
                                             'option' => array(
-                                                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                                                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                                                    PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+                                                    PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\'',
                                                 ),
                                         ),
                                 ),
