@@ -22,6 +22,9 @@ class Ar {
                 Ar::import(CONFIG_PATH . 'default.config.php'),
                 Ar::import(ROOT_PATH . 'Conf' . DS . 'public.config.php', true)
             );
+
+        Ar::import(CORE_PATH . 'alias.func.php');
+
         ArApp::run();
 
     }
@@ -35,13 +38,24 @@ class Ar {
     static public function getConfig($ckey = '', $rt = array())
     {
         if (empty($ckey)) :
-            return self::$_config;
+            $rt = self::$_config;
         else :
-            if (isset(self::$_config[$ckey]))
-                return self::$_config[$ckey];
-            else 
-                return $rt;
+            if (strpos($ckey, '.') === false) :
+                if (isset(self::$_config[$ckey])) :
+                    $rt = self::$_config[$ckey];
+                endif;
+            else :
+                $cE = explode('.', $ckey);
+                $rt = self::$_config;
+
+                while ($k = array_shift($cE)) :
+                    $rt = $rt[$k];                   
+                endwhile;
+            endif;
+
         endif;
+
+        return $rt;
 
     }
 

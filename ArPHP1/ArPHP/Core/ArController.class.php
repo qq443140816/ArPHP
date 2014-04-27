@@ -18,8 +18,8 @@ class ArController {
     public function display($view = '')
     {
         $viewPath = APP_VIEW_PATH;
+        $r = Ar::a('ArWebApplication')->route;
         if (empty($view)) :
-            $r = Ar::a('ArWebApplication')->route;
             $viewPath .= $r['c'] . DS . $r['a'];
         elseif(strpos($view, '/') !== false) :
             $viewPath .= str_replace('/', DS, $view);

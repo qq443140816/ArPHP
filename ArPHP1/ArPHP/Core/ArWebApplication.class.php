@@ -42,7 +42,7 @@ class ArWebApplication extends ArApplication {
         $class = $c . 'Controller';
         $this->_c = new $class;
         $this->_c->init();
-        $action = ($a = empty($route['a']) ? 'Index' : $route['a']) . 'Action';
+        $action = ($a = empty($route['a']) ? 'index' : $route['a']) . 'Action';
 
         $this->route['a'] = $a;
 

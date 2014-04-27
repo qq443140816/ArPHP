@@ -13,11 +13,12 @@ defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 defined('FRAME_PATH') or define('FRAME_PATH', dirname(__FILE__) . DS);
 
 defined('ROOT_PATH') or define('ROOT_PATH', dirname(dirname(__FILE__)) . DS);
+
 defined('APP_PATH') or define('APP_PATH', dirname(FRAME_PATH) . DS . (APP_NAME ? APP_NAME . DS : ''));
 
 defined('APP_VIEW_PATH') or define('APP_VIEW_PATH', APP_PATH . 'View' . DS);
 
-defined('CORE_PATH') or define('CORE_PATH', FRAME_PATH . DS . 'Core' . DS);
+defined('CORE_PATH') or define('CORE_PATH', FRAME_PATH . 'Core' . DS);
 
 defined('CONFIG_PATH') or define('CONFIG_PATH', FRAME_PATH . 'Conf' . DS);
 
@@ -28,6 +29,8 @@ defined('APP_CONTROLLER_PATH') or define('APP_CONTROLLER_PATH', APP_PATH . 'Cont
 defined('EXT_PATH') or define('EXT_PATH', FRAME_PATH . 'Extensions' . DS);
 
 defined('COMP_PATH') or define('COMP_PATH', FRAME_PATH . 'Components' . DS);
+
+defined('SERVER_PATH') or define('SERVER_PATH', ($dir = dirname($_SERVER['PHP_SELF'])) == DS ? '/' : str_replace(DS, '/', $dir) . '/');
 
 require_once (CORE_PATH . 'Ar.class.php');
 
