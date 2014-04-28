@@ -23,8 +23,6 @@ class ArWebApplication extends ArApplication {
     public function processRequest()
     {
         $routeArr = Ar::c('url.route')->parse();
-        // var_dump($routeArr);
-        // exit;
 
         $this->runController($routeArr);
 

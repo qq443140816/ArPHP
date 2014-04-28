@@ -30,7 +30,7 @@ defined('EXT_PATH') or define('EXT_PATH', FRAME_PATH . 'Extensions' . DS);
 
 defined('COMP_PATH') or define('COMP_PATH', FRAME_PATH . 'Components' . DS);
 
-defined('SERVER_PATH') or define('SERVER_PATH', ($dir = dirname($_SERVER['PHP_SELF'])) == DS ? '/' : str_replace(DS, '/', $dir) . '/');
+defined('SERVER_PATH') or define('SERVER_PATH', ($dir = dirname($_SERVER['SCRIPT_NAME'])) == DS ? '/' : str_replace(DS, '/', $dir) . '/');
 
 require_once (CORE_PATH . 'Ar.class.php');
 

@@ -31,11 +31,14 @@ class ArRoute extends ArComponent {
             $_GET[$gkey] = array_shift($pathArr);
         endwhile;
 
-        $requestRoute = array('m' => $m, 'c' => $c, 'a' => $a);
+        $requestRoute = array('m' => $m, 'c' => empty($c) ? 'Index' : $c, 'a' => empty($a) ? 'index' : $a);
 
         Ar::setConfig('requestRoute', $requestRoute);
+
         return $requestRoute;
 
     }
+
+    
 
 }

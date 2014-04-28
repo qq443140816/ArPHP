@@ -35,6 +35,8 @@ class ArController {
             throw new ArException('view : ' . $viewFile . ' not found');
     }
 
+   
+
     public function showJson($data, $showJson = true, $options = array())
     {
         if ($showJson) :

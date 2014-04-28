@@ -16,3 +16,9 @@ function arCfg($name = '')
     return Ar::getConfig($name);
 
 }
+
+function arU($name = '', $params = array())
+{
+    return Ar::createUrl($name, $params = array());
+
+}

@@ -196,6 +196,30 @@ class Ar {
 
     }
 
+    static public function createUrl($url = '', $params = array())
+    {
+        $prefix = rtrim(SERVER_PATH . (arCfg('requestRoute.m') == APP_NAME ? '' : arCfg('requestRoute.m')), '/');
+
+        $url = ltrim($url, '/');
+
+        if (empty($url)) :
+            $url = $prefix;
+
+            $url .= '/' . arCfg('requestRoute.c') . '/' . arCfg('requestRoute.a');
+
+        else :
+            if (strpos($url, '/') === false) :
+                $url = $prefix . '/' . arCfg('requestRoute.c') . '/' . $url;             
+            else :
+                $url = $prefix . '/' . $url;
+            endif;
+
+        endif;
+
+        return $url;
+
+    }
+
     static public function exceptionHandler($e)
     {
         echo get_class($e) . ' : ' . $e->getMessage();
