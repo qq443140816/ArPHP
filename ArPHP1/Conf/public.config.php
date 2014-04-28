@@ -48,11 +48,18 @@
                                     'remotePrefix' => 'http://localhost/test/api',
                                 ),
                         ),
+
+                    'cache' => array(
+                            'class' => 'Redis',
+                            'lazy' => true,
+                            'config' => array(
+                                    'read' => array('nn'),
+                                ),
+                        ),
                 ),
 
             'moduleLists' => array(
-                    'scedu',
-                    'wap'
+                    'test'
                 ),
 
         );

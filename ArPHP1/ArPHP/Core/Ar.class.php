@@ -134,6 +134,7 @@ class Ar {
             COMP_PATH . 'Validator' . DS,
             COMP_PATH . 'Hash' . DS,
             COMP_PATH . 'Rpc' . DS,
+            COMP_PATH . 'Cache' . DS,
         );
 
         $m = self::getConfig('requestRoute');
