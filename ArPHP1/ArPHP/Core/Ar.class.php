@@ -199,7 +199,7 @@ class Ar {
 
     static public function createUrl($url = '', $params = array())
     {
-        $prefix = rtrim(SERVER_PATH . (arCfg('requestRoute.m') == APP_NAME ? '' : arCfg('requestRoute.m')), '/');
+        $prefix = rtrim(SERVER_PATH . (arCfg('requestRoute.m') == DEFAULT_APP_NAME ? '' : arCfg('requestRoute.m')), '/');
 
         $url = ltrim($url, '/');
 
