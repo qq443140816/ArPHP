@@ -1,7 +1,11 @@
 <?php
 class ArRoute extends ArComponent {
-    
-       
+
+    /**
+     * url parse .
+     *
+     * import muti url format.
+     */    
     public function parse()
     {
         $requestUrl = $_SERVER['REQUEST_URI'];
@@ -11,8 +15,10 @@ class ArRoute extends ArComponent {
         if (strpos($requestUrl, $phpSelf) !== false)
             $requestUrl = str_replace($phpSelf, '', $requestUrl);
 
-        if (($pos = strpos($requestUrl, '?')) !== false)
+        if (($pos = strpos($requestUrl, '?')) !== false) :
+            $queryStr = substr($requestUrl, $pos + 1);
             $requestUrl = substr($requestUrl, 0, $pos);
+        endif;
 
         if (($root = dirname($phpSelf)) != '/')
             $requestUrl = preg_replace("#^$root#", '', $requestUrl);
@@ -31,8 +37,13 @@ class ArRoute extends ArComponent {
             $_GET[$gkey] = array_shift($pathArr);
         endwhile;
 
-        $requestRoute = array('m' => $m, 'c' => empty($c) ? 'Index' : $c, 'a' => empty($a) ? 'index' : $a);
+        if (!empty($queryStr)) :
+            parse_str($queryStr, $query);
+            $_GET = array_merge($_GET, $query);
+        endif;
 
+        $requestRoute = array('m' => $m, 'c' => empty($c) ? 'Index' : $c, 'a' => empty($a) ? 'index' : $a);
+        
         Ar::setConfig('requestRoute', $requestRoute);
 
         return $requestRoute;
