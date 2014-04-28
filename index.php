@@ -1,6 +1,6 @@
 <?php
 // phpinfo();
-define('APP_NAME', 'scedu');
+define('APP_NAME', 'test');
 $edition = 'ArPHP1';
 define('APP_PATH', dirname(__FILE__) . '/' . $edition . '/' . APP_NAME . '/');
 

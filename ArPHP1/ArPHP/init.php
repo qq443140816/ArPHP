@@ -6,7 +6,7 @@
  */
 define('START_TIME', microtime(true));
 
-defined('APP_NAME') or define('APP_NAME', '');
+defined('DEFAULT_APP_NAME') or define('DEFAULT_APP_NAME', '');
 
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 
@@ -14,7 +14,7 @@ defined('FRAME_PATH') or define('FRAME_PATH', dirname(__FILE__) . DS);
 
 defined('ROOT_PATH') or define('ROOT_PATH', dirname(dirname(__FILE__)) . DS);
 
-defined('APP_PATH') or define('APP_PATH', dirname(FRAME_PATH) . DS . (APP_NAME ? APP_NAME . DS : ''));
+defined('APP_PATH') or define('APP_PATH', dirname(FRAME_PATH) . DS . (DEFAULT_APP_NAME ? DEFAULT_APP_NAME . DS : ''));
 
 defined('APP_VIEW_PATH') or define('APP_VIEW_PATH', APP_PATH . 'View' . DS);
 

@@ -45,5 +45,36 @@ class ArValidator extends ArComponent {
         return preg_match("#^(http)#", $url);
 
     }
+
+    /**
+     * check key equal.
+     *
+     * @return boolean
+     */
+    public function checkArrayKeyEqual(array $arri, array $arro)
+    {
+        $lengthi = count($arri);
+        $lengtho = count($arro);
+
+        $rt = true;
+
+        if ($lengthi !== $lengtho) :
+
+            $rt = false;
+
+        else :
+            foreach ($arri as $ikey => $ivalue) :
+
+                if (!array_key_exists($ikey, $arro)) :
+                    $rt = false;
+                    break;
+                endif;
+
+            endforeach;
+        endif;
+
+        return $rt;
+
+    }
  
 }
