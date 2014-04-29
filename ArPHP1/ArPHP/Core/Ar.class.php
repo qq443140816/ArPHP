@@ -18,12 +18,15 @@ class Ar {
 
     static public function init()
     {
+        Ar::c('url.route')->parse();
+
+        Ar::import(CORE_PATH . 'alias.func.php');
+
         self::$_config = array_merge(
+                self::$_config,
                 Ar::import(CONFIG_PATH . 'default.config.php'),
                 Ar::import(ROOT_PATH . 'Conf' . DS . 'public.config.php', true)
             );
-
-        Ar::import(CORE_PATH . 'alias.func.php');
 
         ArApp::run();
 
