@@ -18,14 +18,15 @@ class Ar {
 
     static public function init()
     {
+        self::setConfig('', Ar::import(ROOT_PATH . 'Conf' . DS . 'public.config.php'));
+
         Ar::c('url.route')->parse();
 
         Ar::import(CORE_PATH . 'alias.func.php');
 
         self::$_config = array_merge(
                 self::$_config,
-                Ar::import(CONFIG_PATH . 'default.config.php'),
-                Ar::import(ROOT_PATH . 'Conf' . DS . 'public.config.php', true)
+                Ar::import(CONFIG_PATH . 'default.config.php', true)
             );
 
         ArApp::run();
@@ -52,7 +53,7 @@ class Ar {
                 $rt = self::$_config;
 
                 while ($k = array_shift($cE)) :
-                    $rt = $rt[$k];                   
+                    $rt = $rt[$k];
                 endwhile;
             endif;
 
@@ -108,7 +109,7 @@ class Ar {
             return false;
 
         $cArr = explode('.', $component);
-        
+
 
         array_unshift($cArr, 'components');
 
@@ -123,14 +124,14 @@ class Ar {
         self::$_c[$cKey] = call_user_func_array("$className::init", array($config, $className));
 
     }
-    
+
     static public function autoLoader($class)
     {
         $class = str_replace('\\', DS, $class);
         $autoLoadPaths = array(
-            CORE_PATH, 
-            FRAME_PATH, 
-            COMP_PATH, 
+            CORE_PATH,
+            FRAME_PATH,
+            COMP_PATH,
             COMP_PATH . 'Db' . DS,
             COMP_PATH . 'Url' . DS,
             COMP_PATH . 'Format' . DS,
@@ -213,12 +214,16 @@ class Ar {
 
         else :
             if (strpos($url, '/') === false) :
-                $url = $prefix . '/' . arCfg('requestRoute.c') . '/' . $url;             
+                $url = $prefix . '/' . arCfg('requestRoute.c') . '/' . $url;
             else :
                 $url = $prefix . '/' . $url;
             endif;
 
         endif;
+
+        foreach ($params as $pkey => $pvalue) :
+            $url .= '/' . $pkey . '/' . $pvalue;
+        endforeach;
 
         return $url;
 
@@ -235,5 +240,5 @@ class Ar {
         echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
 
     }
-    
+
 }
