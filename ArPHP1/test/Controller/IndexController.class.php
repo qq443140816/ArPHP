@@ -21,8 +21,14 @@ class IndexController extends ArController {
      */
     public function indexAction()
     {
+<<<<<<< HEAD
         $this->display();
         
+=======
+        $url = $_GET['url'];
+        arComp('rpc.proxy')->callApi($url);
+
+>>>>>>> assnr_h
     }
 
 }

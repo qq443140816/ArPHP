@@ -39,7 +39,7 @@ class ArFormat extends ArComponent {
                 $o = $this->stripslashes($o);
             endforeach;
         else :
-            $obj = stripslashes($obj); 
+            $obj = stripslashes($obj);
         endif;
         return $obj;
 
@@ -76,7 +76,7 @@ class ArFormat extends ArComponent {
         else :
             $obj = urldecode($obj);
         endif;
-        
+
         return $obj;
 
     }
@@ -98,5 +98,29 @@ class ArFormat extends ArComponent {
         return $obj;
 
     }
-    
+
+    /**
+     * add slashes for mixed params.
+     *
+     * @return array
+     */
+    function addslashes()
+    {
+        $args = func_get_args();
+        foreach ($args as $k => &$arg) :
+            if (is_array($arg) || is_object($arg)) :
+                foreach ($arg as $v => &$narg) :
+                    $narg = is_scalar($narg) ? addslashes($narg) : $this->addslashes($narg);
+                endforeach;
+            else :
+                $arg = addslashes($arg);
+            endif;
+        endforeach;
+
+        if (count($args) == 1)
+            $args = $args[0];
+        return $args;
+
+    }
+
 }

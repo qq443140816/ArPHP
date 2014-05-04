@@ -9,7 +9,7 @@ class ArValidator extends ArComponent {
     public function checkNumber($obj)
     {
         return is_numeric($obj);
-        
+
     }
 
     /**
@@ -19,7 +19,7 @@ class ArValidator extends ArComponent {
      */
     public function checkMutiArray($obj)
     {
-        $rt = true;        
+        $rt = true;
         if (is_array($obj)) :
             foreach ($obj as $arr) :
                 if (!is_array($arr)) :
@@ -76,5 +76,14 @@ class ArValidator extends ArComponent {
         return $rt;
 
     }
- 
+
+    public function checkAjax()
+    {
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+            return true;
+        else
+            return false;
+
+    }
+
 }
