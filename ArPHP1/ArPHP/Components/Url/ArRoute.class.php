@@ -5,7 +5,7 @@ class ArRoute extends ArComponent {
      * url parse .
      *
      * import muti url format.
-     */    
+     */
     public function parse()
     {
         $requestUrl = $_SERVER['REQUEST_URI'];
@@ -43,13 +43,11 @@ class ArRoute extends ArComponent {
         endif;
 
         $requestRoute = array('m' => $m, 'c' => empty($c) ? 'Index' : $c, 'a' => empty($a) ? 'index' : $a);
-        
+
         Ar::setConfig('requestRoute', $requestRoute);
 
         return $requestRoute;
 
     }
-
-    
 
 }

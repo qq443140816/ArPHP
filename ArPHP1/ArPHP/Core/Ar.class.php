@@ -18,6 +18,8 @@ class Ar {
 
     static public function init()
     {
+        Ar::c('url.skeleton')->generate(DEFAULT_APP_NAME);
+
         self::setConfig('', Ar::import(ROOT_PATH . 'Conf' . DS . 'public.config.php'));
 
         Ar::c('url.route')->parse();
