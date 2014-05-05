@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * ArPHP for PHP .
  *
@@ -16,7 +16,7 @@ abstract class ArApplication {
     {
         // maybe log;
         // echo microtime(true) - START_TIME;
-        
+
     }
 
     abstract public function start();

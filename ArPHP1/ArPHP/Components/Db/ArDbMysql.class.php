@@ -32,9 +32,9 @@ class ArDbMysql extends ArDb
     static public function init($config = array(), $class = __CLASS__)
     {
         self::$config = $config;
-        
+
         $defaultDbconfig = self::$config['read']['default'];
-        
+
         if (empty(self::$readConnections['default']))
             self::$readConnections['default'] = new self($defaultDbconfig);
 
@@ -53,7 +53,7 @@ class ArDbMysql extends ArDb
         if(in_array($sqlCmd, array('UPDATE', 'DELETE')) && stripos($sql, 'where') === false)
             throw new ArDbException('no WHERE condition in SQL(UPDATE, DELETE) to be executed! please make sure it\'s safe', 42005);
 
-        $this->lastSql = $sql; 
+        $this->lastSql = $sql;
         $this->_pdoStatement = $this->_pdo->query($sql);
         $i[] = $this->_pdoStatement;
         // if (count($i) == 2)
@@ -86,16 +86,21 @@ class ArDbMysql extends ArDb
 
     }
 
-    public function insert()
+    public function insert(array $data = array())
     {
+        if (!empty($data))
+            $this->data($data);
         $sql = $this->bulidInsertSql();
         $this->exec($sql);
         return $this->lastInsertId = $this->_pdo->lastInsertId();
 
     }
 
-    public function update()
+    public function update(array $data = array())
     {
+        if (!empty($data))
+            $this->columns($data);
+
         $sql = $this->bulidUpdateSql();
         return $this->exec($sql);
 
@@ -511,7 +516,7 @@ class ArDbMysql extends ArDb
         return $sql;
 
     }
-    
+
 
     public function __toString()
     {

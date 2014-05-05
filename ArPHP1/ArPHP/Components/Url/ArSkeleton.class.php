@@ -44,7 +44,7 @@ class ArSkeleton extends ArComponent {
     public function generateFiles()
     {
         $fileLists = array(
-                $this->basePath . 'Controller' . DS . 'IndexController.class.php' =>
+            $this->basePath . 'Controller' . DS . 'IndexController.class.php' =>
 '<?php
 /**
  * Powerd by ArPHP.
@@ -129,7 +129,8 @@ return array(
             );
 
         foreach($fileLists as $file => $content) :
-            file_put_contents($file, $content);
+            if (!$this->check($file))
+                file_put_contents($file, $content);
         endforeach;
 
 
