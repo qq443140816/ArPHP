@@ -30,14 +30,18 @@ class ArController {
         endif;
 
         $viewFile = $viewPath . '.php';
-
         if (is_file($viewFile))
-            Ar::import($viewFile);
+            include $viewFile;
         else
             throw new ArException('view : ' . $viewFile . ' not found');
     }
 
+    public function redirect($route = '', $param = array(), $show = '')
+    {
+        $url = Ar::createUrl($route, $param);
+        header('Location: ' . $url);
 
+    }
 
     public function showJson($data, array $options = array())
     {
@@ -73,6 +77,23 @@ class ArController {
         else :
             return $data;
         endif;
+
+    }
+
+    public function ifLogin()
+    {
+        return !!arComp('list.session')->get('uid');
+
+    }
+
+    public function logOut()
+    {
+        arComp('list.session')->set('uid', null);
+
+    }
+
+    public function auth()
+    {
 
     }
 

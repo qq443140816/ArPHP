@@ -16,8 +16,26 @@ class Ar {
 
     static private $_config = array();
 
+    static public $autoLoadPath;
+
     static public function init()
     {
+        session_start();
+
+        self::$autoLoadPath = array(
+            CORE_PATH,
+            FRAME_PATH,
+            COMP_PATH,
+            COMP_PATH . 'Db' . DS,
+            COMP_PATH . 'Url' . DS,
+            COMP_PATH . 'Format' . DS,
+            COMP_PATH . 'Validator' . DS,
+            COMP_PATH . 'Hash' . DS,
+            COMP_PATH . 'Rpc' . DS,
+            COMP_PATH . 'List' . DS,
+            COMP_PATH . 'Cache' . DS
+        );
+
         Ar::c('url.skeleton')->generate(DEFAULT_APP_NAME);
 
         self::setConfig('', Ar::import(ROOT_PATH . 'Conf' . DS . 'public.config.php'));
@@ -130,25 +148,12 @@ class Ar {
     static public function autoLoader($class)
     {
         $class = str_replace('\\', DS, $class);
-        $autoLoadPaths = array(
-            CORE_PATH,
-            FRAME_PATH,
-            COMP_PATH,
-            COMP_PATH . 'Db' . DS,
-            COMP_PATH . 'Url' . DS,
-            COMP_PATH . 'Format' . DS,
-            COMP_PATH . 'Validator' . DS,
-            COMP_PATH . 'Hash' . DS,
-            COMP_PATH . 'Rpc' . DS,
-            COMP_PATH . 'Cache' . DS,
-        );
 
         $m = self::getConfig('requestRoute');
 
         if (!empty($m['m'])) :
-
             $appMoudle = ROOT_PATH . $m['m'] . DS;
-            array_push($autoLoadPaths, $appMoudle);
+            array_push(self::$autoLoadPath, $appMoudle);
 
             $appConfigFile = $appMoudle . 'Conf' . DS . 'app.config.php';
             $appConfig = self::import($appConfigFile, true);
@@ -161,12 +166,12 @@ class Ar {
 
                 $extPath = $appMoudle . 'Ext' . DS;
 
-                array_push($autoLoadPaths, $appEnginePath, $extPath);
+                array_push(self::$autoLoadPath, $appEnginePath, $extPath);
             endif;
 
         endif;
 
-        foreach ($autoLoadPaths as $path) :
+        foreach (self::$autoLoadPath as $path) :
             $classFile = $path . $class . '.class.php';
             if (is_file($classFile)) :
                 require_once $classFile;
@@ -177,6 +182,11 @@ class Ar {
 
         if (empty($rt))
             throw new ArException('class : ' . $class . ' does not exist !');
+
+    }
+    static public function importPath($path)
+    {
+        array_push(self::$autoLoadPath, rtrim($path, DS) . DS);
 
     }
 
