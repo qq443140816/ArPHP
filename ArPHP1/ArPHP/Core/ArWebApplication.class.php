@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Ar for PHP .
  *
@@ -14,6 +14,8 @@ class ArWebApplication extends ArApplication {
 
     public function start()
     {
+        session_start();
+
         register_shutdown_function(array($this, 'shutDown'));
 
         $this->processRequest();
@@ -22,7 +24,6 @@ class ArWebApplication extends ArApplication {
 
     public function processRequest()
     {
-
         $this->runController(Ar::getConfig('requestRoute'));
 
     }
@@ -49,5 +50,5 @@ class ArWebApplication extends ArApplication {
             throw new ArException('Action ' . $action . ' not found');
 
     }
-    
+
 }

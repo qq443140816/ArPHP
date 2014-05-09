@@ -20,8 +20,6 @@ class Ar {
 
     static public function init()
     {
-        session_start();
-
         self::$autoLoadPath = array(
             CORE_PATH,
             FRAME_PATH,
@@ -73,7 +71,12 @@ class Ar {
                 $rt = self::$_config;
 
                 while ($k = array_shift($cE)) :
-                    $rt = $rt[$k];
+                    if (!isset($rt[$k])) :
+                        $rt = null;
+                        break;
+                    else :
+                        $rt = $rt[$k];
+                    endif;
                 endwhile;
             endif;
 
@@ -100,24 +103,16 @@ class Ar {
 
     static public function c($cname)
     {
-        if (!isset(self::$_c[$cname])) :
+        $cKey = strtolower($cname);
 
-            $cKey = strtolower($cname);
+        if (!isset(self::$_c[$cKey])) :
 
-            $confC = self::getConfig('components');
+            $config = self::getConfig('components.' . $cKey . '.config');
+            self::setC($cKey, $config);
 
-            $cArr = explode('.', $cKey);
-
-            $conf = self::getConfig(strtolower($cArr[0]));
-
-            if (!empty($confC[$cArr[0]]) && !empty($confC[$cArr[0]]['config']))
-                $config = $confC[$cArr[0]]['config'];
-            else
-                $config = array();
-            self::setC($cname, $config);
         endif;
 
-        return self::$_c[$cname];
+        return self::$_c[$cKey];
 
     }
 
@@ -129,7 +124,6 @@ class Ar {
             return false;
 
         $cArr = explode('.', $component);
-
 
         array_unshift($cArr, 'components');
 

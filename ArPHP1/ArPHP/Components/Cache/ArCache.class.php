@@ -1,6 +1,6 @@
 <?php
 /**
- * class Db default classPDO 
+ * class Db default classPDO
  *
  * @author assnr <ycassnr@gmail.com>
  */
@@ -9,15 +9,29 @@
  * abstract Db class.
  */
 abstract class ArCache extends ArComponent {
-    
-    static protected $config = array();
 
-    abstract function getValue($key);
+    abstract function get($key);
 
-    abstract function setValue($key, $value);
-
-    abstract function addValue($key, $value);
+    abstract function set($key, $value);
 
     abstract function flush();
+
+    protected function generateUniqueKey($keyName)
+    {
+        return md5($keyName);
+
+    }
+
+    protected function encrypt($data)
+    {
+        return serialize($data);
+
+    }
+
+    protected function decrypt($data)
+    {
+        return unserialize($data);
+
+    }
 
 }
