@@ -8,7 +8,7 @@
 /**
  * abstract Db class.
  */
-class ArDbMysql extends ArDb
+class ArMysql extends ArDb
 {
 
     public $driverName = __CLASS__;
