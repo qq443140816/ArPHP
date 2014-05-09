@@ -104,7 +104,7 @@ class ArFormat extends ArComponent {
      *
      * @return array
      */
-    function addslashes()
+    public function addslashes()
     {
         $args = func_get_args();
         foreach ($args as $k => &$arg) :
@@ -120,6 +120,18 @@ class ArFormat extends ArComponent {
         if (count($args) == 1)
             $args = $args[0];
         return $args;
+
+    }
+
+    public function filterKey(array $gar, array $data)
+    {
+        foreach ($data as $k => $v) :
+            if (is_numeric($k) || !in_array($k, $gar)) :
+                unset($data[$k]);
+            endif;
+        endforeach;
+
+        return $data;
 
     }
 

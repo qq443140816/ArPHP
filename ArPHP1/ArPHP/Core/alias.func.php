@@ -19,7 +19,7 @@ function arCfg($name = '')
 
 function arU($name = '', $params = array())
 {
-    return Ar::createUrl($name, $params = array());
+    return Ar::createUrl($name, $params);
 
 }
 

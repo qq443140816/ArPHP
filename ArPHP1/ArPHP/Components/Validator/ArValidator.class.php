@@ -86,4 +86,37 @@ class ArValidator extends ArComponent {
 
     }
 
+    public function checkEmpty($obj)
+    {
+        return empty($obj);
+
+    }
+
+    public function checkDataByRules(array $data, array $rules)
+    {
+        foreach ($rules as $k => $rule) :
+
+            if (array_key_exists($k, $data)) :
+                switch ($rule[0]) :
+                    case 'number' :
+                        if ($this->checkNumber($data[$k]))
+                            unset($rules[$k]);
+                        break;
+                    case 'required' :
+                        if (!$this->checkEmpty($data[$k]))
+                            unset($rules[$k]);
+                        break;
+                    default :
+                        if (!$this->checkEmpty($data[$k]))
+                            unset($rules[$k]);
+                        break;
+                endswitch;
+            endif;
+
+        endforeach;
+
+        return $rules;
+
+    }
+
 }

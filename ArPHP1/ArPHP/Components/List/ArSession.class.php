@@ -2,9 +2,9 @@
 
 class ArSession extends ArList {
 
-    static public function init($cfg, $class)
+    static public function init($config = array(), $class = __CLASS__)
     {
-        $obj = parent::init($cfg, $class);
+        $obj = parent::init($config, $class);
 
         $obj->setContainer($_SESSION);
 
