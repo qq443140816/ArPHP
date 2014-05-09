@@ -62,6 +62,24 @@ class ArMysql extends ArDb
 
     }
 
+    public function getColumns()
+    {
+        $table = $this->options['table'];
+
+        $sql = 'show columns from ' . $table;
+
+        $ret = $this->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+
+        $columns = array();
+
+        foreach ($ret as $value) :
+            $columns[] = $value['Field'];
+        endforeach;
+
+        return $columns;
+
+    }
+
     public function count()
     {
         $result = $this->select(array('COUNT(\'*\') as t'))->queryRow();
@@ -86,13 +104,35 @@ class ArMysql extends ArDb
 
     }
 
-    public function insert(array $data = array())
+    public function setSource($source)
     {
-        if (!empty($data))
-            $this->data($data);
-        $sql = $this->bulidInsertSql();
-        $this->exec($sql);
-        return $this->lastInsertId = $this->_pdo->lastInsertId();
+        $this->options['source'] = $source;
+        return $this;
+
+    }
+
+    public function insert(array $data = array(), $checkData = false)
+    {
+        if (ArModel::model($this->options['source'])->insertCheck($data)) :
+
+            $data = ArModel::model($this->options['source'])->formatData($data);
+
+            if (!empty($data)) :
+
+                if ($checkData)
+                    $data = arComp('format.format')->filterKey($this->getColumns(), $data);
+
+                $this->data($data);
+
+            endif;
+
+            $sql = $this->bulidInsertSql();
+            $this->exec($sql);
+            return $this->lastInsertId = $this->_pdo->lastInsertId();
+
+        endif;
+
+        return false;
 
     }
 
