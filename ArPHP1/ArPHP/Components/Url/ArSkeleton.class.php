@@ -94,13 +94,14 @@ class MyModel extends ArModel {
     public function yourFunction()
     {
         echo "this is your funciton";
+
     }
 
 }',
         $this->basePath . 'View' . DS . 'Index' . DS . 'index.php' =>
 '<html>
-    this is your view file !
     <h1>Hello, ArPHP ! </h1>
+    this is your view file !
 </html>
 ',
         $this->basePath . 'Conf' . DS . 'app.config.php' =>

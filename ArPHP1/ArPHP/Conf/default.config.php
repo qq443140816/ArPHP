@@ -6,7 +6,8 @@
  */
 return array(
             'PATH' => array(
-            'PUBLIC' => SERVER_PATH . arCfg('requestRoute.m') . '/Public/',
-            'VIEW' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'View' . DS,
+                'PUBLIC' => SERVER_PATH . arCfg('requestRoute.m') . '/Public/',
+                'CACHE' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'Cache' . DS,
+                'VIEW' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'View' . DS,
         ),
    );

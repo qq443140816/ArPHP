@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Ar for PHP .
  *
@@ -23,12 +23,15 @@ class ArApp {
     static private function initComponents(array $config)
     {
         foreach ($config as $driver => $component) :
-
             if (!empty($component['lazy']) && $component['lazy'] == true)
                 continue;
-            $configC = !empty($component['config']) ? $component['config'] : array();
-            Ar::setC($driver . '.' . $component['class'], $configC);
+            foreach ($component as $engine => $cfg) :
+                if (!empty($cfg['lazy']) && $cfg['lazy'] == true || $engine == 'lazy')
+                    continue;
+                $configC = !empty($cfg['config']) ? $cfg['config'] : array();
 
+                Ar::setC($driver . '.' . $engine, $configC);
+            endforeach;
         endforeach;
 
     }
