@@ -123,7 +123,8 @@ class ArMysql extends ArDb
                     $data = arComp('format.format')->filterKey($this->getColumns(), $data);
 
                 $this->data($data);
-
+            else :
+                return false;
             endif;
 
             $sql = $this->bulidInsertSql();

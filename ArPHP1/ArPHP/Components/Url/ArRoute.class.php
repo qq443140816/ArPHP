@@ -1,6 +1,12 @@
 <?php
 class ArRoute extends ArComponent {
 
+    public function serverPath($dir)
+    {
+        return str_replace(array(realpath($_SERVER['DOCUMENT_ROOT']), DS), array('', '/'), $dir);
+
+    }
+
     /**
      * url parse .
      *

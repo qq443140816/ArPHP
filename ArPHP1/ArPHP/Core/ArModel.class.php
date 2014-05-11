@@ -36,7 +36,7 @@ class ArModel {
 
     public function getDb()
     {
-        return ArComp('db.dbmysql')->table($this->tableName)->setSource($this->nowModel);
+        return ArComp('db.mysql')->table($this->tableName)->setSource($this->nowModel);
 
     }
 

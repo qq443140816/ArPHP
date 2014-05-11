@@ -23,20 +23,24 @@ function arU($name = '', $params = array())
 
 }
 
-function arGet($key = '')
+function arGet($key = '', $default = null)
 {
     $ret = array();
 
     if (empty($key)) :
         $ret = $_GET;
     else :
-        if (empty($_GET[$key]))
+        if (!isset($_GET[$key]))
             $ret = null;
         else
             $ret = $_GET[$key];
     endif;
 
-    return arComp('format.format')->addslashes($ret);
+    $ret = arComp('format.format')->addslashes($ret);
+    if (empty($ret) && !is_numeric($ret)) :
+        $ret = $default;
+    endif;
+    return $ret;
 
 }
 

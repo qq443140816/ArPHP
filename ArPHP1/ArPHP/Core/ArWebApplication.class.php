@@ -14,7 +14,9 @@ class ArWebApplication extends ArApplication {
 
     public function start()
     {
-        session_start();
+        if (ini_get('session.auto_start') == 0) :
+            session_start();
+        endif;
 
         register_shutdown_function(array($this, 'shutDown'));
 

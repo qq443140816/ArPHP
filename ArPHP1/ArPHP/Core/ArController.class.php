@@ -25,21 +25,56 @@ class ArController {
 
     }
 
-    public function display($view = '')
+    public function display($view = '', $class = __CLASS__)
     {
-        $viewPath = arCfg('PATH.VIEW');
+        $viewPath = '';
+        $viewBasePath = arCfg('PATH.VIEW');
+        $overRide = false;
+        $absolute = false;
+
+        if (strpos($view, '@') === 0) :
+            $overRide = true;
+            $view = ltrim($view, '@');
+        endif;
 
         $r = Ar::a('ArWebApplication')->route;
+
 
         if (empty($view)) :
             $viewPath .= $r['c'] . DS . $r['a'];
         elseif(strpos($view, '/') !== false) :
-            $viewPath .= str_replace('/', DS, $view);
+            if (substr($view, 0, 1) == '/') :
+                $absolute = true;
+                $viewPath .= str_replace('/', DS, ltrim($view, '/'));
+            else :
+                $viewPath .= $r['c'] . DS  . str_replace('/', DS, ltrim($view, '/'));
+            endif;
+            if (substr($view, -1) == '/') :
+                $viewPath .= $r['a'];
+            endif;
         else :
             $viewPath .= $r['c'] . DS . $view;
         endif;
 
-        $viewFile = $viewPath . '.php';
+        $currentC = $tempC = $r['c'] . 'Controller';
+
+        $preFix = '';
+
+        if (!$absolute) :
+            while ($cP = get_parent_class($tempC)) :
+                if (!in_array(substr($cP, 0, -10), array('Ar', 'Base'))) :
+                    $preFix = substr($cP, 0, -10) . DS . $preFix;
+                    if (!$overRide && method_exists($cP, $r['a'] . 'Action')) :
+                        $viewPath = str_replace(substr($tempC, 0, -10) . DS, '', $viewPath);
+                    endif;
+                    $tempC = $cP;
+                else :
+                    break;
+                endif;
+            endwhile;
+        endif;
+
+        $viewFile = $viewBasePath . $preFix . $viewPath . '.php';
 
         if (is_file($viewFile)) :
             extract($this->_assign);
@@ -83,7 +118,7 @@ str;
 
     }
 
-    public function redirectError($r = array(), $show = '' , $time = '2')
+    public function redirectError($r = array(), $show = '' , $time = '4')
     {
         $this->redirect($r, '失败:' . $show, $time);
 

@@ -31,7 +31,8 @@ class Ar {
             COMP_PATH . 'Hash' . DS,
             COMP_PATH . 'Rpc' . DS,
             COMP_PATH . 'List' . DS,
-            COMP_PATH . 'Cache' . DS
+            COMP_PATH . 'Cache' . DS,
+            COMP_PATH . 'Ext' . DS
         );
 
         Ar::c('url.skeleton')->generate(DEFAULT_APP_NAME);
