@@ -40,7 +40,7 @@ class ArFile extends ArCache {
         if (is_file($cacheFile)) :
             if ($this->checkExpire($cacheFile)) :
                 $data = null;
-                unlink($cacheFile);
+                $this->del($key);
             endif;
             $data = $this->decrypt(file_get_contents($cacheFile, false, null, 10));
         else :
@@ -60,6 +60,18 @@ class ArFile extends ArCache {
         endif;
 
         return file_put_contents($this->cacheFile($key), $timeExpire . $this->encrypt($value));
+
+    }
+
+    public function del($key)
+    {
+        $cacheFile = $this->cacheFile($key);
+
+        if (is_file($cacheFile)) :
+            unlink($cacheFile);
+        endif;
+
+        return true;
 
     }
 

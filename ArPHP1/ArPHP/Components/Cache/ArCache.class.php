@@ -14,6 +14,8 @@ abstract class ArCache extends ArComponent {
 
     abstract function set($key, $value);
 
+    abstract function del($key);
+
     abstract function flush();
 
     protected function generateUniqueKey($keyName)
