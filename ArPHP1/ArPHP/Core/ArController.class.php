@@ -124,11 +124,23 @@ str;
 
     }
 
+    public function showJsonSuccess($msg = ' ')
+    {
+        $this->showJson(array('ret_msg' => $msg, 'success' => "1"));
+
+    }
+
+    public function showJsonError($msg = ' ')
+    {
+        $this->showJson(array('ret_msg' => 'faild', 'error_msg' => $msg, 'success' => "0"));
+
+    }
+
     public function showJson($data, array $options = array())
     {
         if (empty($options['showJson']) && arComp('validator.validator')->checkAjax()) :
             header('charset:utf-8');
-            header('Content-type:text/plain');
+            header('Content-type:text/javascript');
             if (empty($options['data'])) :
                 $retArr = array(
                         'ret_code' => '1000',
@@ -136,8 +148,7 @@ str;
                     );
 
                 if (is_array($data)) :
-                    if (empty($data['ret_code']) && empty($data['ret_msg'])) :
-
+                    if (isset($data['ret_code']) && isset($data['ret_msg'])) :
                         $retArr['data'] = $data;
                         $retArr['total_lines'] = Ar::c('validator.validator')->checkMutiArray($data) ? (string)count($data) : 1;
 
@@ -155,6 +166,7 @@ str;
             endif;
 
             echo json_encode($retArr);
+            exit;
         else :
             return $data;
         endif;
