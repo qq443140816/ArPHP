@@ -1,17 +1,9 @@
 <?php
 /**
- * ArPHP A Strong Performence PHP FrameWork ! You Should Have.
+ * init script
  *
- * PHP version 5
- *
- * @category PHP
- * @package  Core.base
- * @author   yc <ycassnr@gmail.com>
- * @license  http://www.arphp.net/licence BSD Licence
- * @version  GIT: : coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
- * @link     http://www.arphp.net
+ * @author ycassnr <ycassnr@gmail.com>
  */
-
 define('START_TIME', microtime(true));
 
 defined('DEFAULT_APP_NAME') or define('DEFAULT_APP_NAME', '');
@@ -40,7 +32,7 @@ defined('COMP_PATH') or define('COMP_PATH', FRAME_PATH . 'Components' . DS);
 
 defined('SERVER_PATH') or define('SERVER_PATH', ($dir = dirname($_SERVER['SCRIPT_NAME'])) == DS ? '/' : str_replace(DS, '/', $dir) . '/');
 
-require_once CORE_PATH . 'Ar.class.php';
+require_once (CORE_PATH . 'Ar.class.php');
 
 spl_autoload_register('Ar::autoLoader');
 
