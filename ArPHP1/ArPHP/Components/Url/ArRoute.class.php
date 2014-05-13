@@ -7,6 +7,12 @@ class ArRoute extends ArComponent {
 
     }
 
+    public function host()
+    {
+        return 'http://' . $_SERVER['HTTP_HOST'] . '/' . trim(str_replace(array('/', '\\', DS), '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+    }
+
     /**
      * url parse .
      *

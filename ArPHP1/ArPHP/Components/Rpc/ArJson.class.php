@@ -1,7 +1,7 @@
 <?php
 class ArJson extends ArText {
 
-    public function remoteCall($url)
+    protected function remoteCall($url)
     {
         $init = curl_init($url);
 
@@ -14,28 +14,28 @@ class ArJson extends ArText {
 
         // if($rtStr === false)
             // echo 'Curl error: ' . curl_error($init);
-        
+
         curl_close($init);
 
         return $rtStr;
 
     }
-    
-    public function parse($parseStr)
+
+    protected function parse($parseStr)
     {
         return $this->parseJson($parseStr);
 
     }
 
-    public function parseJson($parseStr)
+    protected function parseJson($parseStr)
     {
         return json_decode($parseStr, 1);
 
     }
 
-    public function getApi($api, $params)
+    protected function getApi($api, $params)
     {
-        $prefix = rtrim(self::$config['remotePrefix'], '/') . '/' . trim($api, '/');
+        $prefix = rtrim(empty(self::$config['remotePrefix']) ? arComp('url.route')->host() : self::$config['remotePrefix'], '/') . '/' . trim($api, '/');
 
         foreach ($params as $pkey => $param) :
             $prefix .= '/' . $pkey . '/' . $param;

@@ -1,11 +1,11 @@
 <?php
 class ArProxy extends ArText {
 
-    public $domainInfo = array();
+    protected $domainInfo = array();
 
-    public $mimeType = 'text/html';
+    protected $mimeType = 'text/html';
 
-    public function remoteCall($url)
+    protected function remoteCall($url)
     {
         $init = curl_init($url);
 
@@ -49,15 +49,14 @@ class ArProxy extends ArText {
 
         echo $source;
 
-
     }
 
-    public function parse($url)
+    protected function parse($url)
     {
         $uInfo = parse_url($url);
         if (empty($uInfo['host']) || empty($uInfo['scheme']))
             throw new ArException('url ' . $url . ' may have a valid host');
-            
+
         $this->domainInfo['host'] = $uInfo['host'];
 
         $this->domainInfo['referer'] = $uInfo['scheme'] . '://'. $uInfo['host'];

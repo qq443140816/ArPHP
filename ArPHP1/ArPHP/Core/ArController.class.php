@@ -25,6 +25,37 @@ class ArController {
 
     }
 
+    public function show($ckey = '', $defaultReturn = '', $show = true)
+    {
+        $rt = array();
+        if (empty($ckey)) :
+            $rt = $this->_assign;
+        else :
+            if (strpos($ckey, '.') === false) :
+                if (isset($this->_assign[$ckey])) :
+                    $rt = $this->_assign[$ckey];
+                endif;
+            else :
+                $cE = explode('.', $ckey);
+                $rt = $this->_assign;
+                while ($k = array_shift($cE)) :
+                    if (!isset($rt[$k])) :
+                        $rt = $defaultReturn;
+                        break;
+                    else :
+                        $rt = $rt[$k];
+                    endif;
+                endwhile;
+            endif;
+        endif;
+        if ($show) :
+            echo $rt;
+        else :
+            return $rt;
+        endif;
+
+    }
+
     public function display($view = '', $class = __CLASS__)
     {
         $viewPath = '';
@@ -138,7 +169,7 @@ str;
 
     public function showJson($data, array $options = array())
     {
-        if (empty($options['showJson']) && arComp('validator.validator')->checkAjax()) :
+        if (empty($options['showJson'])) :
             header('charset:utf-8');
             header('Content-type:text/javascript');
             if (empty($options['data'])) :

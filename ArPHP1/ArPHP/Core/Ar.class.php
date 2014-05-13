@@ -97,12 +97,13 @@ class Ar
      * get global config.
      *
      * @param string $ckey key.
-     * @param mixed  $rt   default return value.
+     * @param mixed  $defaultReturn   default return value.
      *
      * @return mixed
      */
-    static public function getConfig($ckey = '', $rt = array())
+    static public function getConfig($ckey = '', $defaultReturn = array())
     {
+        $rt = array();
         if (empty($ckey)) :
             $rt = self::$_config;
         else :
@@ -116,7 +117,12 @@ class Ar
 
                 while ($k = array_shift($cE)) :
                     if (!isset($rt[$k])) :
-                        $rt = null;
+                        if (func_num_args() > 1) :
+                            $rt = $defaultReturn;
+                        else :
+                            $rt = null;
+
+                        endif;
                         break;
                     else :
                         $rt = $rt[$k];
@@ -173,10 +179,8 @@ class Ar
         $cKey = strtolower($cname);
 
         if (!isset(self::$_c[$cKey])) :
-
-            $config = self::getConfig('components.' . $cKey . '.config');
+            $config = self::getConfig('components.' . $cKey . '.config', array());
             self::setC($cKey, $config);
-
         endif;
 
         return self::$_c[$cKey];
