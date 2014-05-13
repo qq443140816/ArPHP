@@ -1,23 +1,50 @@
 <?php
 /**
- * Ar for PHP .
+ * ArPHP A Strong Performence PHP FrameWork ! You Should Have.
  *
- * @author ycassnr<ycassnr@gmail.com>
+ * PHP version 5
+ *
+ * @category PHP
+ * @package  Core.base
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  GIT: : coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
+ * @link     http://www.arphp.net
  */
 
 /**
- * class Ar.
+ * class class
+ *
+ * default hash comment :
+ *
+ * <code>
+ *  # This is a hash comment, which is prohibited.
+ *  $hello = 'hello';
+ * </code>
+ *
+ * @category ArPHP
+ * @package  Core.base
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  Release: @package_version@
+ * @link     http://www.arphp.net
  */
-class Ar {
-
+class Ar
+{
+    // applications collections
     static private $_a = array();
-
+    // components collections
     static private $_c = array();
-
+    // config
     static private $_config = array();
-
+    // autoload path
     static public $autoLoadPath;
 
+    /**
+     * init application.
+     *
+     * @return mixed
+     */
     static public function init()
     {
         self::$autoLoadPath = array(
@@ -44,20 +71,36 @@ class Ar {
         Ar::import(CORE_PATH . 'alias.func.php');
 
         self::$_config = array_merge(
-                self::$_config,
-                Ar::import(CONFIG_PATH . 'default.config.php', true)
-            );
+            self::$_config,
+            Ar::import(CONFIG_PATH . 'default.config.php', true)
+        );
 
         ArApp::run();
 
     }
 
+    /**
+     * set application.
+     *
+     * @param string $key key.
+     * @param string $val key value.
+     *
+     * @return void
+     */
     static public function setA($key, $val)
     {
         self::$_a[$key] = $val;
 
     }
 
+    /**
+     * get global config.
+     *
+     * @param string $ckey key.
+     * @param mixed  $rt   default return value.
+     *
+     * @return mixed
+     */
     static public function getConfig($ckey = '', $rt = array())
     {
         if (empty($ckey)) :
@@ -87,21 +130,44 @@ class Ar {
 
     }
 
+    /**
+     * set config.
+     *
+     * @param string $ckey  key.
+     * @param mixed  $value value.
+     *
+     * @return void
+     */
     static public function setConfig($ckey = '', $value = array())
     {
-        if (!empty($ckey))
+        if (!empty($ckey)) :
             self::$_config[$ckey] = $value;
-        else
+        else :
             self::$_config = $value;
+        endif;
 
     }
 
+    /**
+     * get application.
+     *
+     * @param string $akey key.
+     *
+     * @return mixed
+     */
     static public function a($akey)
     {
         return isset(self::$_a[$akey]) ? self::$_a[$akey] : null;
 
     }
 
+    /**
+     * get component.
+     *
+     * @param string $cname component.
+     *
+     * @return mixed
+     */
     static public function c($cname)
     {
         $cKey = strtolower($cname);
@@ -117,12 +183,21 @@ class Ar {
 
     }
 
-    static public function setC($component, $config = array())
+    /**
+     * set component.
+     *
+     * @param string $component component name.
+     * @param array  $config    component config.
+     *
+     * @return void
+     */
+    static public function setC($component, array $config = array())
     {
         $cKey = strtolower($component);
 
-        if (isset(self::$_c[$cKey]))
+        if (isset(self::$_c[$cKey])) :
             return false;
+        endif;
 
         $cArr = explode('.', $component);
 
@@ -140,6 +215,13 @@ class Ar {
 
     }
 
+    /**
+     * autoload register.
+     *
+     * @param string $class class.
+     *
+     * @return mixed
+     */
     static public function autoLoader($class)
     {
         $class = str_replace('\\', DS, $class);
@@ -153,8 +235,9 @@ class Ar {
             $appConfigFile = $appMoudle . 'Conf' . DS . 'app.config.php';
             $appConfig = self::import($appConfigFile, true);
 
-            if (is_array($appConfig))
+            if (is_array($appConfig)) :
                 self::setConfig('', array_merge(self::getConfig(), $appConfig));
+            endif;
 
             if (preg_match("#[A-Z]{1}[a-z0-9]+$#", $class, $match)) :
                 $appEnginePath = $appMoudle . $match[0] . DS;
@@ -169,45 +252,72 @@ class Ar {
         foreach (self::$autoLoadPath as $path) :
             $classFile = $path . $class . '.class.php';
             if (is_file($classFile)) :
-                require_once $classFile;
+                include_once $classFile;
                 $rt = true;
                 break;
             endif;
         endforeach;
 
-        if (empty($rt))
+        if (empty($rt)) :
             throw new ArException('class : ' . $class . ' does not exist !');
+        endif;
 
     }
+
+    /**
+     * set autoLoad path.
+     *
+     * @param string $path path.
+     *
+     * @return void
+     */
     static public function importPath($path)
     {
         array_push(self::$autoLoadPath, rtrim($path, DS) . DS);
 
     }
 
+    /**
+     * import file or path.
+     *
+     * @param string  $path     import path.
+     * @param boolean $allowTry allow test exist.
+     *
+     * @return mixed
+     */
     static public function import($path, $allowTry = false)
     {
-        if (strpos($path, DS) === false)
+        if (strpos($path, DS) === false) :
             $fileName = str_replace(array('c.', 'ext.', 'app.', '.'), array('Controller.', 'Extensions.', rtrim(ROOT_PATH, DS) . '.', DS), $path) . '.class.php';
-        else
+        else :
             $fileName = $path;
+        endif;
 
         if (is_file($fileName)) :
-            $file = require_once($fileName);
+            $file = include_once $fileName;
             if ($file === true) :
                 return array();
             else :
                 return $file;
             endif;
         else :
-            if ($allowTry)
+            if ($allowTry) :
                 return array();
-            else
+            else :
                 throw new ArException('import not found file :' . $fileName);
+            endif;
         endif;
 
     }
 
+    /**
+     * url manage.
+     *
+     * @param string  $url    url.
+     * @param boolean $params url get param.
+     *
+     * @return string
+     */
     static public function createUrl($url = '', $params = array())
     {
         $prefix = rtrim(SERVER_PATH . (arCfg('requestRoute.m') == DEFAULT_APP_NAME ? '' : arCfg('requestRoute.m')), '/');
@@ -236,12 +346,27 @@ class Ar {
 
     }
 
+    /**
+     * exception handler.
+     *
+     * @param object $e Exception.
+     *
+     * @return void
+     */
     static public function exceptionHandler($e)
     {
         echo get_class($e) . ' : ' . $e->getMessage();
 
     }
 
+    /**
+     * error handler.
+     *
+     * @param string $errno  errno.
+     * @param string $errstr error msg.
+     *
+     * @return void
+     */
     static public function errorHandler($errno, $errstr)
     {
         echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
