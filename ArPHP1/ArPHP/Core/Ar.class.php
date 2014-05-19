@@ -89,7 +89,8 @@ class Ar
      */
     static public function setA($key, $val)
     {
-        self::$_a[$key] = $val;
+        $classkey = strtolower($key);
+        self::$_a[$classkey] = $val;
 
     }
 
@@ -163,6 +164,7 @@ class Ar
      */
     static public function a($akey)
     {
+        $akey = strtolower($akey);
         return isset(self::$_a[$akey]) ? self::$_a[$akey] : null;
 
     }
@@ -233,10 +235,10 @@ class Ar
         $m = self::getConfig('requestRoute');
 
         if (!empty($m['m'])) :
-            $appMoudle = ROOT_PATH . $m['m'] . DS;
-            array_push(self::$autoLoadPath, $appMoudle);
+            $appModule = ROOT_PATH . $m['m'] . DS;
+            array_push(self::$autoLoadPath, $appModule);
 
-            $appConfigFile = $appMoudle . 'Conf' . DS . 'app.config.php';
+            $appConfigFile = $appModule . 'Conf' . DS . 'app.config.php';
             $appConfig = self::import($appConfigFile, true);
 
             if (is_array($appConfig)) :
@@ -244,9 +246,9 @@ class Ar
             endif;
 
             if (preg_match("#[A-Z]{1}[a-z0-9]+$#", $class, $match)) :
-                $appEnginePath = $appMoudle . $match[0] . DS;
+                $appEnginePath = $appModule . $match[0] . DS;
 
-                $extPath = $appMoudle . 'Ext' . DS;
+                $extPath = $appModule . 'Ext' . DS;
 
                 array_push(self::$autoLoadPath, $appEnginePath, $extPath);
             endif;

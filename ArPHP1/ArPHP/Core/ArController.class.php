@@ -17,6 +17,28 @@ class ArController {
 
     }
 
+    public function __call($name, $params)
+    {
+        if ($name == 'module') :
+            if (!isset($this->_assign['module'])) :
+                $module = empty($params[0]) ? arCfg('requestRoute.c') : $params[0];
+                $m =  $module . 'Module';
+                $this->_assign['module'] = new $m;
+            endif;
+            return $this->_assign['module'];
+        elseif ($name == 'model'):
+            if (!$this->_assign['model']) :
+                $model = empty($params[0]) ? arCfg('requestRoute.c') : $params[0];
+                $m = $model . 'Model';
+                $this->_assign['model'] = ArModel::model($m);
+            endif;
+            return $this->_assign['model'];
+        else :
+            throw new ArException("class do not have a method $name");
+        endif;
+
+    }
+
     public function assign(array $vals)
     {
         foreach ($vals as $key => $val) :
@@ -218,6 +240,19 @@ str;
 
     public function auth()
     {
+
+    }
+
+    public function runController($module)
+    {
+        $route = explode('/', $module);
+
+        $requestRoute = array(
+                'c' => $route[0],
+                'a' => $route[1],
+            );
+
+        Ar::a('ArWebApplication')->runController($requestRoute);
 
     }
 

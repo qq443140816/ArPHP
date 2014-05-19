@@ -139,19 +139,16 @@ class ArMysql extends ArDb
 
     public function update(array $data = array(), $checkData = false)
     {
-        if (ArModel::model($this->options['source'])->insertCheck($data)) :
-            if ($checkData) :
-                $data = arComp('format.format')->filterKey($this->getColumns(), $data);
-                unset($data['id']);
-            endif;
-
-            if (!empty($data))
-                $this->columns($data);
-            $sql = $this->bulidUpdateSql();
-            return $this->exec($sql);
-        else :
-            return false;
+        if ($checkData) :
+            $data = arComp('format.format')->filterKey($this->getColumns(), $data);
+            unset($data['id']);
         endif;
+
+        if (!empty($data))
+            $this->columns($data);
+        $sql = $this->bulidUpdateSql();
+
+        return $this->exec($sql);
 
 
     }

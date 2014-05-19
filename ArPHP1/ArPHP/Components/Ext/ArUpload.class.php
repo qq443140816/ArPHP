@@ -25,9 +25,11 @@ class ArUpload extends ArComponent {
 
     public function upload($upFiled, $dest = '', $extension = 'all')
     {
+        $this->errorMsg = null;
+
         $this->upFiled = $upFiled;
 
-        if (empty($_FILES[$this->upFiled]) || is_uploaded_file($_FILES[$this->upFiled]['tmp_name'])) :
+        if (!empty($_FILES[$this->upFiled]) && is_uploaded_file($_FILES[$this->upFiled]['tmp_name'])) :
             if ($extension == 'all' || $this->checkFileType($_FILES[$this->upFiled]['type'], $extension)) :
                 $dest = empty($dest) ? arCfg('PATH.UPLOAD') : $dest;
 

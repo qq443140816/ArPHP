@@ -15,7 +15,6 @@ class ArApp {
         self::initComponents(Ar::getConfig('components'));
 
         $app = self::createWebApplication('ArWebApplication');
-
         $app->start();
 
     }
@@ -38,10 +37,12 @@ class ArApp {
 
     static private function createWebApplication($class)
     {
-        if (!Ar::a($class))
-            Ar::setA($class, new $class);
+        $classkey = strtolower($class);
 
-        return Ar::a($class);
+        if (!Ar::a($classkey))
+            Ar::setA($classkey, new $class);
+
+        return Ar::a($classkey);
 
     }
 

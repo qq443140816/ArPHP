@@ -45,6 +45,19 @@ class ArFormat extends ArComponent {
 
     }
 
+    public function trim($obj)
+    {
+        if (is_array($obj)) :
+            foreach($obj as &$o) :
+                $o = $this->trim($o);
+            endforeach;
+        else :
+            $obj = trim($obj);
+        endif;
+        return $obj;
+
+    }
+
     public function encrypt($obj, $key = '')
     {
         if (is_array($obj)) :

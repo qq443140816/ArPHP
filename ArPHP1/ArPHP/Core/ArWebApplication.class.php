@@ -32,6 +32,8 @@ class ArWebApplication extends ArApplication {
 
     public function runController($route)
     {
+        Ar::setConfig('requestRoute', $route);
+
         if (empty($route['c'])) :
             $c = 'Index';
         else :

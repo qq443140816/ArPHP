@@ -33,6 +33,18 @@ class ArModel {
 
     }
 
+    public function upload($filed, $type = 'img')
+    {
+        $upFile = arComp('ext.upload')->upload($filed, '', $type);
+
+        if (!$upFile) :
+            arComp('list.log')->set($this->nowModel, arComp('ext.upload')->errorMsg());
+            return false;
+        else :
+            return $upFile;
+        endif;
+
+    }
 
     public function getDb()
     {
@@ -46,9 +58,23 @@ class ArModel {
 
     }
 
-    public function insertCheck($data)
+    public function updateCheck($data)
     {
         $rules = $this->rules();
+
+        foreach ($rules as $key => $rule) :
+            if (empty($rules[2]) || $rules[2] != 'update' ) :
+                unset($rules[$key]);
+            endif;
+        endforeach;
+
+        return $this->insertCheck($data, $rules);
+
+    }
+
+    public function insertCheck($data, $rules = array())
+    {
+        $rules = empty($rules) ? $this->rules() : $rules;
 
         $r = arComp('validator.validator')->checkDataByRules($data, $rules);
 
