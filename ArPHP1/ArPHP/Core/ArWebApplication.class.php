@@ -1,17 +1,44 @@
 <?php
 /**
- * Ar for PHP .
+ * ArPHP A Strong Performence PHP FrameWork ! You Should Have.
  *
- * @author ycassnr<ycassnr@gmail.com>
+ * PHP version 5
+ *
+ * @category PHP
+ * @package  Core.base
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
+ * @link     http://www.arphp.net
  */
 
 /**
- * class webApplication.
-*/
-class ArWebApplication extends ArApplication {
-
+ * application
+ *
+ * default hash comment :
+ *
+ * <code>
+ *  # This is a hash comment, which is prohibited.
+ *  $hello = 'hello';
+ * </code>
+ *
+ * @category ArPHP
+ * @package  Core.base
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  Release: @package_version@
+ * @link     http://www.arphp.net
+ */
+class ArWebApplication extends ArApplication
+{
+    // route container
     public $route = array();
 
+    /**
+     * start function.
+     *
+     * @return void
+     */
     public function start()
     {
         if (ini_get('session.auto_start') == 0) :
@@ -24,12 +51,24 @@ class ArWebApplication extends ArApplication {
 
     }
 
+    /**
+     * process.
+     *
+     * @return void
+     */
     public function processRequest()
     {
         $this->runController(Ar::getConfig('requestRoute'));
 
     }
 
+    /**
+     * default controller.
+     *
+     * @param string $route route.
+     *
+     * @return mixed
+     */
     public function runController($route)
     {
         Ar::setConfig('requestRoute', $route);
@@ -48,10 +87,11 @@ class ArWebApplication extends ArApplication {
 
         $this->route['a'] = $a;
 
-        if (is_callable(array($this->_c, $action)))
+        if (is_callable(array($this->_c, $action))) :
             $this->_c->$action();
-        else
+        else :
             throw new ArException('Action ' . $action . ' not found');
+        endif;
 
     }
 

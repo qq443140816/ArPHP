@@ -8,7 +8,7 @@
  * @package  Core.base
  * @author   yc <ycassnr@gmail.com>
  * @license  http://www.arphp.net/licence BSD Licence
- * @version  GIT: : coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
+ * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
  * @link     http://www.arphp.net
  */
 
@@ -97,8 +97,8 @@ class Ar
     /**
      * get global config.
      *
-     * @param string $ckey key.
-     * @param mixed  $defaultReturn   default return value.
+     * @param string $ckey          key.
+     * @param mixed  $defaultReturn default return value.
      *
      * @return mixed
      */
