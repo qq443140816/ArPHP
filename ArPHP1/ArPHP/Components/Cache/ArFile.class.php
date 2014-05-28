@@ -1,38 +1,81 @@
 <?php
 /**
- * class Db default classPDO
+ * ArPHP A Strong Performence PHP FrameWork ! You Should Have.
  *
- * @author assnr <ycassnr@gmail.com>
+ * PHP version 5
+ *
+ * @category PHP
+ * @package  Core.Components.Cache
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
+ * @link     http://www.arphp.net
  */
 
 /**
- * abstract Db class.
+ * class file cache
+ *
+ * default hash comment :
+ *
+ * <code>
+ *  # This is a hash comment, which is prohibited.
+ *  $hello = 'hello';
+ * </code>
+ *
+ * @category ArPHP
+ * @package  Core.base
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  Release: @package_version@
+ * @link     http://www.arphp.net
  */
-class ArFile extends ArCache {
-
+class ArFile extends ArCache
+{
+    // cache path
     public $cachePath;
 
-    // static protected $config = array();
-
+    /**
+     * initialization function.
+     *
+     * @param mixed  $config config.
+     * @param string $class  hold class.
+     *
+     * @return Object
+     */
     static public function init($config = array(), $class = __CLASS__)
     {
         $obj = parent::init($config, $class);
 
         $obj->cachePath = empty(self::$config['cachePath']) ? arCfg('PATH.CACHE') : self::$config['cachePath'];
 
-        if(!is_dir($obj->cachePath))
+        if(!is_dir($obj->cachePath)) :
             mkdir($obj->cachePath, 0777, true);
+        endif;
 
         return $obj;
 
     }
 
+    /**
+     * get cache file name.
+     *
+     * @param string $key cache key.
+     *
+     * @return string
+     */
     public function cacheFile($key)
     {
         return $this->cachePath . $this->generateUniqueKey($key) . '.cache';
 
     }
 
+    /**
+     * cache get
+     *
+     * @param string $key cache key.
+     *
+     * @return mixed
+     */
     public function get($key)
     {
         $cacheFile = $this->cacheFile($key);
@@ -51,6 +94,15 @@ class ArFile extends ArCache {
 
     }
 
+    /**
+     * cache set.
+     *
+     * @param string  $key    cache key.
+     * @param mixed   $value  value.
+     * @param integer $expire time.
+     *
+     * @return mixed
+     */
     public function set($key, $value, $expire = 0)
     {
         if ($expire == 0) :
@@ -63,6 +115,13 @@ class ArFile extends ArCache {
 
     }
 
+    /**
+     * cache del.
+     *
+     * @param string $key cache key.
+     *
+     * @return mixed
+     */
     public function del($key)
     {
         $cacheFile = $this->cacheFile($key);
@@ -75,6 +134,13 @@ class ArFile extends ArCache {
 
     }
 
+    /**
+     * check cache valid.
+     *
+     * @param string $file file.
+     *
+     * @return boolean
+     */
     public function checkExpire($file)
     {
         $timeExpire = file_get_contents($file, false, null, 0, 10);
@@ -83,6 +149,13 @@ class ArFile extends ArCache {
 
     }
 
+    /**
+     * cache flush.
+     *
+     * @param boolean $force cleal all cache.
+     *
+     * @return mixed
+     */
     public function flush($force = false)
     {
         $source = opendir($this->cachePath);
@@ -90,13 +163,13 @@ class ArFile extends ArCache {
         while ($file = readdir($source)) :
             $file = $this->cachePath . $file;
             if (is_file($file)) :
-                if ($force || $this->checkExpire($file))
+                if ($force || $this->checkExpire($file)) :
                     unlink($file);
+                endif;
             endif;
         endwhile;
 
         closedir($source);
-
     }
 
 }
