@@ -1,12 +1,54 @@
 <?php
-class ArRoute extends ArComponent {
+/**
+ * ArPHP A Strong Performence PHP FrameWork ! You Should Have.
+ *
+ * PHP version 5
+ *
+ * @category PHP
+ * @package  Core.Component
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
+ * @link     http://www.arphp.net
+ */
 
+/**
+ * ArRoute
+ *
+ * default hash comment :
+ *
+ * <code>
+ *  # This is a hash comment, which is prohibited.
+ *  $hello = 'hello';
+ * </code>
+ *
+ * @category ArPHP
+ * @package  Core.Component
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  Release: @package_version@
+ * @link     http://www.arphp.net
+ */
+class ArRoute extends ArComponent
+{
+    /**
+     * serverPath.
+     *
+     * @param string $dir dir.
+     *
+     * @return string
+     */
     public function serverPath($dir)
     {
         return str_replace(array(realpath($_SERVER['DOCUMENT_ROOT']), DS), array('', '/'), $dir);
 
     }
 
+    /**
+     * host.
+     *
+     * @return string
+     */
     public function host()
     {
         return 'http://' . $_SERVER['HTTP_HOST'] . '/' . trim(str_replace(array('/', '\\', DS), '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
@@ -14,9 +56,9 @@ class ArRoute extends ArComponent {
     }
 
     /**
-     * url parse .
+     * parse string.
      *
-     * import muti url format.
+     * @return mixed
      */
     public function parse()
     {
@@ -24,16 +66,18 @@ class ArRoute extends ArComponent {
 
         $phpSelf = $_SERVER['SCRIPT_NAME'];
 
-        if (strpos($requestUrl, $phpSelf) !== false)
+        if (strpos($requestUrl, $phpSelf) !== false) :
             $requestUrl = str_replace($phpSelf, '', $requestUrl);
+        endif;
 
         if (($pos = strpos($requestUrl, '?')) !== false) :
             $queryStr = substr($requestUrl, $pos + 1);
             $requestUrl = substr($requestUrl, 0, $pos);
         endif;
 
-        if (($root = dirname($phpSelf)) != '/')
+        if (($root = dirname($phpSelf)) != '/') :
             $requestUrl = preg_replace("#^$root#", '', $requestUrl);
+        endif;
 
         $requestUrl = trim($requestUrl, '/');
         $pathArr = explode('/', $requestUrl);
