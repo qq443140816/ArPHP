@@ -119,3 +119,25 @@ function arLm($module)
     return Ar::importPath(ROOT_PATH . str_replace('.', DS, $module));
 
 }
+
+/**
+ * echo for default
+ *
+ * @param string $echo    echo.
+ * @param string $default default out.
+ *
+ * @return void
+ */
+function arEcho($echo = '', $default = '')
+{
+    if (is_array($default)) :
+        $echo = $default[(int)$echo];
+    else :
+        if (empty($echo)) :
+            $echo = $default;
+        endif;
+    endif;
+
+    echo $echo;
+
+}

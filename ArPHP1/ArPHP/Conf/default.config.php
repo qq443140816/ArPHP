@@ -10,5 +10,6 @@ return array(
                 'CACHE' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'Cache' . DS,
                 'VIEW' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'View' . DS,
                 'UPLOAD' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'Upload' . DS,
+                'EXT' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'Ext' . DS,
         ),
    );
