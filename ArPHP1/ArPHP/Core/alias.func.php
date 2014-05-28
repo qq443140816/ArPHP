@@ -141,3 +141,4 @@ function arEcho($echo = '', $default = '')
     echo $echo;
 
 }
+
