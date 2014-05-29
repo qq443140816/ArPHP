@@ -1,67 +1,112 @@
 <?php
 /**
- * class Db default class PDO
+ * ArPHP A Strong Performence PHP FrameWork ! You Should Have.
  *
- * @author assnr <ycassnr@gmail.com>
+ * PHP version 5
+ *
+ * @category PHP
+ * @package  Core.Component.Db
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
+ * @link     http://www.arphp.net
  */
 
 /**
- * abstract Db class.
+ * mysql
+ *
+ * default hash comment :
+ *
+ * <code>
+ *  # This is a hash comment, which is prohibited.
+ *  $hello = 'hello';
+ * </code>
+ *
+ * @category ArPHP
+ * @package  Core.Components.Db
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  Release: @package_version@
+ * @link     http://www.arphp.net
  */
 class ArMysql extends ArDb
 {
-
+    // driver
     public $driverName = __CLASS__;
+    // last sql
     public $lastSql = '';
+    // last insert id
     public $lastInsertId = '';
+    // guess
     public $allowGuessConditionOperator = true;
-
+    // query options
     protected $options = array(
-            'columns' => '*',
-            'table' => '',
-            'join' => '',
-            'where' => '',
-            'group' => '',
-            'having' => '',
-            'order' => '',
-            'limit' => '',
-            'union' => '',
-            'comment' => '',
+        'columns' => '*',
+        'table' => '',
+        'join' => '',
+        'where' => '',
+        'group' => '',
+        'having' => '',
+        'order' => '',
+        'limit' => '',
+        'union' => '',
+        'comment' => '',
         );
 
+    /**
+     * init.
+     *
+     * @param mixed  $config config.
+     * @param string $class  class.
+     *
+     * @return Object
+     */
     static public function init($config = array(), $class = __CLASS__)
     {
         self::$config = $config;
 
         $defaultDbconfig = self::$config['read']['default'];
 
-        if (empty(self::$readConnections['default']))
+        if (empty(self::$readConnections['default'])) :
             self::$readConnections['default'] = new self($defaultDbconfig);
+        endif;
 
         return self::$readConnections['default'];
 
     }
 
-    private function query($sql = '')
+    /**
+     * query
+     *
+     * @param string $sql sql string.
+     *
+     * @return mixed
+     */
+    protected function query($sql = '')
     {
         static $i = array();
-        if (empty($sql))
+        if (empty($sql)) :
             $sql = $this->buildSelectSql();
+        endif;
 
         $sqlCmd = strtoupper(substr($sql, 0, 6));
 
-        if(in_array($sqlCmd, array('UPDATE', 'DELETE')) && stripos($sql, 'where') === false)
+        if(in_array($sqlCmd, array('UPDATE', 'DELETE')) && stripos($sql, 'where') === false) :
             throw new ArDbException('no WHERE condition in SQL(UPDATE, DELETE) to be executed! please make sure it\'s safe', 42005);
+        endif;
 
         $this->lastSql = $sql;
-        $this->_pdoStatement = $this->_pdo->query($sql);
-        $i[] = $this->_pdoStatement;
-        // if (count($i) == 2)
-            // var_dump($i[0] ,$i[1]);
-        return $this->_pdoStatement;
+        $this->pdoStatement = $this->pdo->query($sql);
+        $i[] = $this->pdoStatement;
+        return $this->pdoStatement;
 
     }
 
+    /**
+     * get columns.
+     *
+     * @return mixed
+     */
     public function getColumns()
     {
         $table = $this->options['table'];
@@ -80,17 +125,28 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * count.
+     *
+     * @return mixed
+     */
     public function count()
     {
         $result = $this->select(array('COUNT(\'*\') as t'))->queryRow();
-        if (empty($result))
+        if (empty($result)) :
             $total = 0;
-        else
+        else :
             $total = (int)$result['t'];
+        endif;
         return $total;
 
     }
 
+    /**
+     * query row.
+     *
+     * @return mixed
+     */
     public function queryRow()
     {
         $this->limit(1);
@@ -98,12 +154,24 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * query all.
+     *
+     * @return mixed
+     */
     public function queryAll()
     {
         return $this->query()->fetchAll(PDO::FETCH_ASSOC);
 
     }
 
+    /**
+     * source.
+     *
+     * @param string $source source.
+     *
+     * @return Object
+     */
     public function setSource($source)
     {
         $this->options['source'] = $source;
@@ -111,6 +179,14 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * insert.
+     *
+     * @param array   $data      data.
+     * @param boolean $checkData checkData for filter.
+     *
+     * @return mixed
+     */
     public function insert(array $data = array(), $checkData = false)
     {
         if (ArModel::model($this->options['source'])->insertCheck($data)) :
@@ -118,10 +194,9 @@ class ArMysql extends ArDb
             $data = ArModel::model($this->options['source'])->formatData($data);
 
             if (!empty($data)) :
-
-                if ($checkData)
+                if ($checkData) :
                     $data = arComp('format.format')->filterKey($this->getColumns(), $data);
-
+                endif;
                 $this->data($data);
             else :
                 return false;
@@ -129,7 +204,8 @@ class ArMysql extends ArDb
 
             $sql = $this->bulidInsertSql();
             $this->exec($sql);
-            return $this->lastInsertId = $this->_pdo->lastInsertId();
+
+            return $this->lastInsertId = $this->pdo->lastInsertId();
 
         endif;
 
@@ -137,6 +213,14 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * update.
+     *
+     * @param array   $data      data.
+     * @param boolean $checkData checkData.
+     *
+     * @return mixed
+     */
     public function update(array $data = array(), $checkData = false)
     {
         if ($checkData) :
@@ -144,8 +228,9 @@ class ArMysql extends ArDb
             unset($data['id']);
         endif;
 
-        if (!empty($data))
+        if (!empty($data)) :
             $this->columns($data);
+        endif;
         $sql = $this->bulidUpdateSql();
 
         return $this->exec($sql);
@@ -153,64 +238,101 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * delete.
+     *
+     * @return mixed
+     */
     public function delete()
     {
         $sql = $this->buildDeleteSql();
-        if (!preg_match('/ WHERE /i', $sql))
+        if (!preg_match('/ WHERE /i', $sql)) :
             throw new ArDbException('bad sql condition , where must to be infix');
+        endif;
         return $this->exec($sql);
 
     }
 
-    private function exec($sql)
+    /**
+     * exec.
+     *
+     * @param string $sql sql.
+     *
+     * @return mixed
+     */
+    protected function exec($sql)
     {
         $this->lastSql = $sql;
-        return $this->_pdo->exec($sql);
+        return $this->pdo->exec($sql);
 
     }
 
+    /**
+     * quote.
+     *
+     * @param mixed $data data.
+     *
+     * @return mixed
+     */
     protected function quote($data)
     {
-        if (is_array( $data ) || is_object( $data )) {
-            $return = array ();
-            foreach ( $data as $k => $v ) {
-                $return [$k] = $this->quote ( $v );
-            }
+        if (is_array($data) || is_object($data)) :
+            $return = array();
+            foreach ($data as $k => $v) :
+                $return[$k] = $this->quote($v);
+            endforeach;
             return $return;
-        } else {
-            $data = $this->_pdo->quote ( $data );
-            if (false === $data)
+        else :
+            $data = $this->pdo->quote($data);
+            if (false === $data) :
                 $data = "''";
+            endif;
             return $data;
-        }
+        endif;
 
     }
 
+    /**
+     * select fields.
+     *
+     * @param mixed $fields fields.
+     *
+     * @return mixed
+     */
     public function select($fields = '')
     {
-        if(is_string($fields) && strpos($fields, ',')) {
+        if (is_string($fields) && strpos($fields, ',')) :
             $fields = explode(',', $fields);
-        }
-        if(is_array($fields)) {
+        endif;
+
+        if (is_array($fields)) :
             $array   =  array();
-            foreach ($fields as $key=>$field){
-                if(!is_numeric($key))
-                    $array[] =  $this->quoteObj($key).' AS '.$this->quoteObj($field);
-                else
-                    $array[] =  $this->quoteObj($field);
-            }
+            foreach ($fields as $key => $field) :
+                if (!is_numeric($key)) :
+                    $array[] = $this->quoteObj($key) . ' AS ' . $this->quoteObj($field);
+                else :
+                    $array[] = $this->quoteObj($field);
+                endif;
+            endforeach;
             $fieldsStr = implode(',', $array);
-        } elseif (is_string($fields) && !empty($fields)) {
+        elseif (is_string($fields) && !empty($fields)) :
             $fieldsStr = $this->quoteObj($fields);
-        } else {
+        else :
             $fieldsStr = '*';
-        }
+        endif;
 
         $this->options['columns'] = $fieldsStr;
         return $this;
 
     }
 
+    /**
+     * table.
+     *
+     * @param string $table table.
+     *
+     * @return mixed
+     */
     public function table($table)
     {
         $this->options['table'] = $this->quoteObj($this->currentConfig['prefix'] . $table);
@@ -218,82 +340,126 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * join.
+     *
+     * @param string $table table.
+     * @param mixed  $cond  condition.
+     *
+     * @return mixed
+     */
     public function join($table, $cond)
     {
         return $this->joinInternal('JOIN', $table, $cond);
 
     }
 
+    /**
+     * leftjon.
+     *
+     * @param string $table table.
+     * @param mixed  $cond  condition.
+     *
+     * @return mixed
+     */
     public function leftJoin($table, $cond)
     {
         return $this->joinInternal('LEFT JOIN', $table, $cond);
 
     }
 
+
+    /**
+     * rightjoin.
+     *
+     * @param string $table table.
+     * @param mixed  $cond  condition.
+     *
+     * @return mixed
+     */
     public function rightJoin($table, $cond)
     {
         return $this->joinInternal('RIGHT JOIN', $table, $cond);
 
     }
 
+
+    /**
+     * join.
+     *
+     * @param string $join  join table.
+     * @param string $table table.
+     * @param mixed  $cond  condition.
+     *
+     * @return mixed
+     */
     protected function joinInternal($join, $table, $cond)
     {
         $table = $this->quoteObj($table);
         $this->options['join'] .= " $join $table ";
-        if (is_string($cond)
-        && (strpos($cond, '=') === false && strpos($cond, '<') === false && strpos($cond, '>') === false))
-        {
+        if (is_string($cond) && (strpos($cond, '=') === false && strpos($cond, '<') === false && strpos($cond, '>') === false)) :
             $column = $this->quoteObj($cond);
             $this->options['join'] .= " USING ($column) ";
-        } else {
+        else :
             $cond = $this->buildCondition($cond);
             $this->options['join'] .= " ON $cond ";
-        }
+        endif;
         return $this;
+
     }
 
-    public function quoteObj($objName) {
-        if (is_array ( $objName )) {
-            $return = array ();
-            foreach ( $objName as $k => $v ) {
+    /**
+     * quote.
+     *
+     * @param string $objName objName.
+     *
+     * @return mixed
+     */
+    public function quoteObj($objName)
+    {
+        if (is_array($objName)) :
+            $return = array();
+            foreach ( $objName as $k => $v ) :
                 $return[] = $this->quoteObj($v);
-            }
+            endforeach;
             return $return;
-        } else {
+        else :
             $v = trim($objName);
             $v = str_replace('`', '', $v);
             $v = preg_replace('# +AS +| +#i', ' ', $v);
             $v = explode(' ', $v);
-            foreach($v as $k_1=>$v_1) {
+
+            foreach ($v as $k_1 => $v_1) :
                 $v_1 = trim($v_1);
-                if($v_1 == '')
-                {
+                if ($v_1 == '') :
                     unset($v[$k_1]);
                     continue;
-                }
-                if(strpos($v_1, '.'))
-                {
+                endif;
+                if (strpos($v_1, '.')) :
                     $v_1 = explode('.', $v_1);
-                    foreach($v_1 as $k_2 => $v_2)
-                    {
+                    foreach ($v_1 as $k_2 => $v_2) :
                         $v_1[$k_2] = '`'.trim($v_2).'`';
-                    }
+                    endforeach;
                     $v[$k_1] = implode('.', $v_1);
-                }
-                elseif (preg_match('#\(.+\)#', $v_1)) {
+                elseif (preg_match('#\(.+\)#', $v_1)) :
                     $v[$k_1] = $v_1;
-                }
-                else
-                {
-                   $v[$k_1] = '`'.$v_1.'`';
-                }
-            }
+                else :
+                    $v[$k_1] = '`'.$v_1.'`';
+                endif;
+            endforeach;
+
             $v = implode(' AS ', $v);
             return $v;
-        }
+        endif;
     }
 
-
+    /**
+     * group.
+     *
+     * @param string $group group.
+     *
+     * @return mixed
+     */
     public function group($group)
     {
         $this->options['group'] = empty($group) ? '' : ' GROUP BY ' . $group;
@@ -301,6 +467,13 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * having.
+     *
+     * @param string $having having.
+     *
+     * @return mixed
+     */
     public function having($having)
     {
         $this->options['having'] = empty($having) ? '' : ' HAVING ' . $having;
@@ -308,6 +481,13 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * where.
+     *
+     * @param mixed $conditions cond.
+     *
+     * @return mixed
+     */
     public function where($conditions = '')
     {
         $conStr = $this->buildCondition($conditions);
@@ -316,6 +496,14 @@ class ArMysql extends ArDb
 
     }
 
+
+    /**
+     * order.
+     *
+     * @param mixed $order order by.
+     *
+     * @return mixed
+     */
     public function order($order)
     {
         $this->options['order'] = empty($order) ? '' : ' ORDER BY ' . $order;
@@ -323,6 +511,13 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * limit.
+     *
+     * @param mixed $limit limit.
+     *
+     * @return mixed
+     */
     public function limit($limit)
     {
         $this->options['limit'] = empty($limit) ? '' : ' LIMIT ' . $limit;
@@ -330,11 +525,25 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * union.
+     *
+     * @param mixed $union union.
+     *
+     * @return mixed
+     */
     public function union($union)
     {
 
     }
 
+    /**
+     * columns.
+     *
+     * @param mixed $data data.
+     *
+     * @return mixed
+     */
     public function columns($data)
     {
         $setStr = '';
@@ -352,163 +561,167 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * where.
+     *
+     * @param array $data data.
+     *
+     * @return mixed
+     */
     public function data(array $data)
     {
         $values  =  $fields    = array();
-        foreach ($data as $key => $val) {
-            if(is_scalar($val) || is_null($val)) {
+        foreach ($data as $key => $val) :
+            if(is_scalar($val) || is_null($val)) :
                 $fields[] = $this->quoteObj($key);
                 $values[] = $this->quote($val);
-            }
-        }
+            endif;
+        endforeach;
         $this->options['data'] = '(' . implode($fields, ',') . ') VALUES (' . implode($values, ',') . ')';
         return $this;
     }
 
+    /**
+     * build
+     *
+     * @param mixed  $condition cond.
+     * @param string $logic     logic.
+     *
+     * @return mixed
+     */
     public function buildCondition($condition = array(), $logic = 'AND')
     {
-        if( ! is_array($condition))
-        {
-            if (is_string($condition))
-            {
-                //forbid to use a CONSTANT as condition
+        if (!is_array($condition)) :
+            if (is_string($condition)) :
                 $count = preg_match('#\>|\<|\=| #', $condition, $logic);
-                if(!$count)
-                {
+                if (!$count) :
                     throw new ArDbException('bad sql condition: must be a valid sql condition');
-                }
+                endif;
                 $condition = explode($logic[0], $condition);
                 $condition[0] = $this->quoteObj($condition[0]);
                 $condition = implode($logic[0], $condition);
                 return $condition;
-            }
-
+            endif;
             throw new ArDbException('bad sql condition: ' . gettype($condition));
-        }
+        endif;
+
         $logic = strtoupper($logic);
         $content = null;
-        foreach ($condition as $k => $v)
-        {
+        foreach ($condition as $k => $v) :
             $v_str = null;
             $v_connect = '';
 
-            if (is_int($k))
-            {
-                //default logic is always 'AND'
-                if ($content)
+            if (is_int($k)) :
+                if ($content) :
                     $content .= $logic . ' (' . $this->buildCondition($v) . ') ';
-                else
+                else :
                     $content = '(' . $this->buildCondition($v) . ') ';
+                endif;
                 continue;
-            }
+            endif;
 
             $k = trim($k);
 
             $maybe_logic = strtoupper($k);
-            if (in_array($maybe_logic, array('AND', 'OR')))
-            {
-                if ($content)
+
+            if (in_array($maybe_logic, array('AND', 'OR'))) :
+                if ($content) :
                     $content .= $logic . ' (' . $this->buildCondition($v, $maybe_logic) . ') ';
-                else
+                else :
                     $content = '(' . $this->buildCondition($v, $maybe_logic) . ') ';
+                endif;
                 continue;
-            }
+            endif;
 
             $k_upper = strtoupper($k);
-            //the order is important, longer fist, to make the first break correct.
+
             $maybe_connectors = array('>=', '<=', '<>', '!=', '>', '<', '=',
-                    ' NOT BETWEEN', ' BETWEEN', 'NOT LIKE', ' LIKE', ' IS NOT', ' NOT IN', ' IS', ' IN');
-            foreach ($maybe_connectors as $maybe_connector)
-            {
+                ' NOT BETWEEN', ' BETWEEN', 'NOT LIKE', ' LIKE', ' IS NOT', ' NOT IN', ' IS', ' IN');
+
+            foreach ($maybe_connectors as $maybe_connector) :
                 $l = strlen($maybe_connector);
-                if (substr($k_upper, -$l) == $maybe_connector)
-                {
+                if (substr($k_upper, -$l) == $maybe_connector) :
                     $k = trim(substr($k, 0, -$l));
                     $v_connect = $maybe_connector;
                     break;
-                }
-            }
-            if (is_null($v))
-            {
-                $v_str = ' NULL';
-                if( $v_connect == '') {
-                    $v_connect = 'IS';
-                }
-            }
-            else if (is_array($v))
-            {
-                if($v_connect == ' BETWEEN') {
-                    $v_str = $this->quote($v[0]) . ' AND ' . $this->quote($v[1]);
-                }
-                else if ( is_array($v) && ! empty($v) ) {
-                    // 'key' => array(v1, v2)
-                    $v_str = null;
-                    foreach ($v AS $one)
-                    {
-                        if(is_array($one)) {
-                            // (a,b) in ( (c, d), (e, f) )
-                            $sub_items = '';
-                            foreach($one as $sub_value) {
-                                $sub_items .= ',' . $this->quote($sub_value);
-                            }
-                            $v_str .= ',(' . substr($sub_items, 1) . ')' ;
-                        } else {
-                            $v_str .= ',' . $this->quote($one);
-                        }
-                    }
-                    $v_str = '(' . substr($v_str, 1) . ')';
-                    if (empty($v_connect)) {
-                        if($this->allowGuessConditionOperator === null || $this->allowGuessConditionOperator === true)
-                        {
-                            // if($this->allowGuessConditionOperator === null)
-                                // Log::instance()->log("guessing condition operator is not allowed: use '$k IN'=>array(...)", array('type'=>E_WARNING));
+                endif;
+            endforeach;
 
+            if (is_null($v)) :
+                $v_str = ' NULL';
+                if ($v_connect == '') :
+                    $v_connect = 'IS';
+                endif;
+            elseif (is_array($v)) :
+                if ($v_connect == ' BETWEEN') :
+                    $v_str = $this->quote($v[0]) . ' AND ' . $this->quote($v[1]);
+                elseif (is_array($v) && !empty($v)) :
+                    $v_str = null;
+                    foreach ($v AS $one) :
+                        if (is_array($one)) :
+                            $sub_items = '';
+                            foreach ($one as $sub_value) :
+                                $sub_items .= ',' . $this->quote($sub_value);
+                            endforeach;
+                            $v_str .= ',(' . substr($sub_items, 1) . ')' ;
+                        else :
+                            $v_str .= ',' . $this->quote($one);
+                        endif;
+                    endforeach;
+                    $v_str = '(' . substr($v_str, 1) . ')';
+
+                    if (empty($v_connect)) :
+                        if ($this->allowGuessConditionOperator === null || $this->allowGuessConditionOperator === true) :
                             $v_connect = 'IN';
-                        }
-                        else
+                        else :
                             throw new ArDbException("guessing condition operator is not allowed: use '$k IN'=>array(...)");
-                    }
-                }
-                else if (empty($v)) {
-                    // 'key' => array()
+                        endif;
+                    endif;
+                elseif (empty($v)) :
                     $v_str = $k;
                     $v_connect = '<>';
-                }
-            }
-            else {
+                endif;
+            else :
                 $v_str = $this->quote($v);
-            }
+            endif;
 
-            if(empty($v_connect))
+            if (empty($v_connect)) :
                 $v_connect = '=';
+            endif;
 
             $quoted_k = $this->quoteObj($k);
-            if ($content)
+            if ($content) :
                 $content .= " $logic ( $quoted_k $v_connect $v_str ) ";
-            else
+            else :
                 $content = " ($quoted_k $v_connect $v_str) ";
-        }
+            endif;
+        endforeach;
 
         return $content;
 
     }
 
+    /**
+     * build sql
+     *
+     * @return string
+     */
     protected function buildSelectSql()
     {
-         $sql   = str_replace(
+        $sql = str_replace(
             array('%TABLE%','%COLUMNS%','%JOIN%','%WHERE%','%GROUP%','%HAVING%','%ORDER%','%LIMIT%','%UNION%','%COMMENT%'),
             array(
-                $this->options['table'],
-                $this->options['columns'],
-                $this->options['join'],
-                $this->options['where'],
-                $this->options['group'],
-                $this->options['having'],
-                $this->options['order'],
-                $this->options['limit'],
-                $this->options['union'],
-                $this->options['comment']
-            ),
+                    $this->options['table'],
+                    $this->options['columns'],
+                    $this->options['join'],
+                    $this->options['where'],
+                    $this->options['group'],
+                    $this->options['having'],
+                    $this->options['order'],
+                    $this->options['limit'],
+                    $this->options['union'],
+                    $this->options['comment']
+                ),
             'SELECT %COLUMNS% FROM %TABLE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%COMMENT%'
         );
 
@@ -516,16 +729,21 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * bulid update sql.
+     *
+     * @return string
+     */
     protected function bulidUpdateSql()
     {
         $sql   = str_replace(
             array('%TABLE%','%SET%','%WHERE%','%COMMENT%'),
             array(
-                $this->options['table'],
-                $this->options['set'],
-                $this->options['where'],
-                $this->options['comment']
-            ),
+                    $this->options['table'],
+                    $this->options['set'],
+                    $this->options['where'],
+                    $this->options['comment']
+                ),
             'UPDATE %TABLE%%SET%%WHERE%%COMMENT%'
         );
 
@@ -533,15 +751,20 @@ class ArMysql extends ArDb
 
     }
 
+    /**
+     * bulid insert sql.
+     *
+     * @return string
+     */
     protected function bulidInsertSql()
     {
         $sql = str_replace(
             array('%TABLE%','%DATA%','%COMMENT%'),
             array(
-                $this->options['table'],
-                $this->options['data'],
-                $this->options['comment']
-            ),
+                    $this->options['table'],
+                    $this->options['data'],
+                    $this->options['comment']
+                ),
             'INSERT INTO %TABLE%%DATA%%COMMENT%'
         );
 
@@ -549,14 +772,22 @@ class ArMysql extends ArDb
 
     }
 
-    public function buildDeleteSql($options=array()) {
+    /**
+     * bulid delete sql.
+     *
+     * @param mixed $options options
+     *
+     * @return string
+     */
+    public function buildDeleteSql($options = array())
+    {
         $sql = str_replace(
             array('%TABLE%', '%WHERE%', '%COMMENT%'),
             array(
-                $this->options['table'],
-                $this->options['where'],
-                $this->options['comment']
-            ),
+                    $this->options['table'],
+                    $this->options['where'],
+                    $this->options['comment']
+                ),
             'DELETE FROM %TABLE%%WHERE%%COMMENT%'
         );
 
@@ -564,7 +795,11 @@ class ArMysql extends ArDb
 
     }
 
-
+    /**
+     * to string.
+     *
+     * @return mixed
+     */
     public function __toString()
     {
         return var_export(get_class_methods(__CLASS__), 1);

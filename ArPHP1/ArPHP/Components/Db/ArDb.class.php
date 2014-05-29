@@ -1,63 +1,115 @@
 <?php
 /**
- * class Db default classPDO 
+ * ArPHP A Strong Performence PHP FrameWork ! You Should Have.
  *
- * @author assnr <ycassnr@gmail.com>
+ * PHP version 5
+ *
+ * @category PHP
+ * @package  Core.Component.Db
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
+ * @link     http://www.arphp.net
  */
 
 /**
- * abstract Db class.
+ * ArDb
+ *
+ * default hash comment :
+ *
+ * <code>
+ *  # This is a hash comment, which is prohibited.
+ *  $hello = 'hello';
+ * </code>
+ *
+ * @category ArPHP
+ * @package  Core.Component.Db
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  Release: @package_version@
+ * @link     http://www.arphp.net
  */
-class ArDb extends ArComponent {
-
+class ArDb extends ArComponent
+{
+    // read
     static public $readConnections = array();
+    // write
     static public $writeConnections = array();
-
+    // config
     public $currentConfig = array();
+    // pdo
+    protected $pdo = null;
+    // pdoStatement
+    protected $pdoStatement = null;
 
-    protected $_pdo = null;
-    protected $_pdoStatement = null;
-
+    /**
+     * construct.
+     *
+     * @param array $config config.
+     *
+     * @return void
+     */
     public function __construct(array $config)
     {
         $this->currentConfig = $config;
-
-        set_exception_handler(array($this, 'exceptionHandler'));
         try {
-
-            $this->_pdo = new PDO($config['dsn'], $config['user'], $config['pass'], $config['option']);
-
+            $this->pdo = new PDO($config['dsn'], $config['user'], $config['pass'], $config['option']);
         } catch (PDOException $e) {
             throw $e;
-
         }
 
     }
 
+    /**
+     * read connection.
+     *
+     * @param string $name connection name.
+     *
+     * @return void
+     */
     public function read($name = 'default')
     {
-        if (!isset(self::$readConnections[$name]) && isset(self::$config['read'][$name]))
+        if (!isset(self::$readConnections[$name]) && isset(self::$config['read'][$name])) :
             $this->addReadConnection($name);
+        endif;
 
-        if (isset(self::$readConnections[$name]))
+        if (isset(self::$readConnections[$name])) :
             return self::$readConnections[$name];
-        else
+        else :
             throw new ArDbException('dbReadConfig not hava a param ' . $name, 1);
+        endif;
 
     }
 
+    /**
+     * read connection.
+     *
+     * @param string $name connection name.
+     *
+     * @return mixed
+     */
     public function write($name = 'default')
     {
-        if (!isset(self::$writeConnections[$name]) && isset(self::$config['write'][$name]))
+        if (!isset(self::$writeConnections[$name]) && isset(self::$config['write'][$name])) :
             $this->addWriteConnection($name);
+        endif;
 
-        if (isset(self::$writeConnections[$name]))
+        if (isset(self::$writeConnections[$name])) :
             return self::$writeConnections[$name];
-        else
+        else :
             throw new ArDbException('dbWriteConfig not hava a param ' . $name, 1);
+        endif;
 
     }
 
+
+    /**
+     * read connection.
+     *
+     * @param string $name connection name.
+     *
+     * @return void
+     */
     protected function addReadConnection($name = '')
     {
         if (!isset(self::$writeConnections[$name])) :
@@ -72,6 +124,13 @@ class ArDb extends ArComponent {
 
     }
 
+    /**
+     * read connection.
+     *
+     * @param string $name connection name.
+     *
+     * @return void
+     */
     protected function addWriteConnection($name = '')
     {
         if (!isset(self::$writeConnections[$name])) :
@@ -86,41 +145,63 @@ class ArDb extends ArComponent {
 
     }
 
+    /**
+     * read connection.
+     *
+     * @param string $attribute attr.
+     * @param string $value     value.
+     *
+     * @return Object
+     */
     public function setPdoAttributes($attribute , $value = '')
     {
-        $this->_pdo->setAttribute($attribute, $value);
+        $this->pdo->setAttribute($attribute, $value);
         return $this;
 
     }
 
+    /**
+     * trans.
+     *
+     * @return boolean
+     */
     public function transBegin()
     {
-        return $this->_pdo->beginTransaction();
+        return $this->pdo->beginTransaction();
 
     }
 
+    /**
+     * trans commit.
+     *
+     * @return boolean
+     */
     public function transCommit()
     {
-        return $this->_pdo->commit();
+        return $this->pdo->commit();
 
     }
 
+    /**
+     * trans roolbank.
+     *
+     * @return boolean
+     */
     public function transRoolBack()
     {
-        return $this->_pdo->rollBack();
+        return $this->pdo->rollBack();
 
     }
 
+    /**
+     * if in trans.
+     *
+     * @return boolean
+     */
     public function inTransaction()
     {
         // This method actually seems to work fine on PHP5.3.5 (and probably a few older versions).
-        return $this->_pdo->inTransaction();
-
-    }
-
-    public function exceptionHandler($e)
-    {
-        echo get_class($e) . ' Msg : ' . $e->getMessage() . "\n" .' Code : '. $e->getCode() . "\n" . 'LastSql : ' . $this->lastSql;
+        return $this->pdo->inTransaction();
 
     }
 
