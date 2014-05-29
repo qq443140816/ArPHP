@@ -1,8 +1,40 @@
 <?php
-class ArValidator extends ArComponent {
+/**
+ * ArPHP A Strong Performence PHP FrameWork ! You Should Have.
+ *
+ * PHP version 5
+ *
+ * @category PHP
+ * @package  Core.Component.Validator
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
+ * @link     http://www.arphp.net
+ */
 
-   /**
+/**
+ * ArValidator
+ *
+ * default hash comment :
+ *
+ * <code>
+ *  # This is a hash comment, which is prohibited.
+ *  $hello = 'hello';
+ * </code>
+ *
+ * @category ArPHP
+ * @package  Core.Component.Validator
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  Release: @package_version@
+ * @link     http://www.arphp.net
+ */
+class ArValidator extends ArComponent
+{
+    /**
      * check if number.
+     *
+     * @param mixed $obj obj.
      *
      * @return boolean
      */
@@ -14,6 +46,8 @@ class ArValidator extends ArComponent {
 
     /**
      * check if muti array.
+     *
+     * @param mixed $obj obj.
      *
      * @return boolean
      */
@@ -38,6 +72,8 @@ class ArValidator extends ArComponent {
     /**
      * check if url.
      *
+     * @param stirng $url url.
+     *
      * @return boolean
      */
     public function checkUrl($url)
@@ -49,6 +85,9 @@ class ArValidator extends ArComponent {
     /**
      * check key equal.
      *
+     * @param array $arri array.
+     * @param array $arro compare array.
+     *
      * @return boolean
      */
     public function checkArrayKeyEqual(array $arri, array $arro)
@@ -59,9 +98,7 @@ class ArValidator extends ArComponent {
         $rt = true;
 
         if ($lengthi !== $lengtho) :
-
             $rt = false;
-
         else :
             foreach ($arri as $ikey => $ivalue) :
 
@@ -77,40 +114,64 @@ class ArValidator extends ArComponent {
 
     }
 
+    /**
+     * checkAjax.
+     *
+     * @return boolean
+     */
     public function checkAjax()
     {
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') :
             return true;
-        else
+        else :
             return false;
+        endif;
 
     }
 
+    /**
+     * checkEmpty.
+     *
+     * @param mixed $obj obj.
+     *
+     * @return boolean
+     */
     public function checkEmpty($obj)
     {
         return empty($obj);
 
     }
 
+    /**
+     * checkDataByRules.
+     *
+     * @param array $data  input data.
+     * @param array $rules check rules.
+     *
+     * @return array
+     */
     public function checkDataByRules(array $data, array $rules)
     {
         foreach ($rules as $k => $rule) :
 
             if (array_key_exists($k, $data)) :
-                switch ($rule[0]) :
-                    case 'number' :
-                        if ($this->checkNumber($data[$k]))
-                            unset($rules[$k]);
-                        break;
-                    case 'required' :
-                        if (!$this->checkEmpty($data[$k]))
-                            unset($rules[$k]);
-                        break;
-                    default :
-                        if (!$this->checkEmpty($data[$k]))
-                            unset($rules[$k]);
-                        break;
-                endswitch;
+                switch ($rule[0]) {
+                case 'number' :
+                    if ($this->checkNumber($data[$k])) :
+                        unset($rules[$k]);
+                    endif;
+                    break;
+                case 'required' :
+                    if (!$this->checkEmpty($data[$k])) :
+                        unset($rules[$k]);
+                    endif;
+                    break;
+                default :
+                    if (!$this->checkEmpty($data[$k])) :
+                        unset($rules[$k]);
+                    endif;
+                    break;
+                }
             endif;
 
         endforeach;

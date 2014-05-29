@@ -1,6 +1,44 @@
 <?php
-class ArFormat extends ArComponent {
+/**
+ * ArPHP A Strong Performence PHP FrameWork ! You Should Have.
+ *
+ * PHP version 5
+ *
+ * @category PHP
+ * @package  Core.Component.Format
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
+ * @link     http://www.arphp.net
+ */
 
+/**
+ * ArFormat
+ *
+ * default hash comment :
+ *
+ * <code>
+ *  # This is a hash comment, which is prohibited.
+ *  $hello = 'hello';
+ * </code>
+ *
+ * @category ArPHP
+ * @package  Core.Component.Format
+ * @author   yc <ycassnr@gmail.com>
+ * @license  http://www.arphp.net/licence BSD Licence
+ * @version  Release: @package_version@
+ * @link     http://www.arphp.net
+ */
+class ArFormat extends ArComponent
+{
+    /**
+     * time to date.
+     *
+     * @param mixed  $obj data.
+     * @param string $key key to trans.
+     *
+     * @return mixed
+     */
     public function timeToDate($obj, $key = '')
     {
         if (Ar::c('validator.validator')->checkMutiArray($obj)) :
@@ -19,6 +57,15 @@ class ArFormat extends ArComponent {
 
     }
 
+    /**
+     * replace.
+     *
+     * @param string $key   key.
+     * @param mixed  $value value.
+     * @param mixed  $obj   obj.
+     *
+     * @return mixed
+     */
     public function replace($key, $value, $obj)
     {
         if (is_array($obj)) :
@@ -32,6 +79,13 @@ class ArFormat extends ArComponent {
 
     }
 
+    /**
+     * filter.
+     *
+     * @param mixed $obj obj.
+     *
+     * @return mixed
+     */
     public function stripslashes($obj)
     {
         if (is_array($obj)) :
@@ -45,6 +99,13 @@ class ArFormat extends ArComponent {
 
     }
 
+    /**
+     * trim.
+     *
+     * @param string $obj object.
+     *
+     * @return mixed
+     */
     public function trim($obj)
     {
         if (is_array($obj)) :
@@ -58,6 +119,14 @@ class ArFormat extends ArComponent {
 
     }
 
+    /**
+     * encrypt.
+     *
+     * @param mixed  $obj obj.
+     * @param string $key key.
+     *
+     * @return mixed
+     */
     public function encrypt($obj, $key = '')
     {
         if (is_array($obj)) :
@@ -76,6 +145,14 @@ class ArFormat extends ArComponent {
 
     }
 
+    /**
+     * decode.
+     *
+     * @param mixed  $obj obj.
+     * @param string $key key.
+     *
+     * @return mixed
+     */
     public function urldecode($obj, $key = '')
     {
         if (is_array($obj)) :
@@ -94,6 +171,14 @@ class ArFormat extends ArComponent {
 
     }
 
+    /**
+     * urlencode.
+     *
+     * @param mixed  $obj obj.
+     * @param string $key key.
+     *
+     * @return mixed
+     */
     public function urlencode($obj, $key = '')
     {
         if (is_array($obj)) :
@@ -130,12 +215,21 @@ class ArFormat extends ArComponent {
             endif;
         endforeach;
 
-        if (count($args) == 1)
+        if (count($args) == 1) :
             $args = $args[0];
+        endif;
         return $args;
 
     }
 
+    /**
+     * filter array other key.
+     *
+     * @param array $gar  origin array.
+     * @param array $data key array.
+     *
+     * @return array
+     */
     public function filterKey(array $gar, array $data)
     {
         foreach ($data as $k => $v) :
