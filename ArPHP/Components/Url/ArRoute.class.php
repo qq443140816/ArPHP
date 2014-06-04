@@ -75,8 +75,8 @@ class ArRoute extends ArComponent
             $requestUrl = substr($requestUrl, 0, $pos);
         endif;
 
-        if (($root = dirname($phpSelf)) != '/') :
-            $requestUrl = preg_replace("#^$root#", '', $requestUrl);
+        if (($root = dirname($phpSelf)) != '/' && $root != '\\') :
+            $requestUrl = preg_replace("#^{$root}#", '', $requestUrl);
         endif;
 
         $requestUrl = trim($requestUrl, '/');
