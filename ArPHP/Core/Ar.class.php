@@ -368,14 +368,45 @@ class Ar
     /**
      * error handler.
      *
-     * @param string $errno  errno.
-     * @param string $errstr error msg.
+     * @param string $errno   errno.
+     * @param string $errstr  error msg.
+     * @param string $errfile error file.
+     * @param string $errline error line.
      *
-     * @return void
+     * @return mixed
      */
-    static public function errorHandler($errno, $errstr)
+    static public function errorHandler($errno, $errstr, $errfile, $errline)
     {
-        echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
+        if (!(error_reporting() & $errno)) :
+            // This error code is not included in error_reporting
+            return;
+        endif;
+        switch ($errno) {
+        case E_USER_ERROR:
+            echo "<b>ERROR</b> [$errno] $errstr<br />\n";
+            echo "  Fatal error on line $errline in file $errfile";
+            echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+            exit(1);
+            break;
+
+        case E_USER_WARNING:
+            echo "<b>WARNING</b> [$errno] $errstr<br />\n";
+            echo " on line $errline in file $errfile <br />\n";
+            break;
+
+        case E_USER_NOTICE:
+            echo "<b>NOTICE</b> [$errno] $errstr<br />\n";
+            echo " on line $errline in file $errfile <br />\n";
+            break;
+
+        default:
+            echo "Unknown error type: [$errno] $errstr";
+            echo " on line $errline in file $errfile <br />\n";
+            break;
+        }
+
+        /* Don't execute PHP internal error handler */
+        return true;
 
     }
 
