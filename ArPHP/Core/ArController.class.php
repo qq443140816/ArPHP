@@ -378,6 +378,7 @@ str;
         $route = explode('/', $module);
 
         $requestRoute = array(
+                'm' => arCfg('requestRoute.m'),
                 'c' => $route[0],
                 'a' => $route[1],
             );

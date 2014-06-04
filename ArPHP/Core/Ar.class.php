@@ -344,7 +344,18 @@ class Ar
 
         endif;
 
+        if (!empty($params['greedyUrl']) && $params['greedyUrl']) :
+            unset($params['greedyUrl']);
+            unset($_GET['m']);
+            unset($_GET['c']);
+            unset($_GET['a']);
+            $params = array_merge($_GET, $params);
+        endif;
+
         foreach ($params as $pkey => $pvalue) :
+            if (!$pvalue && !is_numeric($pvalue)) :
+                continue;
+            endif;
             $url .= '/' . $pkey . '/' . $pvalue;
         endforeach;
 

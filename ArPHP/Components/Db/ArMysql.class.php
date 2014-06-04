@@ -51,7 +51,7 @@ class ArMysql extends ArDb
         'limit' => '',
         'union' => '',
         'comment' => '',
-        );
+    );
 
     /**
      * init.
@@ -72,6 +72,25 @@ class ArMysql extends ArDb
         endif;
 
         return self::$readConnections['default'];
+
+    }
+
+    //
+    protected function flushOptions()
+    {
+        $this->options = array(
+            'columns' => '*',
+            'table' => '',
+            'join' => '',
+            'where' => '',
+            'group' => '',
+            'having' => '',
+            'order' => '',
+            'limit' => '',
+            'union' => '',
+            'comment' => '',
+        );
+        return true;
 
     }
 
@@ -96,8 +115,15 @@ class ArMysql extends ArDb
         endif;
 
         $this->lastSql = $sql;
-        $this->pdoStatement = $this->pdo->query($sql);
-        $i[] = $this->pdoStatement;
+        $this->flushOptions();
+
+        try {
+            $this->pdoStatement = $this->pdo->query($sql);
+            $i[] = $this->pdoStatement;
+        } catch (PDOException $e) {
+            throw new ArDbException($e->getMessage() . ' lastsql :' . $sql);
+        }
+
         return $this->pdoStatement;
 
     }
@@ -151,6 +177,22 @@ class ArMysql extends ArDb
     {
         $this->limit(1);
         return $this->query()->fetch(PDO::FETCH_ASSOC);
+
+    }
+
+    /**
+     * query row column.
+     *
+     * @param string $field column
+     *
+     * @return mixed
+     */
+    public function queryColumn($field = '')
+    {
+        if ($result = $this->select($field)->queryRow()) :
+            $result = $result[$field];
+        endif;
+        return $result;
 
     }
 
@@ -262,8 +304,13 @@ class ArMysql extends ArDb
      */
     protected function exec($sql)
     {
-        $this->lastSql = $sql;
-        return $this->pdo->exec($sql);
+        try {
+            $this->lastSql = $sql;
+            $this->flushOptions();
+            return $this->pdo->exec($sql);
+        } catch (PDOException $e) {
+            throw new ArDbException($e->getMessage() . ' lastsql :' . $sql);
+        }
 
     }
 
@@ -438,7 +485,11 @@ class ArMysql extends ArDb
                 if (strpos($v_1, '.')) :
                     $v_1 = explode('.', $v_1);
                     foreach ($v_1 as $k_2 => $v_2) :
-                        $v_1[$k_2] = '`'.trim($v_2).'`';
+                        if ($v_2 != '*') :
+                            $v_1[$k_2] = '`' . trim($v_2) . '`';
+                        else :
+                            $v_1[$k_2] = trim($v_2) ;
+                        endif;
                     endforeach;
                     $v[$k_1] = implode('.', $v_1);
                 elseif (preg_match('#\(.+\)#', $v_1)) :
@@ -451,6 +502,7 @@ class ArMysql extends ArDb
             $v = implode(' AS ', $v);
             return $v;
         endif;
+
     }
 
     /**

@@ -161,11 +161,11 @@ class ArModel
     /**
      * generate insert data.
      *
-     * @param array $data data after format.
+     * @param mixed $data data after format.
      *
      * @return array
      */
-    public function formatData(array $data = array())
+    public function formatData($data)
     {
         return $data;
 
