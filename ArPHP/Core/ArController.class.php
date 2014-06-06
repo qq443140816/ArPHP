@@ -298,7 +298,7 @@ str;
      */
     public function showJson($data = array(), array $options = array())
     {
-        if (empty($options['showJson'])) :
+        if (empty($options['showJson']) || $options['showJson'] == true) :
             header('charset:utf-8');
             header('Content-type:text/javascript');
             if (empty($options['data'])) :
@@ -308,7 +308,7 @@ str;
                     );
 
                 if (is_array($data)) :
-                    if (isset($data['ret_code']) && isset($data['ret_msg'])) :
+                    if (!isset($data['ret_code']) || !isset($data['ret_msg'])) :
                         $retArr['data'] = $data;
                         $retArr['total_lines'] = Ar::c('validator.validator')->checkMutiArray($data) ? (string)count($data) : 1;
 

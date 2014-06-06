@@ -34,23 +34,24 @@ class ArFormat extends ArComponent
     /**
      * time to date.
      *
-     * @param mixed  $obj data.
-     * @param string $key key to trans.
+     * @param mixed  $obj    data.
+     * @param string $key    key to trans.
+     * @param string $forMat format
      *
      * @return mixed
      */
-    public function timeToDate($obj, $key = '')
+    public function timeToDate($obj, $key = '', $forMat = 'm-d')
     {
         if (Ar::c('validator.validator')->checkMutiArray($obj)) :
             foreach ($obj as &$time) :
-                $time = $this->timeToDate($time, $key);
+                $time = $this->timeToDate($time, $key, $forMat);
             endforeach;
         elseif (is_array($obj)) :
             if (isset($obj[$key])) :
-                $obj[$key] = $this->timeToDate($obj[$key]);
+                $obj[$key] = $this->timeToDate($obj[$key], '', $forMat);
             endif;
         else :
-            $obj = date('Y-m-d', Ar::c('validator.validator')->checkNumber($obj) ? $obj : strtotime($obj));
+            $obj = date($forMat, Ar::c('validator.validator')->checkNumber($obj) ? $obj : strtotime($obj));
         endif;
 
         return $obj;
@@ -130,12 +131,14 @@ class ArFormat extends ArComponent
     public function encrypt($obj, $key = '')
     {
         if (is_array($obj)) :
-            if (empty($obj[$key])) :
+            if (Ar::c('validator.validator')->checkMutiArray($obj)) :
                 foreach ($obj as &$eObj) :
                     $eObj = $this->encrypt($eObj, $key);
                 endforeach;
             else :
-                $obj[$key] = $this->encrypt($obj[$key]);
+                if (!empty($obj[$key])) :
+                    $obj[$key] = $this->encrypt($obj[$key]);
+                endif;
             endif;
         else :
             $obj = Ar::c('hash.mcrypt')->encrypt($obj);

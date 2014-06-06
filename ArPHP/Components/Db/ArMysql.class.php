@@ -75,7 +75,11 @@ class ArMysql extends ArDb
 
     }
 
-    //
+    /**
+     * flush options.
+     *
+     * @return boolean
+     */
     protected function flushOptions()
     {
         $this->options = array(
@@ -488,7 +492,7 @@ class ArMysql extends ArDb
                         if ($v_2 != '*') :
                             $v_1[$k_2] = '`' . trim($v_2) . '`';
                         else :
-                            $v_1[$k_2] = trim($v_2) ;
+                            $v_1[$k_2] = trim($v_2);
                         endif;
                     endforeach;
                     $v[$k_1] = implode('.', $v_1);

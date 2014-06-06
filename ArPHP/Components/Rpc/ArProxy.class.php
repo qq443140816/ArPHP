@@ -48,18 +48,17 @@ class ArProxy extends ArText
         $init = curl_init($url);
 
         curl_setopt_array($init, array(
+                CURLOPT_RETURNTRANSFER => 1,
 
-            CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_AUTOREFERER => 1,
 
-            CURLOPT_AUTOREFERER => 1,
+                CURLOPT_RETURNTRANSFER => 1,
 
-            CURLOPT_RETURNTRANSFER => 1,
-
-            CURLOPT_HTTPHEADER => array(
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 ',
-                    'Host' => $this->domainInfo['host'],
-                    'Referer' => $this->domainInfo['referer'],
-                )
+                CURLOPT_HTTPHEADER => array(
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 ',
+                        'Host' => $this->domainInfo['host'],
+                        'Referer' => $this->domainInfo['referer'],
+                    )
             )
         );
 
