@@ -331,8 +331,6 @@ class Ar
     {
         $prefix = rtrim(SERVER_PATH . (arCfg('requestRoute.m') == DEFAULT_APP_NAME ? '' : arCfg('requestRoute.m')), '/');
 
-        $url = ltrim($url, '/');
-
         if (empty($url)) :
             $url = $prefix;
 
@@ -341,6 +339,9 @@ class Ar
         else :
             if (strpos($url, '/') === false) :
                 $url = $prefix . '/' . arCfg('requestRoute.c') . '/' . $url;
+            elseif (strpos($url, '/') === 0) :
+                $url = ltrim($url, '/');
+                $url = SERVER_PATH . $url;
             else :
                 $url = $prefix . '/' . $url;
             endif;

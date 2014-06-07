@@ -271,20 +271,21 @@ str;
      */
     public function showJsonSuccess($msg = ' ')
     {
-        $this->showJson(array('ret_msg' => $msg, 'success' => "1"));
+        $this->showJson(array('ret_msg' => $msg, 'ret_code' => '1000', 'success' => "1"));
 
     }
 
     /**
      * redirect function.
      *
-     * @param string $msg message.
+     * @param string $msg  message.
+     * @param string $code code.
      *
      * @return void
      */
-    public function showJsonError($msg = ' ')
+    public function showJsonError($msg = ' ', $code = '1001')
     {
-        $this->showJson(array('ret_msg' => 'faild', 'error_msg' => $msg, 'success' => "0"));
+        $this->showJson(array('ret_msg' => 'faild', 'ret_code' => $code, 'error_msg' => $msg, 'success' => "0"));
 
     }
 
@@ -314,7 +315,7 @@ str;
 
                         $retArr = array_merge($retArr, $options);
                     else :
-                        if (!empty($data['error_msg'])) :
+                        if (!empty($data['error_msg']) && empty($data['ret_code'])) :
                             $retArr['ret_code'] = "1001";
                         endif;
                         $retArr = array_merge($retArr, $data);
