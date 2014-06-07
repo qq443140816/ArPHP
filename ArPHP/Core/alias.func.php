@@ -75,9 +75,12 @@ function arGet($key = '', $default = null)
     endif;
 
     $ret = arComp('format.format')->addslashes($ret);
-    if (empty($ret) && !is_numeric($ret)) :
+    if (is_numeric($ret)) :
+        $ret = (int)$ret;
+    elseif (empty($ret)) :
         $ret = $default;
     endif;
+
     return $ret;
 
 }
@@ -125,13 +128,19 @@ function arLm($module)
  *
  * @param string $echo    echo.
  * @param string $default default out.
+ * @param string $key     key.
  *
  * @return void
  */
-function arEcho($echo = '', $default = '')
+function arEcho($echo = '', $default = '', $key = '')
 {
     if (is_array($default)) :
-        $echo = $default[(int)$echo];
+        $index = (int)$echo;
+        if (arComp('validator.validator')->checkMutiArray($default)) :
+            $echo = !empty($default[$index]) && !empty($default[$index][$key]) ? $default[$index][$key] : '';
+        else :
+            $echo = empty($default[$index]) ? '' : $default[$index];
+        endif;
     else :
         if (empty($echo)) :
             $echo = $default;

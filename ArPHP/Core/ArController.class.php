@@ -112,7 +112,7 @@ class ArController
                 $cE = explode('.', $ckey);
                 $rt = $this->assign;
                 while ($k = array_shift($cE)) :
-                    if (!isset($rt[$k])) :
+                    if (empty($rt[$k])) :
                         $rt = $defaultReturn;
                         break;
                     else :

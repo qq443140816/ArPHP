@@ -203,11 +203,23 @@ class ArMysql extends ArDb
     /**
      * query all.
      *
+     * @param string $columnKey key.
+     *
      * @return mixed
      */
-    public function queryAll()
+    public function queryAll($columnKey = '')
     {
-        return $this->query()->fetchAll(PDO::FETCH_ASSOC);
+        $result = $this->query()->fetchAll(PDO::FETCH_ASSOC);
+        if ($result && $columnKey) :
+            $dataBox = array();
+            foreach ($result as $row) :
+                if (isset($row[$columnKey])) :
+                    $dataBox[$row[$columnKey]] = $row;
+                endif;
+            endforeach;
+            $result = $dataBox;
+        endif;
+        return $result;
 
     }
 
@@ -235,6 +247,8 @@ class ArMysql extends ArDb
      */
     public function insert(array $data = array(), $checkData = false)
     {
+        $options = $this->options;
+
         if (ArModel::model($this->options['source'])->insertCheck($data)) :
 
             $data = ArModel::model($this->options['source'])->formatData($data);
@@ -243,6 +257,9 @@ class ArMysql extends ArDb
                 if ($checkData) :
                     $data = arComp('format.format')->filterKey($this->getColumns(), $data);
                 endif;
+
+                $this->options = $options;
+
                 $this->data($data);
             else :
                 return false;
@@ -269,14 +286,19 @@ class ArMysql extends ArDb
      */
     public function update(array $data = array(), $checkData = false)
     {
+        $options = $this->options;
+
         if ($checkData) :
             $data = arComp('format.format')->filterKey($this->getColumns(), $data);
             unset($data['id']);
         endif;
 
+        $this->options = $options;
+
         if (!empty($data)) :
             $this->columns($data);
         endif;
+
         $sql = $this->bulidUpdateSql();
 
         return $this->exec($sql);
