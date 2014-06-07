@@ -47,6 +47,8 @@ class Ar
      */
     static public function init()
     {
+        Ar::import(CORE_PATH . 'alias.func.php');
+
         self::$autoLoadPath = array(
             CORE_PATH,
             FRAME_PATH,
@@ -62,13 +64,11 @@ class Ar
             COMP_PATH . 'Ext' . DS
         );
 
-        Ar::c('url.skeleton')->generate(DEFAULT_APP_NAME);
+        Ar::c('url.skeleton')->generate();
 
         self::setConfig('', Ar::import(ROOT_PATH . 'Conf' . DS . 'public.config.php'));
 
         Ar::c('url.route')->parse();
-
-        Ar::import(CORE_PATH . 'alias.func.php');
 
         self::$_config = array_merge(
             self::$_config,
@@ -265,7 +265,8 @@ class Ar
         endforeach;
 
         if (empty($rt)) :
-            throw new ArException('class : ' . $class . ' does not exist !');
+            trigger_error('class : ' . $class . ' does not exist !', E_USER_ERROR);
+            exit;
         endif;
 
     }
@@ -293,6 +294,7 @@ class Ar
      */
     static public function import($path, $allowTry = false)
     {
+        static $holdFile = array();
         if (strpos($path, DS) === false) :
             $fileName = str_replace(array('c.', 'ext.', 'app.', '.'), array('Controller.', 'Extensions.', rtrim(ROOT_PATH, DS) . '.', DS), $path) . '.class.php';
         else :
@@ -302,8 +304,9 @@ class Ar
         if (is_file($fileName)) :
             $file = include_once $fileName;
             if ($file === true) :
-                return array();
+                return $holdFile[$fileName];
             else :
+                $holdFile[$fileName] = $file;
                 return $file;
             endif;
         else :

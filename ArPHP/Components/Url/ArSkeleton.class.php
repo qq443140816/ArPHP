@@ -57,7 +57,7 @@ class ArSkeleton extends ArComponent
 
         foreach($folderLists as $folder) :
             if (!$this->check($folder)) :
-                if (!mkdir($folder)) :
+                if (!@mkdir($folder)) :
                     throw new ArException("folder $folder create failed !");
                 endif;
             endif;
@@ -182,10 +182,22 @@ return array(
      *
      * @return mixed
      */
-    public function generate($appName)
+    public function generate($appName = '')
     {
-        $this->appName = $appName;
+        if (empty($appName) && $appGlobalConfig = Ar::import(ROOT_PATH . 'Conf' . DS . 'public.config.php', true)) :
+            if (empty($appGlobalConfig['moduleLists'])) :
+                throw new ArException("can not find param 'moduleLists'!");
+            endif;
+            $moduleLists = $appGlobalConfig['moduleLists'];
+            foreach ($moduleLists as $moduleName) :
+                $this->generate($moduleName);
+            endforeach;
+        endif;
+
+        $this->appName = $appName ? $appName : DEFAULT_APP_NAME;
+
         $this->basePath = ROOT_PATH . $this->appName . DS;
+
         if (!$this->check($this->basePath)) :
             $this->generateFolders();
             $this->generateFiles();
