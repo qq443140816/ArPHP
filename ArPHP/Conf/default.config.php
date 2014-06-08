@@ -15,7 +15,7 @@
 return array(
             'PATH' => array(
                 'PUBLIC' => SERVER_PATH . arCfg('requestRoute.m') . '/Public/',
-                'GPUBLIC' => SERVER_PATH . '/Public/',
+                'GPUBLIC' => SERVER_PATH . 'Public/',
                 'CACHE' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'Cache' . DS,
                 'VIEW' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'View' . DS,
                 'UPLOAD' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'Upload' . DS,
