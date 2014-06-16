@@ -285,7 +285,7 @@ str;
      */
     public function showJsonError($msg = ' ', $code = '1001')
     {
-        $this->showJson(array('ret_msg' => 'faild', 'ret_code' => $code, 'error_msg' => $msg, 'success' => "0"));
+        $this->showJson(array('ret_msg' => $msg, 'ret_code' => $code, 'error_msg' => $msg, 'success' => "0"));
 
     }
 

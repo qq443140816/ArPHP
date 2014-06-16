@@ -75,7 +75,7 @@ function arGet($key = '', $default = null)
     endif;
 
     $ret = arComp('format.format')->addslashes($ret);
-    if (is_numeric($ret) && $ret < 2147483647) :
+    if (is_numeric($ret) && $ret < 2147483647 && strlen($ret) == 1) :
         $ret = (int)$ret;
     elseif (empty($ret)) :
         $ret = $default;

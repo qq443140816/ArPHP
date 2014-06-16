@@ -201,6 +201,32 @@ class ArFormat extends ArComponent
     }
 
     /**
+     * urlencode.
+     *
+     * @param mixed  $obj obj.
+     * @param string $key key.
+     *
+     * @return mixed
+     */
+    public function convertCharset($obj, $key = '', $in = 'gbk', $to = 'utf-8')
+    {
+        if (is_array($obj)) :
+            if (empty($obj[$key])) :
+                foreach ($obj as &$eObj) :
+                    $eObj = $this->urlencode($eObj, $key);
+                endforeach;
+            else :
+                $obj[$key] = $this->urlencode($obj[$key]);
+            endif;
+        else :
+            $obj = iconv($in, $to, $obj);
+        endif;
+
+        return $obj;
+
+    }
+
+    /**
      * add slashes for mixed params.
      *
      * @return array
