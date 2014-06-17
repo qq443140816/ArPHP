@@ -47,32 +47,37 @@ class Ar
      */
     static public function init()
     {
-        Ar::import(CORE_PATH . 'alias.func.php');
+        Ar::import(AR_CORE_PATH . 'alias.func.php');
 
         self::$autoLoadPath = array(
-            CORE_PATH,
-            FRAME_PATH,
-            COMP_PATH,
-            COMP_PATH . 'Db' . DS,
-            COMP_PATH . 'Url' . DS,
-            COMP_PATH . 'Format' . DS,
-            COMP_PATH . 'Validator' . DS,
-            COMP_PATH . 'Hash' . DS,
-            COMP_PATH . 'Rpc' . DS,
-            COMP_PATH . 'List' . DS,
-            COMP_PATH . 'Cache' . DS,
-            COMP_PATH . 'Ext' . DS
+            AR_CORE_PATH,
+            AR_FRAME_PATH,
+            AR_COMP_PATH,
+            AR_COMP_PATH . 'Db' . DS,
+            AR_COMP_PATH . 'Url' . DS,
+            AR_COMP_PATH . 'Format' . DS,
+            AR_COMP_PATH . 'Validator' . DS,
+            AR_COMP_PATH . 'Hash' . DS,
+            AR_COMP_PATH . 'Rpc' . DS,
+            AR_COMP_PATH . 'List' . DS,
+            AR_COMP_PATH . 'Cache' . DS,
+            AR_COMP_PATH . 'Ext' . DS
         );
 
-        Ar::c('url.skeleton')->generate();
 
-        self::setConfig('', Ar::import(ROOT_PATH . 'Conf' . DS . 'public.config.php'));
 
-        Ar::c('url.route')->parse();
+        if (!AR_OUTER_START) :
+            Ar::c('url.skeleton')->generate();
+            self::setConfig('', Ar::import(AR_ROOT_PATH . 'Conf' . DS . 'public.config.php'));
+            Ar::c('url.route')->parse();
+        else :
+            Ar::c('url.skeleton')->generateIntoOther();
+            self::setConfig('', Ar::import(AR_MAN_PATH . 'Conf' . DS . 'public.config.php'));
+        endif;
 
         self::$_config = array_merge(
             self::$_config,
-            Ar::import(CONFIG_PATH . 'default.config.php', true)
+            Ar::import(AR_CONFIG_PATH . 'default.config.php', true)
         );
 
         ArApp::run();
@@ -235,7 +240,7 @@ class Ar
         $m = self::getConfig('requestRoute');
 
         if (!empty($m['m'])) :
-            $appModule = ROOT_PATH . $m['m'] . DS;
+            $appModule = AR_ROOT_PATH . $m['m'] . DS;
             array_push(self::$autoLoadPath, $appModule);
 
             $appConfigFile = $appModule . 'Conf' . DS . 'app.config.php';
@@ -296,7 +301,7 @@ class Ar
     {
         static $holdFile = array();
         if (strpos($path, DS) === false) :
-            $fileName = str_replace(array('c.', 'ext.', 'app.', '.'), array('Controller.', 'Extensions.', rtrim(ROOT_PATH, DS) . '.', DS), $path) . '.class.php';
+            $fileName = str_replace(array('c.', 'ext.', 'app.', '.'), array('Controller.', 'Extensions.', rtrim(AR_ROOT_PATH, DS) . '.', DS), $path) . '.class.php';
         else :
             $fileName = $path;
         endif;
@@ -329,7 +334,7 @@ class Ar
      */
     static public function createUrl($url = '', $params = array())
     {
-        $prefix = rtrim(SERVER_PATH . (arCfg('requestRoute.m') == DEFAULT_APP_NAME ? '' : arCfg('requestRoute.m')), '/');
+        $prefix = rtrim(AR_SERVER_PATH . (arCfg('requestRoute.m') == AR_DEFAULT_APP_NAME ? '' : arCfg('requestRoute.m')), '/');
 
         if (empty($url)) :
             $url = $prefix;
@@ -341,7 +346,7 @@ class Ar
                 $url = $prefix . '/' . arCfg('requestRoute.c') . '/' . $url;
             elseif (strpos($url, '/') === 0) :
                 $url = ltrim($url, '/');
-                $url = SERVER_PATH . $url;
+                $url = AR_SERVER_PATH . $url;
             else :
                 $url = $prefix . '/' . $url;
             endif;

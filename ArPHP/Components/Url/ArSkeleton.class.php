@@ -45,7 +45,7 @@ class ArSkeleton extends ArComponent
     {
         $folderLists = array(
                 $this->basePath,
-                ROOT_PATH . 'Conf',
+                AR_ROOT_PATH . 'Conf',
                 $this->basePath . 'Controller',
                 $this->basePath . 'View',
                 $this->basePath . 'View' . DS . 'Index',
@@ -139,7 +139,7 @@ class MyModel extends ArModel {
 return array(
     );',
 
-        ROOT_PATH . 'Conf' . DS . 'public.config.php' => '<?php
+        AR_ROOT_PATH . 'Conf' . DS . 'public.config.php' => '<?php
 /**
  * Ar default public config file.
  *
@@ -184,7 +184,7 @@ return array(
      */
     public function generate($appName = '')
     {
-        if (empty($appName) && $appGlobalConfig = Ar::import(ROOT_PATH . 'Conf' . DS . 'public.config.php', true)) :
+        if (empty($appName) && $appGlobalConfig = Ar::import(AR_ROOT_PATH . 'Conf' . DS . 'public.config.php', true)) :
             if (empty($appGlobalConfig['moduleLists'])) :
                 throw new ArException("can not find param 'moduleLists'!");
             endif;
@@ -194,15 +194,40 @@ return array(
             endforeach;
         endif;
 
-        $this->appName = $appName ? $appName : DEFAULT_APP_NAME;
+        $this->appName = $appName ? $appName : AR_DEFAULT_APP_NAME;
 
-        $this->basePath = ROOT_PATH . $this->appName . DS;
+        $this->basePath = AR_ROOT_PATH . $this->appName . DS;
 
         if (!$this->check($this->basePath)) :
             $this->generateFolders();
             $this->generateFiles();
         endif;
 
+    }
+
+    public function generateIntoOther()
+    {
+        $folderMan = AR_MAN_PATH;
+        $folderConf = $folderMan . 'Conf' . DS;
+        $configFile = $folderConf . 'public.config.php';
+        if (!$this->check($folderMan)) :
+            @mkdir($folderMan);
+        endif;
+        if (!$this->check($folderConf)) :
+            @mkdir($folderConf);
+        endif;
+
+        if (!$this->check($configFile)) :
+            file_put_contents($configFile, '<?php
+/**
+ * Ar default public config file.
+ *
+ * @author ycassnr <ycassnr@gmail.com>
+ */
+return array(
+    );');
+
+        endif;
     }
 
 }

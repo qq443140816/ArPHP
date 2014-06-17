@@ -40,8 +40,10 @@ class ArApp
     {
         self::_initComponents(Ar::getConfig('components'));
 
-        $app = self::_createWebApplication('ArWebApplication');
-        $app->start();
+        if (!AR_OUTER_START) :
+            $app = self::_createWebApplication('ArWebApplication');
+            $app->start();
+        endif;
 
     }
 

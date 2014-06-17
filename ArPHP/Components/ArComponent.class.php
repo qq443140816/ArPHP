@@ -44,7 +44,10 @@ class ArComponent
      */
     static public function init($config = array(), $class = __CLASS__)
     {
-        self::$config = $config;
+        if ($config) :
+            self::$config = $config;
+        endif;
+
         return new $class;
 
     }

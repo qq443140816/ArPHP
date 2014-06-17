@@ -14,11 +14,11 @@
 
 return array(
             'PATH' => array(
-                'PUBLIC' => SERVER_PATH . arCfg('requestRoute.m') . '/Public/',
-                'GPUBLIC' => SERVER_PATH . 'Public/',
-                'CACHE' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'Cache' . DS,
-                'VIEW' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'View' . DS,
-                'UPLOAD' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'Upload' . DS,
-                'EXT' => ROOT_PATH . arCfg('requestRoute.m') . DS . 'Ext' . DS,
+                'PUBLIC' => AR_SERVER_PATH . arCfg('requestRoute.m') . '/Public/',
+                'GPUBLIC' => AR_SERVER_PATH . 'Public/',
+                'CACHE' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'Cache' . DS,
+                'VIEW' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'View' . DS,
+                'UPLOAD' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'Upload' . DS,
+                'EXT' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'Ext' . DS,
         ),
    );

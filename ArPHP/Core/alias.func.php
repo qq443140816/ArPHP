@@ -119,7 +119,7 @@ function arPost($key = '')
  */
 function arLm($module)
 {
-    return Ar::importPath(ROOT_PATH . str_replace('.', DS, $module));
+    return Ar::importPath(AR_ROOT_PATH . str_replace('.', DS, $module));
 
 }
 

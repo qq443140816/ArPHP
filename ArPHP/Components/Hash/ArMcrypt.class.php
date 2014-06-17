@@ -102,7 +102,7 @@ class ArMcrypt extends ArComponent
         // encode the resulting cipher text so it can be represented by a string
         $ciphertext_base64 = base64_encode($ciphertext);
 
-        return str_replace(array('/', '\\'), array('---', '+++'), $ciphertext_base64);
+        return str_replace(array('/', '\\', '+'), array('z_x_g', 'f_x_g', 'j_i_a'), $ciphertext_base64);
 
 
     }
@@ -124,7 +124,7 @@ class ArMcrypt extends ArComponent
         // --- DECRYPTION ---
         $key = $this->_key;
         $iv_size = $this->_ivSize;
-        $ciphertext_dec = base64_decode(str_replace(array('---', '+++'), array('/', '\\'), $ciphertext_base64));
+        $ciphertext_dec = base64_decode(str_replace(array('z_x_g', 'f_x_g', 'j_i_a'), array('/', '\\', '+'), $ciphertext_base64));
 
         // retrieves the IV, iv_size should be created using mcrypt_get_iv_size()
         $iv_dec = substr($ciphertext_dec, 0, $iv_size);

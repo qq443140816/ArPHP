@@ -110,7 +110,6 @@ class ArJson extends ArText
     public function callApi($api, $params = array())
     {
         $url = $this->getApi($api, $params);
-
         $result = $this->remoteCall($url);
 
         return $this->parse($result);

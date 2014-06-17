@@ -40,7 +40,7 @@ abstract class ArApplication
     public function shutDown()
     {
         // maybe log;
-        // echo microtime(true) - START_TIME;
+        // echo microtime(true) - AR_START_TIME;
 
     }
 

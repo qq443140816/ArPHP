@@ -83,7 +83,7 @@ class ArRoute extends ArComponent
         $pathArr = explode('/', $requestUrl);
         $temp = array_shift($pathArr);
 
-        $m = in_array($temp, Ar::getConfig('moduleLists', array())) ? $temp : DEFAULT_APP_NAME;
+        $m = in_array($temp, Ar::getConfig('moduleLists', array())) ? $temp : AR_DEFAULT_APP_NAME;
 
         $c = in_array($temp, Ar::getConfig('moduleLists', array())) ? array_shift($pathArr) : $temp;
 
@@ -99,7 +99,6 @@ class ArRoute extends ArComponent
         endif;
 
         $requestRoute = array('m' => $m, 'c' => empty($c) ? 'Index' : $c, 'a' => empty($a) ? 'index' : $a);
-
         Ar::setConfig('requestRoute', $requestRoute);
 
         return $requestRoute;
