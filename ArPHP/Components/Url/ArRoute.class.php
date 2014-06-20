@@ -47,11 +47,17 @@ class ArRoute extends ArComponent
     /**
      * host.
      *
+     * @param boolean $scriptName return scriptname.
+     *
      * @return string
      */
-    public function host()
+    public function host($scriptName = false)
     {
-        return 'http://' . $_SERVER['HTTP_HOST'] . '/' . trim(str_replace(array('/', '\\', DS), '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+        $host = 'http://' . $_SERVER['HTTP_HOST'] . '/' . trim(str_replace(array('/', '\\', DS), '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+        if ($scriptName) :
+            $host .= '/' . basename($_SERVER['SCRIPT_NAME']);
+        endif;
+        return $host;
 
     }
 
@@ -96,6 +102,16 @@ class ArRoute extends ArComponent
         if (!empty($queryStr)) :
             parse_str($queryStr, $query);
             $_GET = array_merge($_GET, $query);
+        endif;
+
+        if (arGet('m')) :
+            $m = arGet('m');
+        endif;
+        if (arGet('c')) :
+            $c = arGet('c');
+        endif;
+        if (arGet('a')) :
+            $a = arGet('a');
         endif;
 
         $requestRoute = array('m' => $m, 'c' => empty($c) ? 'Index' : $c, 'a' => empty($a) ? 'index' : $a);

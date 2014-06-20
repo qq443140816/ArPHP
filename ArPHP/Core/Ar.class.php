@@ -64,8 +64,6 @@ class Ar
             AR_COMP_PATH . 'Ext' . DS
         );
 
-
-
         if (!AR_OUTER_START) :
             Ar::c('url.skeleton')->generate();
             self::setConfig('', Ar::import(AR_ROOT_PATH . 'Conf' . DS . 'public.config.php'));
@@ -334,21 +332,47 @@ class Ar
      */
     static public function createUrl($url = '', $params = array())
     {
-        $prefix = rtrim(AR_SERVER_PATH . (arCfg('requestRoute.m') == AR_DEFAULT_APP_NAME ? '' : arCfg('requestRoute.m')), '/');
+        $defaultModule = arCfg('requestRoute.m') == AR_DEFAULT_APP_NAME ? '' : arCfg('requestRoute.m');
+
+        $urlMode = arCfg('URL_MODE', 'PATH');
+
+        $prefix = rtrim(AR_SERVER_PATH . $defaultModule, '/');
+
+        $urlParam = arCfg('requestRoute');
+        $urlParam['m'] = $defaultModule;
 
         if (empty($url)) :
-            $url = $prefix;
-
-            $url .= '/' . arCfg('requestRoute.c') . '/' . arCfg('requestRoute.a');
-
+            if ($urlMode != 'PATH') :
+                $url = $prefix;
+                $controller = arCfg('requestRoute.c');
+                $action = arCfg('requestRoute.a');
+                $url .= '/' . $controller . '/' . $action;
+            endif;
         else :
             if (strpos($url, '/') === false) :
-                $url = $prefix . '/' . arCfg('requestRoute.c') . '/' . $url;
+                if ($urlMode != 'PATH') :
+                    $urlParam['a'] = $url;
+                else :
+                    $url = $prefix . '/' . arCfg('requestRoute.c') . '/' . $url;
+                endif;
             elseif (strpos($url, '/') === 0) :
-                $url = ltrim($url, '/');
-                $url = AR_SERVER_PATH . $url;
+                if ($urlMode != 'PATH') :
+                    $eP = explode('/', ltrim($url, '/'));
+                    $urlParam['m'] = $eP[0];
+                    $urlParam['c'] = $eP[1];
+                    $urlParam['a'] = $eP[2];
+                else :
+                    $url = ltrim($url, '/');
+                    $url = AR_SERVER_PATH . $url;
+                endif;
             else :
-                $url = $prefix . '/' . $url;
+                if ($urlMode != 'PATH') :
+                    $eP = explode('/', $url);
+                    $urlParam['c'] = $eP[0];
+                    $urlParam['a'] = $eP[1];
+                else :
+                    $url = $prefix . '/' . $url;
+                endif;
             endif;
 
         endif;
@@ -360,13 +384,26 @@ class Ar
             unset($_GET['a']);
             $params = array_merge($_GET, $params);
         endif;
+        if ($urlMode != 'PATH') :
+            $urlParam = array_filter(array_merge($urlParam, $params));
+        endif;
 
-        foreach ($params as $pkey => $pvalue) :
-            if (!$pvalue && !is_numeric($pvalue)) :
-                continue;
-            endif;
-            $url .= '/' . $pkey . '/' . $pvalue;
-        endforeach;
+        switch ($urlMode) {
+        case 'PATH' :
+            foreach ($params as $pkey => $pvalue) :
+                if (!$pvalue && !is_numeric($pvalue)) :
+                    continue;
+                endif;
+                $url .= '/' . $pkey . '/' . $pvalue;
+            endforeach;
+            break;
+        case 'QUERY' :
+            $url = arComp('url.route')->host() . '?' . http_build_query($urlParam);
+            break;
+        case 'FULL' :
+            $url = arComp('url.route')->host(true) . '?' . http_build_query($urlParam);
+            break;
+        }
 
         return $url;
 
