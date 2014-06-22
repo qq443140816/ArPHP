@@ -342,7 +342,7 @@ class Ar
         $urlParam['m'] = $defaultModule;
 
         if (empty($url)) :
-            if ($urlMode != 'PATH') :
+            if ($urlMode == 'PATH') :
                 $url = $prefix;
                 $controller = arCfg('requestRoute.c');
                 $action = arCfg('requestRoute.a');
