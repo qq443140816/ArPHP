@@ -211,10 +211,10 @@ return array(
         $folderConf = $folderMan . 'Conf' . DS;
         $configFile = $folderConf . 'public.config.php';
         if (!$this->check($folderMan)) :
-            @mkdir($folderMan);
+            mkdir($folderMan);
         endif;
         if (!$this->check($folderConf)) :
-            @mkdir($folderConf);
+            mkdir($folderConf);
         endif;
 
         if (!$this->check($configFile)) :

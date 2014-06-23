@@ -235,28 +235,29 @@ class Ar
     {
         $class = str_replace('\\', DS, $class);
 
-        $m = self::getConfig('requestRoute');
-
-        if (!empty($m['m'])) :
-            $appModule = AR_ROOT_PATH . $m['m'] . DS;
-            array_push(self::$autoLoadPath, $appModule);
-
-            $appConfigFile = $appModule . 'Conf' . DS . 'app.config.php';
-            $appConfig = self::import($appConfigFile, true);
-
-            if (is_array($appConfig)) :
-                self::setConfig('', array_merge(self::getConfig(), $appConfig));
-            endif;
-
-            if (preg_match("#[A-Z]{1}[a-z0-9]+$#", $class, $match)) :
-                $appEnginePath = $appModule . $match[0] . DS;
-
-                $extPath = $appModule . 'Ext' . DS;
-
-                array_push(self::$autoLoadPath, $appEnginePath, $extPath);
-            endif;
-
+        if (AR_OUTER_START) :
+            $appModule = AR_MAN_PATH;
+        else :
+            $appModule = arCfg('requestRoute.m') . DS;
         endif;
+
+        array_push(self::$autoLoadPath, $appModule);
+
+        $appConfigFile = $appModule . 'Conf' . DS . 'app.config.php';
+        $appConfig = self::import($appConfigFile, true);
+
+        if (is_array($appConfig)) :
+            self::setConfig('', array_merge(self::getConfig(), $appConfig));
+        endif;
+
+        if (preg_match("#[A-Z]{1}[a-z0-9]+$#", $class, $match)) :
+            $appEnginePath = $appModule . $match[0] . DS;
+
+            $extPath = $appModule . 'Ext' . DS;
+
+            array_push(self::$autoLoadPath, $appEnginePath, $extPath);
+        endif;
+
 
         foreach (self::$autoLoadPath as $path) :
             $classFile = $path . $class . '.class.php';
