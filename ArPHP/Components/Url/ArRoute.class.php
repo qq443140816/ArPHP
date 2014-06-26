@@ -53,11 +53,22 @@ class ArRoute extends ArComponent
      */
     public function host($scriptName = false)
     {
-        $host = 'http://' . $_SERVER['HTTP_HOST'] . '/' . trim(str_replace(array('/', '\\', DS), '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+        $host = $this->serverName() . '/' . trim(str_replace(array('/', '\\', DS), '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
         if ($scriptName) :
             $host .= '/' . basename($_SERVER['SCRIPT_NAME']);
         endif;
         return $host;
+
+    }
+
+    /**
+     * return server name
+     *
+     * @return string
+     */
+    public function serverName()
+    {
+        return 'http://' . $_SERVER['HTTP_HOST'];
 
     }
 

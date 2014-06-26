@@ -47,7 +47,7 @@ class ArSource extends ArText
         $options = array(CURLOPT_HEADER => false, CURLOPT_RETURNTRANSFER => 1);
         if ($this->method == 'post') :
             $options[CURLOPT_POST] = true;
-        $options[CURLOPT_POSTFIELDS] = urlencode($params);
+            $options[CURLOPT_POSTFIELDS] = $params;
         endif;
         curl_setopt_array($init, $options);
         $rtStr = curl_exec($init);
@@ -71,20 +71,7 @@ class ArSource extends ArText
      */
     protected function parse($parseStr)
     {
-        return $this->parseJson($parseStr);
-
-    }
-
-    /**
-     * parse json.
-     *
-     * @param string $parseStr parse string.
-     *
-     * @return Object
-     */
-    protected function parseJson($parseStr)
-    {
-        return json_decode($parseStr, 1);
+        return $parseStr;
 
     }
 
@@ -98,18 +85,18 @@ class ArSource extends ArText
      */
     protected function getApi($api, $params)
     {
-        $prefix = rtrim(empty(self::$config['remotePrefix']) ? arComp('url.route')->host() : self::$config['remotePrefix'], '/') . '/' . trim($api, '/');
+        $prefix = rtrim(empty(self::$config['remotePrefix']) ? arComp('url.route')->ServerName() : self::$config['remotePrefix'], '/');
         $this->method = empty(self::$config['method']) ? 'get' : self::$config['method'];
-        switch ($method) {
+        switch ($this->method) {
         case 'get' :
-            foreach ($params as $pkey => $param) :
-                $prefix .= '/' . $pkey . '/' . $param;
-            endforeach;
+            if (empty(self::$config['remotePrefix'])) :
+                $prefix .= arU($api, $params);
+            else :
+                $prefix .= $api;
+            endif;
             break;
         case 'post' :
-            break;
-        default:
-            # code...
+            $prefix .= empty(self::$config['remotePrefix']) ? arU($api) : $api;
             break;
         }
         return trim($prefix, '/');
@@ -127,6 +114,7 @@ class ArSource extends ArText
     public function callApi($api, $params = array())
     {
         $url = $this->getApi($api, $params);
+
         $result = $this->remoteCall($url, $params);
 
         return $this->parse($result);
