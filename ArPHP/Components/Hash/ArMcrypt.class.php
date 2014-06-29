@@ -48,7 +48,7 @@ class ArMcrypt extends ArComponent
     {
         $self = parent::init($config, $class);
 
-        $key = empty(self::$config['key']) ? 'ArPHP I Love You' : self::$config['key'];
+        $key = empty($this->config['key']) ? 'ArPHP I Love You' : $this->config['key'];
 
         $key = hash('ripemd128', $key);
 

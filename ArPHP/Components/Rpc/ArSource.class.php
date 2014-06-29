@@ -85,18 +85,18 @@ class ArSource extends ArText
      */
     protected function getApi($api, $params)
     {
-        $prefix = rtrim(empty(self::$config['remotePrefix']) ? arComp('url.route')->ServerName() : self::$config['remotePrefix'], '/');
-        $this->method = empty(self::$config['method']) ? 'get' : self::$config['method'];
+        $prefix = rtrim(empty($this->config['remotePrefix']) ? arComp('url.route')->ServerName() : $this->config['remotePrefix'], '/');
+        $this->method = empty($this->config['method']) ? 'get' : $this->config['method'];
         switch ($this->method) {
         case 'get' :
-            if (empty(self::$config['remotePrefix'])) :
+            if (empty($this->config['remotePrefix'])) :
                 $prefix .= arU($api, $params);
             else :
                 $prefix .= $api;
             endif;
             break;
         case 'post' :
-            $prefix .= empty(self::$config['remotePrefix']) ? arU($api) : $api;
+            $prefix .= empty($this->config['remotePrefix']) ? arU($api) : $api;
             break;
         }
         return trim($prefix, '/');
@@ -114,7 +114,6 @@ class ArSource extends ArText
     public function callApi($api, $params = array())
     {
         $url = $this->getApi($api, $params);
-
         $result = $this->remoteCall($url, $params);
 
         return $this->parse($result);

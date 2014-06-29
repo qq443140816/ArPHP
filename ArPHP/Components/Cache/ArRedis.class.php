@@ -59,22 +59,22 @@ class ArRedis extends ArCache
     {
         if (!$this->_redis) :
             $this->_redis = stream_socket_client(
-                self::$config['host'] . ':' . self::$config['port'],
+                $this->config['host'] . ':' . $this->config['port'],
                 $errorNumber,
                 $errorDescription,
-                empty(self::$config['timeout']) ? ini_get('default_socket_timeout') : self::$config['timeout']
+                empty($this->config['timeout']) ? ini_get('default_socket_timeout') : $this->config['timeout']
             );
 
             if (!$this->_redis) :
                 throw new ArException('Failed to connect to redis: ' . $errorDescription . '[code]:' . $errorNumber, (int)$errorNumber);
             endif;
 
-            if(!empty(self::$config['password'])) :
-                $this->executeCommand('AUTH', array(self::$config['password']));
+            if(!empty($this->config['password'])) :
+                $this->executeCommand('AUTH', array($this->config['password']));
             endif;
 
-            if (!empty(self::$config['db'])) :
-                $this->executeCommand('SELECT', array(self::$config['db']));
+            if (!empty($this->config['db'])) :
+                $this->executeCommand('SELECT', array($this->config['db']));
             endif;
 
         endif;

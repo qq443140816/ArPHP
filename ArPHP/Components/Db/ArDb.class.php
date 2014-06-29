@@ -69,7 +69,7 @@ class ArDb extends ArComponent
      */
     public function read($name = 'default')
     {
-        if (!isset(self::$readConnections[$name]) && isset(self::$config['read'][$name])) :
+        if (!isset(self::$readConnections[$name]) && isset($this->config['read'][$name])) :
             $this->addReadConnection($name);
         endif;
 
@@ -90,7 +90,7 @@ class ArDb extends ArComponent
      */
     public function write($name = 'default')
     {
-        if (!isset(self::$writeConnections[$name]) && isset(self::$config['write'][$name])) :
+        if (!isset(self::$writeConnections[$name]) && isset($this->config['write'][$name])) :
             $this->addWriteConnection($name);
         endif;
 
@@ -114,10 +114,10 @@ class ArDb extends ArComponent
     {
         if (!isset(self::$writeConnections[$name])) :
 
-            $dsn = self::$config['read'][$name]['dsn'];
-            $user = self::$config['read'][$name]['user'];
-            $pass = self::$config['read'][$name]['pass'];
-            $option = self::$config['read'][$name]['option'];
+            $dsn = $this->config['read'][$name]['dsn'];
+            $user = $this->config['read'][$name]['user'];
+            $pass = $this->config['read'][$name]['pass'];
+            $option = $this->config['read'][$name]['option'];
             self::$writeConnections[$name] = new $this->driverName($dsn, $user, $pass, $option);
 
         endif;
@@ -135,10 +135,10 @@ class ArDb extends ArComponent
     {
         if (!isset(self::$writeConnections[$name])) :
 
-            $dsn = self::$config['write'][$name]['dsn'];
-            $user = self::$config['write'][$name]['user'];
-            $pass = self::$config['write'][$name]['pass'];
-            $option = self::$config['write'][$name]['option'];
+            $dsn = $this->config['write'][$name]['dsn'];
+            $user = $this->config['write'][$name]['user'];
+            $pass = $this->config['write'][$name]['pass'];
+            $option = $this->config['write'][$name]['option'];
             self::$writeConnections[$name] = new $this->driverName($dsn, $user, $pass, $option);
 
         endif;

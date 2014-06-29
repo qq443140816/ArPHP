@@ -29,31 +29,8 @@
  * @version  Release: @package_version@
  * @link     http://www.arphp.net
  */
-class ArJson extends ArText
+class ArJson extends ArSource
 {
-    /**
-     * remote call.
-     *
-     * @param string $url resource url.
-     *
-     * @return string
-     */
-    protected function remoteCall($url)
-    {
-        $init = curl_init($url);
-        curl_setopt_array($init, array(CURLOPT_HEADER => false, CURLOPT_RETURNTRANSFER => 1));
-        $rtStr = curl_exec($init);
-
-        if ($rtStr === false) :
-            throw new ArException('Curl error: ' . curl_error($init));
-        endif;
-
-        curl_close($init);
-
-        return $rtStr;
-
-    }
-
     /**
      * parse return data.
      *
@@ -77,42 +54,6 @@ class ArJson extends ArText
     protected function parseJson($parseStr)
     {
         return json_decode($parseStr, 1);
-
-    }
-
-    /**
-     * getApi.
-     *
-     * @param string $api    api.
-     * @param mixed  $params param.
-     *
-     * @return string
-     */
-    protected function getApi($api, $params)
-    {
-        $prefix = rtrim(empty(self::$config['remotePrefix']) ? arComp('url.route')->host() : self::$config['remotePrefix'], '/') . '/' . trim($api, '/');
-
-        foreach ($params as $pkey => $param) :
-            $prefix .= '/' . $pkey . '/' . $param;
-        endforeach;
-        return $prefix;
-
-    }
-
-    /**
-     * call api.
-     *
-     * @param string $api    api.
-     * @param mixed  $params parames.
-     *
-     * @return mixed
-     */
-    public function callApi($api, $params = array())
-    {
-        $url = $this->getApi($api, $params);
-        $result = $this->remoteCall($url);
-
-        return $this->parse($result);
 
     }
 

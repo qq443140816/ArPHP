@@ -63,9 +63,9 @@ class ArMssql extends ArDb
      */
     static public function init($config = array(), $class = __CLASS__)
     {
-        self::$config = $config;
+        $this->config = $config;
 
-        $defaultDbconfig = self::$config['read']['default'];
+        $defaultDbconfig = $this->config['read']['default'];
 
         if (empty(self::$readConnections['default'])) :
             self::$readConnections['default'] = new self($defaultDbconfig);

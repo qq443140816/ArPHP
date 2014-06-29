@@ -32,7 +32,7 @@
 class ArComponent
 {
     // config holder
-    static protected $config = array();
+    protected $config = array();
 
     /**
      * initialization for component.
@@ -44,11 +44,12 @@ class ArComponent
      */
     static public function init($config = array(), $class = __CLASS__)
     {
+        $obj = new $class;
         if ($config) :
-            self::$config = $config;
+            $obj->config = $config;
         endif;
+        return $obj;
 
-        return new $class;
 
     }
 
@@ -61,7 +62,7 @@ class ArComponent
      */
     public function setConfig($config = array())
     {
-        self::$config = $config;
+        $this->config = $config;
 
     }
 
