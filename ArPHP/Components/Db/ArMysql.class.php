@@ -63,12 +63,11 @@ class ArMysql extends ArDb
      */
     static public function init($config = array(), $class = __CLASS__)
     {
-        $this->config = $config;
-
-        $defaultDbconfig = $this->config['read']['default'];
-
         if (empty(self::$readConnections['default'])) :
-            self::$readConnections['default'] = new self($defaultDbconfig);
+            $defaultDbconfig = $config['read']['default'];
+            $obj = new self($defaultDbconfig);
+            $obj->config = $config;
+            self::$readConnections['default'] = $obj;
         endif;
 
         return self::$readConnections['default'];

@@ -110,7 +110,7 @@ class ArSource extends ArText
             if (empty($this->config['remotePrefix'])) :
                 $prefix .= arU($api, $params);
             else :
-                $prefix .= $api;
+                $prefix .= '/' . ltrim($api, '/');
             endif;
             break;
         case 'post' :
