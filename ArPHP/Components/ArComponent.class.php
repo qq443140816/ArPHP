@@ -50,7 +50,6 @@ class ArComponent
         endif;
         return $obj;
 
-
     }
 
     /**
@@ -63,6 +62,27 @@ class ArComponent
     public function setConfig($config = array())
     {
         $this->config = $config;
+
+    }
+
+    /**
+     * get global config.
+     *
+     * @param string $ckey          key.
+     *
+     * @return mixed
+     */
+    public function getConfig($ckey = '')
+    {
+        $rt = '';
+        if ($ckey) :
+            if (!empty($this->config[$ckey])) :
+                $rt = $this->config[$ckey];
+            endif;
+        else :
+            $rt = $this->config;
+        endif;
+        return $rt;
 
     }
 

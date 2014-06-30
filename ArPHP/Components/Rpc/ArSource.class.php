@@ -34,6 +34,9 @@ class ArSource extends ArText
     // get url method
     public $method = 'get';
 
+    //curl options
+    public $curlOptions = array();
+
     /**
      * remote call.
      *
@@ -44,12 +47,21 @@ class ArSource extends ArText
     protected function remoteCall($url, $params = array())
     {
         $init = curl_init($url);
+
         $options = array(CURLOPT_HEADER => false, CURLOPT_RETURNTRANSFER => 1);
         if ($this->method == 'post') :
             $options[CURLOPT_POST] = true;
             $options[CURLOPT_POSTFIELDS] = $params;
         endif;
+
+        if ($this->curlOptions) :
+            foreach ($this->curlOptions as $ckey => $opt) :
+                $options[$ckey] = $opt;
+            endforeach;
+        endif;
+
         curl_setopt_array($init, $options);
+
         $rtStr = curl_exec($init);
 
         if ($rtStr === false) :
@@ -87,6 +99,12 @@ class ArSource extends ArText
     {
         $prefix = rtrim(empty($this->config['remotePrefix']) ? arComp('url.route')->ServerName() : $this->config['remotePrefix'], '/');
         $this->method = empty($this->config['method']) ? 'get' : $this->config['method'];
+
+        if (!empty($params['curlOptions'])) :
+            $this->curlOptions = $params['curlOptions'];
+            unset($params['curlOptions']);
+        endif;
+
         switch ($this->method) {
         case 'get' :
             if (empty($this->config['remotePrefix'])) :
@@ -96,10 +114,12 @@ class ArSource extends ArText
             endif;
             break;
         case 'post' :
-            $prefix .= empty($this->config['remotePrefix']) ? arU($api) : $api;
+            $prefix .= empty($this->config['remotePrefix']) ? arU($api) : ('/' . ltrim($api, '/'));
             break;
         }
-        return trim($prefix, '/');
+        $url = trim($prefix, '/');
+
+        return $this->remoteCall($url, $params);
 
     }
 
@@ -113,8 +133,7 @@ class ArSource extends ArText
      */
     public function callApi($api, $params = array())
     {
-        $url = $this->getApi($api, $params);
-        $result = $this->remoteCall($url, $params);
+        $result = $this->getApi($api, $params);
 
         return $this->parse($result);
 
