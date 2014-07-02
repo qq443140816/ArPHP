@@ -111,6 +111,9 @@ class ArSource extends ArText
                 $prefix .= arU($api, $params);
             else :
                 $prefix .= '/' . ltrim($api, '/');
+                if (!empty($params)) :
+                    $prefix .= '?' . http_build_query($params);
+                endif;
             endif;
             break;
         case 'post' :
