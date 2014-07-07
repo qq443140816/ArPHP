@@ -55,12 +55,13 @@ class ArController
     public function __call($name, $params)
     {
         if ($name == 'module') :
-            if (!isset($this->assign['module'])) :
-                $module = empty($params[0]) ? arCfg('requestRoute.c') : $params[0];
+            $module = empty($params[0]) ? arCfg('requestRoute.c') : $params[0];
+            $moduleKey = $name . $module;
+            if (!isset($this->assign[$moduleKey])) :
                 $m =  $module . 'Module';
-                $this->assign['module'] = new $m;
+                $this->assign[$moduleKey] = new $m;
             endif;
-            return $this->assign['module'];
+            return $this->assign[$moduleKey];
         elseif ($name == 'model') :
             if (!$this->assign['model']) :
                 $model = empty($params[0]) ? arCfg('requestRoute.c') : $params[0];

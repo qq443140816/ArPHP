@@ -46,7 +46,7 @@ class ArFile extends ArCache
     {
         $obj = parent::init($config, $class);
 
-        $obj->cachePath = empty($this->config['cachePath']) ? arCfg('PATH.CACHE') : $this->config['cachePath'];
+        $obj->cachePath = empty($obj->config['cachePath']) ? arCfg('PATH.CACHE') : $obj->config['cachePath'];
 
         if(!is_dir($obj->cachePath)) :
             mkdir($obj->cachePath, 0777, true);
