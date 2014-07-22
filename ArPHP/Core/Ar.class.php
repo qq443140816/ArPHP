@@ -47,6 +47,10 @@ class Ar
      */
     static public function init()
     {
+        if (!AR_DEBUG) :
+            error_reporting(0);
+        endif;
+
         Ar::import(AR_CORE_PATH . 'alias.func.php');
 
         self::$autoLoadPath = array(
@@ -269,8 +273,12 @@ class Ar
         endforeach;
 
         if (empty($rt)) :
-            trigger_error('class : ' . $class . ' does not exist !', E_USER_ERROR);
-            exit;
+            if (AR_AS_OUTER_FRAME) :
+                return false;
+            else :
+                trigger_error('class : ' . $class . ' does not exist !', E_USER_ERROR);
+                exit;
+            endif;
         endif;
 
     }
@@ -419,7 +427,7 @@ class Ar
      */
     static public function exceptionHandler($e)
     {
-        echo get_class($e) . ' : ' . $e->getMessage();
+        echo '<html><body><div style="text-align:center;font-size:20px;">AR DEBUG INFO </div><div style="background:#666">' . get_class($e) . ' : ' . $e->getMessage() . '</div></body></html>';
 
     }
 
@@ -439,12 +447,12 @@ class Ar
             // This error code is not included in error_reporting
             return;
         endif;
+        ob_start();
         switch ($errno) {
         case E_USER_ERROR:
             echo "<b>ERROR</b> [$errno] $errstr<br />\n";
             echo "  Fatal error on line $errline in file $errfile";
             echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
-            exit(1);
             break;
 
         case E_USER_WARNING:
@@ -463,7 +471,16 @@ class Ar
             break;
         }
 
-        /* Don't execute PHP internal error handler */
+        $errMsg = ob_get_contents();
+        ob_end_clean();
+
+        if ($errMsg) :
+            echo '<html><body><div style="text-align:center;font-size:20px;">AR DEBUG INFO </div><div style="background:#666">' . $errMsg . '</div></body></html>';
+            if ($errno == E_USER_ERROR) :
+                exit(1);
+            endif;
+        endif;
+
         return true;
 
     }

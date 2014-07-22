@@ -81,16 +81,27 @@ class ArWebApplication extends ArApplication
 
         $this->route['c'] = $c;
         $class = $c . 'Controller';
-        $this->_c = new $class;
-        $this->_c->init();
-        $action = ($a = empty($route['a']) ? 'index' : $route['a']) . 'Action';
 
-        $this->route['a'] = $a;
+        if (class_exists($class)) :
+            $this->_c = new $class;
+            $this->_c->init();
+            $action = ($a = empty($route['a']) ? 'index' : $route['a']) . 'Action';
 
-        if (is_callable(array($this->_c, $action))) :
-            $this->_c->$action();
-        else :
-            throw new ArException('Action ' . $action . ' not found');
+            $this->route['a'] = $a;
+            if (is_callable(array($this->_c, $action))) :
+                try {
+                    $this->_c->$action();
+                    exit;
+                } catch (ArException $e) {
+                    if (!AR_AS_OUTER_FRAME) :
+                        throw new ArException($e->getMessage());
+                    endif;
+                }
+            else :
+                if (!AR_AS_OUTER_FRAME) :
+                    throw new ArException('Action ' . $action . ' not found');
+                endif;
+            endif;
         endif;
 
     }

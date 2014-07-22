@@ -13,7 +13,11 @@
  */
 defined('AR_START_TIME') or define('AR_START_TIME', microtime(true));
 
+defined('AR_DEBUG') or define('AR_DEBUG', true);
+
 defined('AR_OUTER_START') or define('AR_OUTER_START', false);
+
+defined('AR_AS_OUTER_FRAME') or define('AR_AS_OUTER_FRAME', false);
 
 defined('AR_DEFAULT_APP_NAME') or define('AR_DEFAULT_APP_NAME', 'main');
 
