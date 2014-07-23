@@ -38,6 +38,9 @@ class ArApp
      */
     static public function run()
     {
+        if (AR_DEBUG) :
+            arComp('ext.out')->deBug('[APP_RUN]');
+        endif;
         self::_initComponents(Ar::getConfig('components'));
 
         if (!AR_OUTER_START) :

@@ -68,6 +68,10 @@ class Ar
             AR_COMP_PATH . 'Ext' . DS
         );
 
+        if (AR_DEBUG) :
+            arComp('ext.out')->deBug('[START]');
+        endif;
+
         if (!AR_OUTER_START) :
             Ar::c('url.skeleton')->generate();
             self::setConfig('', Ar::import(AR_ROOT_PATH . 'Conf' . DS . 'public.config.php'));
@@ -341,80 +345,7 @@ class Ar
      */
     static public function createUrl($url = '', $params = array())
     {
-        $defaultModule = arCfg('requestRoute.m') == AR_DEFAULT_APP_NAME ? '' : arCfg('requestRoute.m');
-
-        $urlMode = arCfg('URL_MODE', 'PATH');
-
-        $prefix = rtrim(AR_SERVER_PATH . $defaultModule, '/');
-
-        $urlParam = arCfg('requestRoute');
-        $urlParam['m'] = $defaultModule;
-
-        if (empty($url)) :
-            if ($urlMode == 'PATH') :
-                $url = $prefix;
-                $controller = arCfg('requestRoute.c');
-                $action = arCfg('requestRoute.a');
-                $url .= '/' . $controller . '/' . $action;
-            endif;
-        else :
-            if (strpos($url, '/') === false) :
-                if ($urlMode != 'PATH') :
-                    $urlParam['a'] = $url;
-                else :
-                    $url = $prefix . '/' . arCfg('requestRoute.c') . '/' . $url;
-                endif;
-            elseif (strpos($url, '/') === 0) :
-                if ($urlMode != 'PATH') :
-                    $eP = explode('/', ltrim($url, '/'));
-                    $urlParam['m'] = $eP[0];
-                    $urlParam['c'] = $eP[1];
-                    $urlParam['a'] = $eP[2];
-                else :
-                    $url = ltrim($url, '/');
-                    $url = AR_SERVER_PATH . $url;
-                endif;
-            else :
-                if ($urlMode != 'PATH') :
-                    $eP = explode('/', $url);
-                    $urlParam['c'] = $eP[0];
-                    $urlParam['a'] = $eP[1];
-                else :
-                    $url = $prefix . '/' . $url;
-                endif;
-            endif;
-
-        endif;
-
-        if (!empty($params['greedyUrl']) && $params['greedyUrl']) :
-            unset($params['greedyUrl']);
-            unset($_GET['m']);
-            unset($_GET['c']);
-            unset($_GET['a']);
-            $params = array_merge($_GET, $params);
-        endif;
-        if ($urlMode != 'PATH') :
-            $urlParam = array_filter(array_merge($urlParam, $params));
-        endif;
-
-        switch ($urlMode) {
-        case 'PATH' :
-            foreach ($params as $pkey => $pvalue) :
-                if (!$pvalue && !is_numeric($pvalue)) :
-                    continue;
-                endif;
-                $url .= '/' . $pkey . '/' . $pvalue;
-            endforeach;
-            break;
-        case 'QUERY' :
-            $url = arComp('url.route')->host() . '?' . http_build_query($urlParam);
-            break;
-        case 'FULL' :
-            $url = arComp('url.route')->host(true) . '?' . http_build_query($urlParam);
-            break;
-        }
-
-        return $url;
+        return arComp('url.route')->createUrl($url, $params);
 
     }
 
@@ -427,7 +358,7 @@ class Ar
      */
     static public function exceptionHandler($e)
     {
-        echo '<html><body><div style="text-align:center;font-size:20px;">AR DEBUG INFO </div><div style="background:#666">' . get_class($e) . ' : ' . $e->getMessage() . '</div></body></html>';
+        arComp('ext.out')->deBug('<b style="color:#ec8186;">ArException</b> ' . get_class($e) . ' : ' . $e->getMessage());
 
     }
 
@@ -447,35 +378,31 @@ class Ar
             // This error code is not included in error_reporting
             return;
         endif;
-        ob_start();
+        $errMsg = '';
         switch ($errno) {
         case E_USER_ERROR:
-            echo "<b>ERROR</b> [$errno] $errstr<br />\n";
-            echo "  Fatal error on line $errline in file $errfile";
-            echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+            $errMsg .= "<b style='color:red;'>ERROR</b> [$errno] $errstr<br />\n";
+            $errMsg .= "  Fatal error on line $errline in file $errfile";
+            $errMsg .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
             break;
 
         case E_USER_WARNING:
-            echo "<b>WARNING</b> [$errno] $errstr<br />\n";
-            echo " on line $errline in file $errfile <br />\n";
+            $errMsg .= "<b style='color:#ec8186;'>WARNING</b> [$errno] $errstr<br />\n";
+            $errMsg .= " on line $errline in file $errfile <br />\n";
             break;
 
         case E_USER_NOTICE:
-            echo "<b>NOTICE</b> [$errno] $errstr<br />\n";
-            echo " on line $errline in file $errfile <br />\n";
+            $errMsg .= "<b style='color:#ec8186;'>NOTICE</b> [$errno] $errstr<br />\n";
+            $errMsg .= " on line $errline in file $errfile <br />\n";
             break;
 
         default:
-            echo "Unknown error type: [$errno] $errstr";
-            echo " on line $errline in file $errfile <br />\n";
+            $errMsg .= "<b style='color:#ec8186;'>Undefined error</b> : [$errno] $errstr";
+            $errMsg .= " on line $errline in file $errfile <br />\n";
             break;
         }
-
-        $errMsg = ob_get_contents();
-        ob_end_clean();
-
         if ($errMsg) :
-            echo '<html><body><div style="text-align:center;font-size:20px;">AR DEBUG INFO </div><div style="background:#666">' . $errMsg . '</div></body></html>';
+            arComp('ext.out')->deBug($errMsg);
             if ($errno == E_USER_ERROR) :
                 exit(1);
             endif;

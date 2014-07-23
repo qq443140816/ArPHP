@@ -41,6 +41,9 @@ class ArWebApplication extends ArApplication
      */
     public function start()
     {
+        if (AR_DEBUG) :
+            arComp('ext.out')->deBug('[APP_WEB_START]');
+        endif;
         if (ini_get('session.auto_start') == 0) :
             session_start();
         endif;
@@ -71,6 +74,10 @@ class ArWebApplication extends ArApplication
      */
     public function runController($route)
     {
+        if (AR_DEBUG) :
+            arComp('ext.out')->deBug('[CONTROLLER_RUN]');
+        endif;
+
         Ar::setConfig('requestRoute', $route);
 
         if (empty($route['c'])) :
@@ -82,14 +89,20 @@ class ArWebApplication extends ArApplication
         $this->route['c'] = $c;
         $class = $c . 'Controller';
 
+        if (AR_DEBUG) :
+            arComp('ext.out')->deBug('|CONTROLLER_EXEC:'. $class .'|');
+        endif;
+
         if (class_exists($class)) :
             $this->_c = new $class;
             $this->_c->init();
             $action = ($a = empty($route['a']) ? 'index' : $route['a']) . 'Action';
-
             $this->route['a'] = $a;
             if (is_callable(array($this->_c, $action))) :
                 try {
+                    if (AR_DEBUG) :
+                        arComp('ext.out')->deBug('|ACTION_RUN:' . $action . '|');
+                    endif;
                     $this->_c->$action();
                     exit;
                 } catch (ArException $e) {

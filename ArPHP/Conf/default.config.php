@@ -21,5 +21,6 @@ return array(
             'UPLOAD' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'Upload' . DS,
             'EXT' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'Ext' . DS,
         ),
+        'DEBUG_INFO_STORE_TYPE' => 'OUT',
         'URL_MODE' => 'PATH',
    );

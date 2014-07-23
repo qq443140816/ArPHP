@@ -132,4 +132,91 @@ class ArRoute extends ArComponent
 
     }
 
+    /**
+     * url manage.
+     *
+     * @param string  $url    url.
+     * @param boolean $params url get param.
+     *
+     * @return string
+     */
+    public function createUrl($url = '', $params = array())
+    {
+        $defaultModule = arCfg('requestRoute.m') == AR_DEFAULT_APP_NAME ? '' : arCfg('requestRoute.m');
+
+        $urlMode = arCfg('URL_MODE', 'PATH');
+
+        $prefix = rtrim(AR_SERVER_PATH . $defaultModule, '/');
+
+        $urlParam = arCfg('requestRoute');
+        $urlParam['m'] = $defaultModule;
+
+        if (empty($url)) :
+            if ($urlMode == 'PATH') :
+                $url = $prefix;
+                $controller = arCfg('requestRoute.c');
+                $action = arCfg('requestRoute.a');
+                $url .= '/' . $controller . '/' . $action;
+            endif;
+        else :
+            if (strpos($url, '/') === false) :
+                if ($urlMode != 'PATH') :
+                    $urlParam['a'] = $url;
+                else :
+                    $url = $prefix . '/' . arCfg('requestRoute.c') . '/' . $url;
+                endif;
+            elseif (strpos($url, '/') === 0) :
+                if ($urlMode != 'PATH') :
+                    $eP = explode('/', ltrim($url, '/'));
+                    $urlParam['m'] = $eP[0];
+                    $urlParam['c'] = $eP[1];
+                    $urlParam['a'] = $eP[2];
+                else :
+                    $url = ltrim($url, '/');
+                    $url = AR_SERVER_PATH . $url;
+                endif;
+            else :
+                if ($urlMode != 'PATH') :
+                    $eP = explode('/', $url);
+                    $urlParam['c'] = $eP[0];
+                    $urlParam['a'] = $eP[1];
+                else :
+                    $url = $prefix . '/' . $url;
+                endif;
+            endif;
+
+        endif;
+
+        if (!empty($params['greedyUrl']) && $params['greedyUrl']) :
+            unset($params['greedyUrl']);
+            unset($_GET['m']);
+            unset($_GET['c']);
+            unset($_GET['a']);
+            $params = array_merge($_GET, $params);
+        endif;
+        if ($urlMode != 'PATH') :
+            $urlParam = array_filter(array_merge($urlParam, $params));
+        endif;
+
+        switch ($urlMode) {
+        case 'PATH' :
+            foreach ($params as $pkey => $pvalue) :
+                if (!$pvalue && !is_numeric($pvalue)) :
+                    continue;
+                endif;
+                $url .= '/' . $pkey . '/' . $pvalue;
+            endforeach;
+            break;
+        case 'QUERY' :
+            $url = arComp('url.route')->host() . '?' . http_build_query($urlParam);
+            break;
+        case 'FULL' :
+            $url = arComp('url.route')->host(true) . '?' . http_build_query($urlParam);
+            break;
+        }
+
+        return $url;
+
+    }
+
 }

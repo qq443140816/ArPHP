@@ -300,39 +300,7 @@ str;
      */
     public function showJson($data = array(), array $options = array())
     {
-        if (empty($options['showJson']) || $options['showJson'] == true) :
-            header('charset:utf-8');
-            header('Content-type:text/javascript');
-            if (empty($options['data'])) :
-                $retArr = array(
-                        'ret_code' => '1000',
-                        'ret_msg' => '',
-                    );
-
-                if (is_array($data)) :
-                    if (!isset($data['ret_code']) || !isset($data['ret_msg'])) :
-                        $retArr['data'] = $data;
-                        $retArr['total_lines'] = Ar::c('validator.validator')->checkMutiArray($data) ? (string)count($data) : 1;
-
-                        $retArr = array_merge($retArr, $options);
-                    else :
-                        if (!empty($data['error_msg']) && empty($data['ret_code'])) :
-                            $retArr['ret_code'] = "1001";
-                        endif;
-                        $retArr = array_merge($retArr, $data);
-                    endif;
-                else :
-                    $retArr['ret_msg'] = $data;
-                endif;
-            else :
-                $retArr = $data;
-            endif;
-
-            echo json_encode($retArr);
-            exit;
-        else :
-            return $data;
-        endif;
+        return arComp('ext.out')->json($data, $options);
 
     }
 

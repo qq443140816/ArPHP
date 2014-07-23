@@ -55,9 +55,22 @@ class ArModel
         $key = strtolower($class);
 
         if (!isset(self::$_models[$key])) :
+            if (AR_DEBUG) :
+                arComp('ext.out')->deBug('|MODEL_INIT:' . $class . '|');
+            endif;
+
             $obj = new $class;
+
+            if (AR_DEBUG) :
+                arComp('ext.out')->deBug('|MODEL_START:' . $class . '|');
+            endif;
+
             $obj->nowModel = $class;
             self::$_models[$key] = $obj;
+        else :
+            if (AR_DEBUG) :
+                arComp('ext.out')->deBug('|MODEL_RESTART:' . $class . '|');
+            endif;
         endif;
 
         return self::$_models[$key];

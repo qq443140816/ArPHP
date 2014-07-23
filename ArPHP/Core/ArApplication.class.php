@@ -41,6 +41,11 @@ abstract class ArApplication
     {
         // maybe log;
         // echo microtime(true) - AR_START_TIME;
+        if (AR_DEBUG) :
+            if (arCfg('DEBUG_INFO_STORE_TYPE') == 'OUT') :
+                arComp('ext.out')->deBug('[SHUTDOWN]', 'RUNTIME', true);
+            endif;
+        endif;
 
     }
 
