@@ -13,7 +13,7 @@
  */
 
 /**
- * l
+ * display std out msg
  *
  * default hash comment :
  *
@@ -99,7 +99,7 @@ class ArOut extends ArComponent
         if ($show) :
 
             $showContentBox = array(
-                    'header' => '<div style="position:absolute;width:98%;bottom:30px"><div style="border-top:1px #666 dashed;background:#f1f1f1;text-align:center;font-size:20px;margin:10px 0px 10px;">[DEBUG ' . $tag . ' INFO] </div>',
+                    'header' => '<div style="width:98%;bottom:30px"><div style="border-top:1px #666 dashed;background:#f1f1f1;text-align:center;font-size:20px;margin:10px 0px 10px;">[DEBUG ' . $tag . ' INFO] </div>',
                     'showMsg' => '<div style="padding:5px;background:#f3f3f1;line-height:30px">' . $debugMsg . '</div>',
                     'trance' => '<div style="background:#f8f8f8">RUN TIME : ' . (microtime(1) - AR_START_TIME) . 's</div>',
                     'footer' => '</div>',
