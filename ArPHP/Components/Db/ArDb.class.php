@@ -42,19 +42,6 @@ class ArDb extends ArComponent
 
     protected $driverName = 'PDO';
 
-    // /**
-    //  * construct.
-    //  *
-    //  * @param array $config config.
-    //  *
-    //  * @return void
-    //  */
-    // public function __construct(array $config)
-    // {
-    //     $this->currentConfig = $config;
-
-    // }
-
     /**
      * read connection.
      *

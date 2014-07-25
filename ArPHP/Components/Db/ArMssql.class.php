@@ -54,28 +54,6 @@ class ArMssql extends ArDb
     );
 
     /**
-     * init.
-     *
-     * @param mixed  $config config.
-     * @param string $class  class.
-     *
-     * @return Object
-     */
-    static public function init($config = array(), $class = __CLASS__)
-    {
-        $this->config = $config;
-
-        $defaultDbconfig = $this->config['read']['default'];
-
-        if (empty(self::$readConnections['default'])) :
-            self::$readConnections['default'] = new self($defaultDbconfig);
-        endif;
-
-        return self::$readConnections['default'];
-
-    }
-
-    /**
      * flush options.
      *
      * @return boolean
