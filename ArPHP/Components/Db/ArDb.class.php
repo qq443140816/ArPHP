@@ -35,48 +35,47 @@ class ArDb extends ArComponent
     static public $readConnections = array();
     // write
     static public $writeConnections = array();
-    // config
-    public $currentConfig = array();
-    // pdo
-    protected $pdo = null;
+    // connectionMark
+    public $connectionMark = 'read.default';
     // pdoStatement
     protected $pdoStatement = null;
 
-    /**
-     * construct.
-     *
-     * @param array $config config.
-     *
-     * @return void
-     */
-    public function __construct(array $config)
-    {
-        $this->currentConfig = $config;
-        try {
-            $this->pdo = new PDO($config['dsn'], $config['user'], $config['pass'], $config['option']);
-        } catch (PDOException $e) {
-            throw $e;
-        }
+    protected $driverName = 'PDO';
 
-    }
+    // /**
+    //  * construct.
+    //  *
+    //  * @param array $config config.
+    //  *
+    //  * @return void
+    //  */
+    // public function __construct(array $config)
+    // {
+    //     $this->currentConfig = $config;
+
+    // }
 
     /**
      * read connection.
      *
-     * @param string $name connection name.
+     * @param string  $name                connection name.
+     * @param boolean $returnPdoConnection return db type.
      *
      * @return void
      */
-    public function read($name = 'default')
+    public function read($name = 'default', $returnPdoConnection = false)
     {
+        $this->connectionMark = 'read.' . $name;
         if (!isset(self::$readConnections[$name]) && isset($this->config['read'][$name])) :
             $this->addReadConnection($name);
         endif;
-
-        if (isset(self::$readConnections[$name])) :
+        if (!isset(self::$readConnections[$name])) :
+            throw new ArDbException('dbReadConfig not hava a param ' . $name, 1);
+        endif;
+        if ($returnPdoConnection) :
             return self::$readConnections[$name];
         else :
-            throw new ArDbException('dbReadConfig not hava a param ' . $name, 1);
+            return $this;
         endif;
 
     }
@@ -84,21 +83,26 @@ class ArDb extends ArComponent
     /**
      * read connection.
      *
-     * @param string $name connection name.
+     * @param string  $name                connection name.
+     * @param boolean $returnPdoConnection return db type.
      *
      * @return mixed
      */
-    public function write($name = 'default')
+    public function write($name = 'default', $returnPdoConnection = false)
     {
+        $this->connectionMark = 'write.' . $name;
         if (!isset(self::$writeConnections[$name]) && isset($this->config['write'][$name])) :
             $this->addWriteConnection($name);
         endif;
-
-        if (isset(self::$writeConnections[$name])) :
-            return self::$writeConnections[$name];
-        else :
+        if (!isset(self::$writeConnections[$name])) :
             throw new ArDbException('dbWriteConfig not hava a param ' . $name, 1);
         endif;
+        if ($returnPdoConnection) :
+            return self::$writeConnections[$name];
+        else :
+            return $this;
+        endif;
+
 
     }
 
@@ -112,14 +116,8 @@ class ArDb extends ArComponent
      */
     protected function addReadConnection($name = '')
     {
-        if (!isset(self::$writeConnections[$name])) :
-
-            $dsn = $this->config['read'][$name]['dsn'];
-            $user = $this->config['read'][$name]['user'];
-            $pass = $this->config['read'][$name]['pass'];
-            $option = $this->config['read'][$name]['option'];
-            self::$writeConnections[$name] = new $this->driverName($dsn, $user, $pass, $option);
-
+        if (!isset(self::$readConnections[$name])) :
+            self::$readConnections[$name] = $this->createConnection('read.' . $name);
         endif;
 
     }
@@ -134,14 +132,78 @@ class ArDb extends ArComponent
     protected function addWriteConnection($name = '')
     {
         if (!isset(self::$writeConnections[$name])) :
-
-            $dsn = $this->config['write'][$name]['dsn'];
-            $user = $this->config['write'][$name]['user'];
-            $pass = $this->config['write'][$name]['pass'];
-            $option = $this->config['write'][$name]['option'];
-            self::$writeConnections[$name] = new $this->driverName($dsn, $user, $pass, $option);
-
+            self::$writeConnections[$name] = $this->createConnection('write.' . $name);
         endif;
+
+    }
+
+    /**
+     * read connection.
+     *
+     * @param string $name connection name.
+     *
+     * @return PDO
+     */
+    protected function createConnection($name = '')
+    {
+        list($dataBaseType, $mark) = explode('.', $name);
+        $dsn = $this->config[$dataBaseType][$mark]['dsn'];
+        $user = $this->config[$dataBaseType][$mark]['user'];
+        $pass = $this->config[$dataBaseType][$mark]['pass'];
+        $option = $this->config[$dataBaseType][$mark]['option'];
+        try {
+            return new $this->driverName($dsn, $user, $pass, $option);
+        } catch (PDOException $e) {
+            throw $e;
+        }
+
+    }
+
+    protected function getCurrentConfig($configKey = '')
+    {
+        list($dataBaseType, $mark) = explode('.', $this->connectionMark);
+
+        if (empty($this->config[$dataBaseType][$mark])) :
+            throw new ArDbException("Db Config Mark Error : " . $this->connectionMark . ' Required');
+        endif;
+        if (empty($configKey)) :
+            return $this->config[$dataBaseType][$mark];
+        else :
+            if (array_key_exists($configKey, $this->config[$dataBaseType][$mark])) :
+                return $this->config[$dataBaseType][$mark][$configKey];
+            else :
+                throw new ArDbException("Db Config Lost Key Error : " . $configKey . ' Required');
+            endif;
+        endif;
+
+
+    }
+
+    /**
+     * pdo connection.
+     *
+     * @return PDO
+     */
+    protected function getDbConnection()
+    {
+        if (empty($this->connectionMark) || !strpos($this->connectionMark, '.')) :
+            throw new ArDbException("Connection Mark Error : " . $this->connectionMark);
+        endif;
+        list($dataBaseType, $mark) = explode('.', $this->connectionMark);
+
+        switch ($dataBaseType) {
+            case 'read':
+                return $this->read($mark, true);
+                break;
+            case 'write':
+                return $this->write($mark, true);
+                break;
+
+            default:
+                throw new ArDbException("Connection Mark DataBase Type Error : " . $this->connectionMark);
+                break;
+
+        }
 
     }
 
@@ -155,7 +217,7 @@ class ArDb extends ArComponent
      */
     public function setPdoAttributes($attribute , $value = '')
     {
-        $this->pdo->setAttribute($attribute, $value);
+        $this->getDbConnection()->setAttribute($attribute, $value);
         return $this;
 
     }
@@ -167,7 +229,7 @@ class ArDb extends ArComponent
      */
     public function transBegin()
     {
-        return $this->pdo->beginTransaction();
+        return $this->getDbConnection()->beginTransaction();
 
     }
 
@@ -178,7 +240,7 @@ class ArDb extends ArComponent
      */
     public function transCommit()
     {
-        return $this->pdo->commit();
+        return $this->getDbConnection()->commit();
 
     }
 
@@ -189,7 +251,7 @@ class ArDb extends ArComponent
      */
     public function transRoolBack()
     {
-        return $this->pdo->rollBack();
+        return $this->getDbConnection()->rollBack();
 
     }
 
@@ -201,7 +263,7 @@ class ArDb extends ArComponent
     public function inTransaction()
     {
         // This method actually seems to work fine on PHP5.3.5 (and probably a few older versions).
-        return $this->pdo->inTransaction();
+        return $this->getDbConnection()->inTransaction();
 
     }
 

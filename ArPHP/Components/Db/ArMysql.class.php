@@ -32,7 +32,7 @@
 class ArMysql extends ArDb
 {
     // driver
-    public $driverName = __CLASS__;
+    // public $driverName = __CLASS__;
     // last sql
     public $lastSql = '';
     // last insert id
@@ -53,26 +53,21 @@ class ArMysql extends ArDb
         'comment' => '',
     );
 
-    /**
-     * init.
-     *
-     * @param mixed  $config config.
-     * @param string $class  class.
-     *
-     * @return Object
-     */
-    static public function init($config = array(), $class = __CLASS__)
-    {
-        if (empty(self::$readConnections['default'])) :
-            $defaultDbconfig = $config['read']['default'];
-            $obj = new self($defaultDbconfig);
-            $obj->config = $config;
-            self::$readConnections['default'] = $obj;
-        endif;
+    // /**
+    //  * init.
+    //  *
+    //  * @param mixed  $config config.
+    //  * @param string $class  class.
+    //  *
+    //  * @return Object
+    //  */
+    // static public function init($config = array(), $class = __CLASS__)
+    // {
+    //     $obj = new self($defaultDbconfig);
+    //     $obj->config = $config;
+    //     return $obj;
 
-        return self::$readConnections['default'];
-
-    }
+    // }
 
     /**
      * flush options.
@@ -121,11 +116,13 @@ class ArMysql extends ArDb
         $this->flushOptions();
 
         try {
-            $this->pdoStatement = $this->pdo->query($sql);
+            $this->pdoStatement = $this->getDbConnection()->query($sql);
             $i[] = $this->pdoStatement;
         } catch (PDOException $e) {
             throw new ArDbException($e->getMessage() . ' lastsql :' . $sql);
         }
+
+        $this->connectionMark = 'read.default';
 
         return $this->pdoStatement;
 
@@ -267,7 +264,7 @@ class ArMysql extends ArDb
             $sql = $this->bulidInsertSql();
             $this->exec($sql);
 
-            return $this->lastInsertId = $this->pdo->lastInsertId();
+            return $this->lastInsertId = $this->getDbConnection()->lastInsertId();
 
         endif;
 
@@ -332,10 +329,11 @@ class ArMysql extends ArDb
         try {
             $this->lastSql = $sql;
             $this->flushOptions();
-            return $this->pdo->exec($sql);
+            return $this->getDbConnection()->exec($sql);
         } catch (PDOException $e) {
             throw new ArDbException($e->getMessage() . ' lastsql :' . $sql);
         }
+        $this->connectionMark = 'read.default';
 
     }
 
@@ -355,7 +353,7 @@ class ArMysql extends ArDb
             endforeach;
             return $return;
         else :
-            $data = $this->pdo->quote($data);
+            $data = $this->getDbConnection()->quote($data);
             if (false === $data) :
                 $data = "''";
             endif;
@@ -407,7 +405,7 @@ class ArMysql extends ArDb
      */
     public function table($table)
     {
-        $this->options['table'] = $this->quoteObj($this->currentConfig['prefix'] . $table);
+        $this->options['table'] = $this->quoteObj($this->getCurrentConfig('prefix') . $table);
         return $this;
 
     }
