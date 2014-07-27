@@ -358,7 +358,16 @@ class Ar
      */
     static public function exceptionHandler($e)
     {
-        arComp('ext.out')->deBug('<b style="color:#ec8186;">ArException</b> ' . get_class($e) . ' : ' . $e->getMessage());
+        if (AR_DEBUG) :
+            $msg = '<b style="color:#ec8186;">' . get_class($e) . '</b> : ' . $e->getMessage();
+            if (arCfg('DEBUG_SHOW_TRACE')) :
+                arComp('ext.out')->deBug($msg, 'TRACE');
+            else :
+                if (arCfg('DEBUG_SHOW_EXCEPTION')) :
+                    arComp('ext.out')->deBug($msg, 'EXCEPTION');
+                endif;
+            endif;
+        endif;
 
     }
 
@@ -374,8 +383,7 @@ class Ar
      */
     static public function errorHandler($errno, $errstr, $errfile, $errline)
     {
-        if (!(error_reporting() & $errno)) :
-            // This error code is not included in error_reporting
+        if (!AR_DEBUG) :
             return;
         endif;
         $errMsg = '';
@@ -402,7 +410,14 @@ class Ar
             break;
         }
         if ($errMsg) :
-            arComp('ext.out')->deBug($errMsg);
+            if (arCfg('DEBUG_SHOW_TRACE')) :
+                arComp('ext.out')->deBug($errMsg, 'TRACE');
+            else :
+                if (arCfg('DEBUG_SHOW_ERROR')) :
+                    arComp('ext.out')->deBug($errMsg, 'ERROR');
+                endif;
+            endif;
+
             if ($errno == E_USER_ERROR) :
                 exit(1);
             endif;

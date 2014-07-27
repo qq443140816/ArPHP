@@ -42,9 +42,18 @@ abstract class ArApplication
         // maybe log;
         // echo microtime(true) - AR_START_TIME;
         if (AR_DEBUG) :
-            if (arCfg('DEBUG_INFO_STORE_TYPE') == 'OUT') :
-                arComp('ext.out')->deBug('[SHUTDOWN]', 'RUNTIME', true);
+            if (arCfg('DEBUG_SHOW_EXCEPTION')) :
+                arComp('ext.out')->deBug('', 'EXCEPTION', true);
             endif;
+
+            if (arCfg('DEBUG_SHOW_ERROR')) :
+                arComp('ext.out')->deBug('', 'ERROR', true);
+            endif;
+
+            if (arCfg('DEBUG_SHOW_TRACE'))  :
+                arComp('ext.out')->deBug('[SHUTDOWN]', 'TRACE', true);
+            endif;
+
         endif;
 
     }

@@ -86,31 +86,39 @@ class ArOut extends ArComponent
      *
      * @return void
      */
-    public function deBug($msg = '', $tag = 'RUNTIME', $show = false)
+    public function deBug($msg = '', $tag = 'TRACE', $show = false)
     {
-        static $debugMsg = '';
-        if (preg_match("#\[[A-Z_]+\]$#", $msg)) :
-            $msg = "<b>" . $msg . "</b>";
-        else :
-            $msg = "&nbsp;&nbsp;" . $msg;
-        endif;
-        $debugMsg .= $msg . "<br>";
+        static $deBugMsg = array();
 
-        if ($show) :
+        if (!array_key_exists($tag, $deBugMsg)) :
+            $deBugMsg[$tag] = '';
+        endif;
+
+        if ($msg) :
+            if (preg_match("#\[[A-Z_]+\]$#", $msg)) :
+                $msg = "<b>" . $msg . "</b>";
+            else :
+                $msg = "&nbsp;&nbsp;" . $msg;
+            endif;
+            $deBugMsg[$tag] .= $msg . "<br>";
+        endif;
+
+        if ($show && !empty($deBugMsg[$tag])) :
 
             $showContentBox = array(
                     'header' => '<div style="width:98%;bottom:30px"><div style="border-top:1px #666 dashed;background:#f1f1f1;text-align:center;font-size:20px;margin:10px 0px 10px;">[DEBUG ' . $tag . ' INFO] </div>',
-                    'showMsg' => '<div style="padding:5px;background:#f3f3f1;line-height:30px">' . $debugMsg . '</div>',
-                    'trance' => '<div style="background:#f8f8f8">RUN TIME : ' . (microtime(1) - AR_START_TIME) . 's</div>',
+                    'showMsg' => '<div style="padding:5px;background:#f3f3f1;line-height:30px">' . $deBugMsg[$tag] . '</div>',
                     'footer' => '</div>',
                 );
 
-            $deBugMsg = '';
+            if (arCfg('DEBUG_SHOW_TRACE')) :
+                    $showContentBox['trance'] = '<div style="background:#f8f8f8">RUN TIME : ' . (microtime(1) - AR_START_TIME) . 's</div>';
+            endif;
 
             echo join($showContentBox, '');
 
+            $deBugMsg[$tag] = '';
         endif;
-
 
     }
 
