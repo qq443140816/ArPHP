@@ -53,22 +53,6 @@ class ArMysql extends ArDb
         'comment' => '',
     );
 
-    // /**
-    //  * init.
-    //  *
-    //  * @param mixed  $config config.
-    //  * @param string $class  class.
-    //  *
-    //  * @return Object
-    //  */
-    // static public function init($config = array(), $class = __CLASS__)
-    // {
-    //     $obj = new self($defaultDbconfig);
-    //     $obj->config = $config;
-    //     return $obj;
-
-    // }
-
     /**
      * flush options.
      *
@@ -129,6 +113,38 @@ class ArMysql extends ArDb
     }
 
     /**
+     * direct to exec sql.
+     *
+     * @param $sql string sql.
+     *
+     * @return mixed
+     */
+    public function sqlQuery($sql = '')
+    {
+        if (empty($sql)) :
+            throw new ArDbException("Query Sql String Should Not Be Empty");
+        endif;
+
+        $ret = $this->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+
+        return $ret;
+
+    }
+
+    /**
+     * direct to exec sql.
+     *
+     * @param $sql string sql.
+     *
+     * @return mixed
+     */
+    public function sqlExec($sql = '')
+    {
+        return $this->exec($sql);
+
+    }
+
+    /**
      * get columns.
      *
      * @return mixed
@@ -150,7 +166,6 @@ class ArMysql extends ArDb
         return $columns;
 
     }
-
     /**
      * count.
      *
@@ -324,8 +339,11 @@ class ArMysql extends ArDb
      *
      * @return mixed
      */
-    protected function exec($sql)
+    protected function exec($sql = '')
     {
+        if (empty($sql)) :
+            throw new ArDbException("Exec Sql String Should Not Be Empty");
+        endif;
         try {
             $this->lastSql = $sql;
             $this->flushOptions();

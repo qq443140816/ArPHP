@@ -13,6 +13,7 @@
  */
 
 return array(
+        // path
         'PATH' => array(
             'PUBLIC' => AR_SERVER_PATH . arCfg('requestRoute.m') . '/Public/',
             'GPUBLIC' => AR_SERVER_PATH . 'Public/',
@@ -21,6 +22,13 @@ return array(
             'UPLOAD' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'Upload' . DS,
             'EXT' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'Ext' . DS,
         ),
-        'DEBUG_INFO_STORE_TYPE' => 'OUT',
+
+        // url
         'URL_MODE' => 'PATH',
+
+        // debug
+        'DEBUG_SHOW_TRACE' => true,
+        'DEBUG_SHOW_ERROR' => true,
+        'DEBUG_SHOW_EXCEPTION' => true,
+
    );
