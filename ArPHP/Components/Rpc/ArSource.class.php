@@ -98,7 +98,6 @@ class ArSource extends ArText
     protected function getApi($api, $params)
     {
         $prefix = rtrim(empty($this->config['remotePrefix']) ? arComp('url.route')->ServerName() : $this->config['remotePrefix'], '/');
-        $this->method = empty($this->config['method']) ? 'get' : $this->config['method'];
 
         if (!empty($params['curlOptions'])) :
             $this->curlOptions = $params['curlOptions'];
@@ -131,11 +130,18 @@ class ArSource extends ArText
      *
      * @param string $api    api.
      * @param mixed  $params parames.
+     * @param string $method http method.
      *
      * @return mixed
      */
-    public function callApi($api, $params = array())
+    public function callApi($api, $params = array(), $method = '')
     {
+        if ($method) :
+            $this->method = $method;
+        else :
+            $this->method = empty($this->config['method']) ? 'get' : $this->config['method'];
+        endif;
+
         $result = $this->getApi($api, $params);
 
         return $this->parse($result);

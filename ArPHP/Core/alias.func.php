@@ -53,6 +53,27 @@ function arU($name = '', $params = array())
 }
 
 /**
+ * arModule.
+ *
+ * @param string $name moduleName.
+ *
+ * @return Module
+ */
+function arModule($name = '')
+{
+    static $moduleList = array();
+    $module = $name . 'Module';
+    if (!array_key_exists($module, $moduleList)) :
+        arComp('ext.out')->deBug('|MODULE_INIT:' . $module .'|');
+        $moduleList[$module] = new $module;
+    endif;
+    arComp('ext.out')->deBug('|MODULE_EXEC:' . $module .'|');
+    return $moduleList[$module];
+
+}
+
+
+/**
  * filter $_GET.
  *
  * @param string $key     get key.

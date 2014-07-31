@@ -54,21 +54,12 @@ class ArController
      */
     public function __call($name, $params)
     {
+        $mName = empty($params[0]) ? arCfg('requestRoute.c') : $params[0];
         if ($name == 'module') :
-            $module = empty($params[0]) ? arCfg('requestRoute.c') : $params[0];
-            $moduleKey = $name . $module;
-            if (!isset($this->assign[$moduleKey])) :
-                $m =  $module . 'Module';
-                $this->assign[$moduleKey] = new $m;
-            endif;
-            return $this->assign[$moduleKey];
+            return arModule($mName);
         elseif ($name == 'model') :
-            if (!$this->assign['model']) :
-                $model = empty($params[0]) ? arCfg('requestRoute.c') : $params[0];
-                $m = $model . 'Model';
-                $this->assign['model'] = ArModel::model($m);
-            endif;
-            return $this->assign['model'];
+            $m = $mName . 'Model';
+            return ArModel::model($m);
         else :
             throw new ArException("class do not have a method $name");
         endif;

@@ -82,8 +82,8 @@ class Ar
         endif;
 
         self::$_config = array_merge(
-            self::$_config,
-            Ar::import(AR_CONFIG_PATH . 'default.config.php', true)
+            Ar::import(AR_CONFIG_PATH . 'default.config.php', true),
+            self::$_config
         );
 
         ArApp::run();
@@ -383,7 +383,7 @@ class Ar
      */
     static public function errorHandler($errno, $errstr, $errfile, $errline)
     {
-        if (!AR_DEBUG) :
+        if (!AR_DEBUG || !(error_reporting() & $errno)) :
             return;
         endif;
         $errMsg = '';
@@ -400,6 +400,7 @@ class Ar
             break;
 
         case E_USER_NOTICE:
+        case E_NOTICE:
             $errMsg .= "<b style='color:#ec8186;'>NOTICE</b> [$errno] $errstr<br />\n";
             $errMsg .= " on line $errline in file $errfile <br />\n";
             break;
