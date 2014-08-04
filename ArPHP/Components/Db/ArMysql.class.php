@@ -347,11 +347,12 @@ class ArMysql extends ArDb
         try {
             $this->lastSql = $sql;
             $this->flushOptions();
-            return $this->getDbConnection()->exec($sql);
+            $rt = $this->getDbConnection()->exec($sql);
+            $this->connectionMark = 'read.default';
+            return $rt;
         } catch (PDOException $e) {
             throw new ArDbException($e->getMessage() . ' lastsql :' . $sql);
         }
-        $this->connectionMark = 'read.default';
 
     }
 

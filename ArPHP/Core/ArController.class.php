@@ -200,13 +200,15 @@ class ArController
      *
      * @return mixed
      */
-    public function redirect($r = array(), $show = '', $time = '0')
+    public function redirect($r = '', $show = '', $time = '0')
     {
-        $route = empty($r[0]) ? '' : $r[0];
-
-        $param = empty($r[1]) ? array() : $r[1];
-
-        $url = Ar::createUrl($route, $param);
+        if (is_string($r)) :
+            $url = $r;
+        else :
+            $route = empty($r[0]) ? '' : $r[0];
+            $param = empty($r[1]) ? array() : $r[1];
+            $url = Ar::createUrl($route, $param);
+        endif;
 
         $redirectUrl = <<<str
 <html>
@@ -233,7 +235,7 @@ str;
      *
      * @return mixed
      */
-    public function redirectSuccess($r = array(), $show = '', $time = '1')
+    public function redirectSuccess($r = '', $show = '', $time = '1')
     {
         $this->redirect($r, '成功:' . $show, $time);
 
@@ -248,7 +250,7 @@ str;
      *
      * @return mixed
      */
-    public function redirectError($r = array(), $show = '' , $time = '4')
+    public function redirectError($r = '', $show = '' , $time = '4')
     {
         $this->redirect($r, '失败:' . $show, $time);
 
