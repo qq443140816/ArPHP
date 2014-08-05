@@ -29,7 +29,7 @@
  * @version  Release: @package_version@
  * @link     http://www.arphp.net
  */
-class ArProxy extends ArText
+class ArProxy extends ArApi
 {
     // domain
     protected $domainInfo = array();

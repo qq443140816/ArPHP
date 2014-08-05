@@ -29,51 +29,8 @@
  * @version  Release: @package_version@
  * @link     http://www.arphp.net
  */
-class ArSource extends ArText
+class ArSource extends ArApi
 {
-    // get url method
-    public $method = 'get';
-
-    //curl options
-    public $curlOptions = array();
-
-    /**
-     * remote call.
-     *
-     * @param string $url resource url.
-     *
-     * @return string
-     */
-    protected function remoteCall($url, $params = array())
-    {
-        $init = curl_init($url);
-
-        $options = array(CURLOPT_HEADER => false, CURLOPT_RETURNTRANSFER => 1);
-        if ($this->method == 'post') :
-            $options[CURLOPT_POST] = true;
-            $options[CURLOPT_POSTFIELDS] = $params;
-        endif;
-
-        if ($this->curlOptions) :
-            foreach ($this->curlOptions as $ckey => $opt) :
-                $options[$ckey] = $opt;
-            endforeach;
-        endif;
-
-        curl_setopt_array($init, $options);
-
-        $rtStr = curl_exec($init);
-
-        if ($rtStr === false) :
-            throw new ArException('Curl error: ' . curl_error($init));
-        endif;
-
-        curl_close($init);
-
-        return $rtStr;
-
-    }
-
     /**
      * parse return data.
      *
