@@ -29,7 +29,7 @@
  * @version  Release: @package_version@
  * @link     http://www.arphp.net
  */
-class ArWebApplication extends ArApplication
+class ArApplicationWeb extends ArApplication
 {
     // route container
     public $route = array();
@@ -41,14 +41,13 @@ class ArWebApplication extends ArApplication
      */
     public function start()
     {
+        parent::start();
         if (AR_DEBUG) :
             arComp('ext.out')->deBug('[APP_WEB_START]');
         endif;
         if (ini_get('session.auto_start') == 0) :
             session_start();
         endif;
-
-        register_shutdown_function(array($this, 'shutDown'));
 
         $this->processRequest();
 

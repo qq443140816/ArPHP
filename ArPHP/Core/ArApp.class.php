@@ -41,10 +41,14 @@ class ArApp
         if (AR_DEBUG) :
             arComp('ext.out')->deBug('[APP_RUN]');
         endif;
+
         self::_initComponents(Ar::getConfig('components'));
 
-        if (!AR_OUTER_START) :
-            $app = self::_createWebApplication('ArWebApplication');
+        if (AR_RUN_AS_SERVICE_HTTP) :
+            $app = self::_createWebApplication('ArApplicationServiceHttp');
+            $app->start();
+        elseif (!AR_OUTER_START) :
+            $app = self::_createWebApplication('ArApplicationWeb');
             $app->start();
         endif;
 

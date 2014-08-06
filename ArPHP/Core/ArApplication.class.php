@@ -29,9 +29,8 @@
  * @version  Release: @package_version@
  * @link     http://www.arphp.net
  */
-abstract class ArApplication
+class ArApplication
 {
-
     /**
      * shutDown function.
      *
@@ -63,6 +62,10 @@ abstract class ArApplication
      *
      * @return void
      */
-    abstract public function start();
+    public function start()
+    {
+        register_shutdown_function(array($this, 'shutDown'));
+
+    }
 
 }

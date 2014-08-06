@@ -19,6 +19,8 @@ defined('AR_OUTER_START') or define('AR_OUTER_START', false);
 
 defined('AR_AS_OUTER_FRAME') or define('AR_AS_OUTER_FRAME', false);
 
+defined('AR_RUN_AS_SERVICE_HTTP') or define('AR_RUN_AS_SERVICE_HTTP', false);
+
 defined('AR_DEFAULT_APP_NAME') or define('AR_DEFAULT_APP_NAME', 'main');
 
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
@@ -44,6 +46,7 @@ defined('AR_EXT_PATH') or define('AR_EXT_PATH', AR_FRAME_PATH . 'Extensions' . D
 defined('AR_COMP_PATH') or define('AR_COMP_PATH', AR_FRAME_PATH . 'Components' . DS);
 
 defined('AR_SERVER_PATH') or define('AR_SERVER_PATH', ($dir = dirname($_SERVER['SCRIPT_NAME'])) == DS ? '/' : str_replace(DS, '/', $dir) . '/');
+
 
 require_once AR_CORE_PATH . 'Ar.class.php';
 

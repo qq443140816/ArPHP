@@ -358,6 +358,11 @@ class Ar
      */
     static public function exceptionHandler($e)
     {
+        if (get_class($e) === 'ArServiceException') :
+            arComp('rpc.service')->response(array('error_code' => '1001', 'error_msg' => $e->getMessage()));
+            exit;
+        endif;
+
         if (AR_DEBUG) :
             $msg = '<b style="color:#ec8186;">' . get_class($e) . '</b> : ' . $e->getMessage();
             if (arCfg('DEBUG_SHOW_TRACE')) :
