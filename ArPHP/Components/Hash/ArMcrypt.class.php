@@ -46,17 +46,17 @@ class ArMcrypt extends ArComponent
      */
     static public function init($config = array(), $class = __CLASS__)
     {
-        $self = parent::init($config, $class);
+        $hashObject = parent::init($config, $class);
 
-        $key = empty($this->config['key']) ? 'ArPHP I Love You' : $this->config['key'];
+        $key = empty($hashObject->config['key']) ? 'ArPHP_GO_GO_GO' : $hashObject->config['key'];
 
         $key = hash('ripemd128', $key);
 
-        $self->_key = pack('H*', $key);
+        $hashObject->_key = pack('H*', $key);
 
-        $self->_ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
+        $hashObject->_ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
 
-        return $self;
+        return $hashObject;
 
     }
 

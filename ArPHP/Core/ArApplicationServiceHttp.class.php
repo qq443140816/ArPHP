@@ -46,9 +46,7 @@ class ArApplicationServiceHttp extends ArApplicationService
 
     public function parseHttpServiceHanlder()
     {
-                throw new ArServiceException('ws query format incorrect error');
         if ($ws = arPost('ws')) :
-            $ws = stripslashes($ws);
             if (!$ws = arComp('rpc.api')->decrypt($ws)) :
                 throw new ArServiceException('ws query format incorrect error');
             endif;
@@ -75,7 +73,11 @@ class ArApplicationServiceHttp extends ArApplicationService
         $method = $ws['method'];
         $param = $ws['param'];
 
-        $serviceHolder = new $service;
+        try {
+            $serviceHolder = new $service;
+        } catch(Exeception $e) {
+            throw new ArServiceException('ws service "' . $service . '" does not exist ');
+        }
 
         if (!is_callable(array($serviceHolder, $method))) :
             throw new ArServiceException('ws service do not hava a method ' . $method);

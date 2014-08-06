@@ -388,6 +388,11 @@ class Ar
      */
     static public function errorHandler($errno, $errstr, $errfile, $errline)
     {
+        if (AR_RUN_AS_SERVICE_HTTP) :
+            arComp('rpc.service')->response(array('error_code' => '1011', 'error_msg' => $errstr));
+            exit;
+        endif;
+
         if (!AR_DEBUG || !(error_reporting() & $errno)) :
             return;
         endif;

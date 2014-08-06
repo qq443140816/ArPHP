@@ -107,7 +107,7 @@ class ArApi extends ArComponent
      */
     public function encrypt($data)
     {
-        return serialize($data);
+        return arComp('hash.mcrypt')->encrypt(serialize($data));
 
     }
 
@@ -120,7 +120,7 @@ class ArApi extends ArComponent
      */
     public function decrypt($data)
     {
-        return unserialize($data);
+        return unserialize(arComp('hash.mcrypt')->decrypt($data));
 
     }
 

@@ -38,7 +38,7 @@ class ArHttpService
      *
      * @return void
      */
-    protected function response($data)
+    protected function response($data = '')
     {
         return arComp('rpc.api')->response($data);
 

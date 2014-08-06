@@ -95,8 +95,6 @@ class ArService extends ArApi
     {
         $this->method = 'post';
         $response = $this->remoteCall($url, $args);
-        var_dump($response);
-        exit;
         return $this->processResponse($response);
 
     }
@@ -108,15 +106,33 @@ class ArService extends ArApi
      *
      * @return void
      */
-    protected function response($data)
+    public function response($data = '')
     {
+        $remoteStdOutMsg = ob_get_contents();
+        ob_end_clean();
+        if (AR_DEBUG && $remoteStdOutMsg) :
+            $backInfo = array(
+                'data' => $data,
+                'stdOutMsg' => $remoteStdOutMsg,
+            );
+            $data = $backInfo;
+        endif;
         echo $this->encrypt($data);
 
     }
 
     protected function processResponse($response = '')
     {
-        return $this->decrypt($response);
+        if (empty($response)) :
+            throw new ArException('Remote Service Error (  Service Response Empty )', '1012');
+        elseif (preg_match('#.*error.*on line.*#', $response)):
+            throw new ArException('Remote Service Error ( ' . $response . ' )', '1101');
+        endif;
+        $remoteBackResult = $this->decrypt($response);
+        if (is_array($remoteBackResult) &&!empty($remoteBackResult['error_msg'])) :
+            throw new ArException('Remote Service Error ( ' . $remoteBackResult['error_msg'] . ' )', $remoteBackResult['error_code']);
+        endif;
+        return $remoteBackResult;
 
     }
 
