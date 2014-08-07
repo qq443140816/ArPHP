@@ -70,11 +70,12 @@ class ArApplicationServiceHttp extends ArApplicationService
     public function runService($ws)
     {
         $service = $ws['class'] . 'Service';
-        $method = $ws['method'];
+        $method = $ws['method'] . 'Worker';
         $param = $ws['param'];
 
         try {
             $serviceHolder = new $service;
+            $serviceHolder->init();
         } catch(Exeception $e) {
             throw new ArServiceException('ws service "' . $service . '" does not exist ');
         }
@@ -82,8 +83,8 @@ class ArApplicationServiceHttp extends ArApplicationService
         if (!is_callable(array($serviceHolder, $method))) :
             throw new ArServiceException('ws service do not hava a method ' . $method);
         endif;
-
-        return call_user_func_array(array($serviceHolder, $method), $param);
+        call_user_func_array(array($serviceHolder, $method), $param);
+        $serviceHolder->notResponseToClientHanlder();
 
     }
 

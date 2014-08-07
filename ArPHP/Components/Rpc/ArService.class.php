@@ -106,32 +106,61 @@ class ArService extends ArApi
      *
      * @return void
      */
-    public function response($data = '')
+    public function response($data = '', $exitAndFlush = false)
     {
-        $remoteStdOutMsg = ob_get_contents();
-        ob_end_clean();
-        if (AR_DEBUG && $remoteStdOutMsg) :
-            $backInfo = array(
-                'data' => $data,
-                'stdOutMsg' => $remoteStdOutMsg,
-            );
-            $data = $backInfo;
+        static $backToClientData = 'NOT_EXEC';
+
+        if ($exitAndFlush) :
+            $remoteStdOutMsg = ob_get_contents();
+            ob_end_clean();
+            if (AR_DEBUG && $remoteStdOutMsg) :
+                $backInfo = array(
+                    'data' => $backToClientData,
+                    'stdOutMsg' => $remoteStdOutMsg,
+                );
+                $backToClientData = $backInfo;
+            endif;
+            echo $this->encrypt($backToClientData);
+        else :
+            $backToClientData = $data;
         endif;
-        echo $this->encrypt($data);
+        exit;
 
     }
 
+
+    /**
+     * process remote server response.
+     *
+     * @param mixed $response back data.
+     *
+     * @return mixed
+     */
     protected function processResponse($response = '')
     {
         if (empty($response)) :
             throw new ArException('Remote Service Error (  Service Response Empty )', '1012');
-        elseif (preg_match('#.*error.*on line.*#', $response)):
-            throw new ArException('Remote Service Error ( ' . $response . ' )', '1101');
         endif;
+
         $remoteBackResult = $this->decrypt($response);
-        if (is_array($remoteBackResult) &&!empty($remoteBackResult['error_msg'])) :
-            throw new ArException('Remote Service Error ( ' . $remoteBackResult['error_msg'] . ' )', $remoteBackResult['error_code']);
+
+        if (!empty($remoteBackResult['stdOutMsg'])) :
+            if (preg_match('#.*error.*on line.*#', $remoteBackResult['stdOutMsg'])) :
+                throw new ArException('Remote Service Error ( ' . $remoteBackResult['stdOutMsg'] . ' )', '1101');
+            endif;
+            if (AR_DEBUG) :
+                arComp('ext.out')->deBug('[SERVER_STD_OUT_MSG]');
+                arComp('ext.out')->deBug($remoteBackResult['stdOutMsg']);
+            endif;
+            $remoteBackResult = $remoteBackResult['data'];
         endif;
+
+        if (is_array($remoteBackResult) && !empty($remoteBackResult['error_msg'])) :
+            throw new ArException('Remote Service Error ( ' . $remoteBackResult['error_msg'] . ' )', $remoteBackResult['error_code']);
+        elseif ($remoteBackResult === 'NOT_EXEC') :
+            throw new ArException('Remote Service Error ( may be a fatal error occur )', '1101');
+        endif;
+
         return $remoteBackResult;
 
     }

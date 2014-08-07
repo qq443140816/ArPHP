@@ -38,8 +38,6 @@ class ArApplication
      */
     public function shutDown()
     {
-        // maybe log;
-        // echo microtime(true) - AR_START_TIME;
         if (AR_DEBUG) :
             if (arCfg('DEBUG_SHOW_EXCEPTION')) :
                 arComp('ext.out')->deBug('', 'EXCEPTION', true);
@@ -53,6 +51,10 @@ class ArApplication
                 arComp('ext.out')->deBug('[SHUTDOWN]', 'TRACE', true);
             endif;
 
+        endif;
+
+        if (AR_RUN_AS_SERVICE_HTTP) :
+            arComp('rpc.service')->response('', true);
         endif;
 
     }

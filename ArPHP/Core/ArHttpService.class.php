@@ -40,7 +40,19 @@ class ArHttpService
      */
     protected function response($data = '')
     {
-        return arComp('rpc.api')->response($data);
+        return arComp('rpc.service')->response($data);
+
+    }
+
+    public function init()
+    {
+        ob_start();
+
+    }
+
+    public function notResponseToClientHanlder()
+    {
+        throw new ArServiceException('not found response hanlder ', '1011');
 
     }
 

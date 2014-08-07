@@ -45,10 +45,8 @@ class ArApp
         self::_initComponents(Ar::getConfig('components'));
 
         if (AR_RUN_AS_SERVICE_HTTP) :
-            ob_start();
             $app = self::_createWebApplication('ArApplicationServiceHttp');
             $app->start();
-            ob_end_clean();
         elseif (!AR_OUTER_START) :
             $app = self::_createWebApplication('ArApplicationWeb');
             $app->start();

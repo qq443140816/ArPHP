@@ -1,5 +1,6 @@
 .htaccess
 main
+ws
 /Conf
 .hg
 .hgignore

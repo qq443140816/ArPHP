@@ -78,7 +78,11 @@ class Ar
             Ar::c('url.route')->parse();
         else :
             Ar::c('url.skeleton')->generateIntoOther();
-            self::setConfig('', Ar::import(AR_MAN_PATH . 'Conf' . DS . 'public.config.php'));
+            $comonConfigFile = realpath(dirname(AR_MAN_PATH)) . DS . 'Conf' . DS . 'public.config.php';
+            self::$_config = array_merge(
+                Ar::import($comonConfigFile, true),
+                Ar::import(AR_MAN_PATH . 'Conf' . DS . 'public.config.php')
+            );
         endif;
 
         self::$_config = array_merge(
