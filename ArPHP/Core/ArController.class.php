@@ -141,7 +141,7 @@ class ArController
             $view = ltrim($view, '@');
         endif;
 
-        $r = Ar::a('ArWebApplication')->route;
+        $r = Ar::a('ArApplicationWeb')->route;
 
 
         if (empty($view)) :
@@ -346,7 +346,7 @@ str;
                 'a' => $route[1],
             );
 
-        Ar::a('ArWebApplication')->runController($requestRoute);
+        Ar::a('ArApplicationWeb')->runController($requestRoute);
 
     }
 

@@ -77,7 +77,6 @@ class ArSource extends ArApi
             break;
         }
         $url = trim($prefix, '/');
-
         return $this->remoteCall($url, $params);
 
     }
