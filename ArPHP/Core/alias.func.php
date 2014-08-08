@@ -32,9 +32,13 @@ function arComp($name = '')
  *
  * @return mixed
  */
-function arCfg($name = '')
+function arCfg($name = '', $default = 'NOT_RGI')
 {
-    return Ar::getConfig($name);
+    if ($default === 'NOT_RGI') :
+        return Ar::getConfig($name);
+    else :
+        return Ar::getConfig($name, $default);
+    endif;
 
 }
 

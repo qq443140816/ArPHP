@@ -11,7 +11,6 @@
  * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
  * @link     http://www.arphp.net
  */
-
 return array(
         // path
         'PATH' => array(

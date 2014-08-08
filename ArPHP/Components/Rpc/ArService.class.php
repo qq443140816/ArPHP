@@ -31,6 +31,8 @@
  */
 class ArService extends ArApi
 {
+    protected $TAG_MSG_SEP = '___SERVICE_STD_OUT_SEP___';
+
     protected $remoteWsFile = '';
 
     /**
@@ -49,6 +51,13 @@ class ArService extends ArApi
 
     }
 
+    /**
+     * generate ws file name.
+     *
+     * @param string $wsFile wsFile.
+     *
+     * @return mixed
+     */
     public function setRemoteWsFile($wsFile = '')
     {
         if (empty($wsFile)) :
@@ -59,18 +68,38 @@ class ArService extends ArApi
 
     }
 
+    /**
+     * use sign auth param.
+     *
+     * @param array $sign sign auth param.
+     *
+     * @return mixed
+     */
     public function setAuthUserSignature($sign = array())
     {
         $this->remoteQueryUrlSign = $sign;
 
     }
 
+    /**
+     * generate remote ws url.
+     *
+     * @return mixed
+     */
     public function gRemoteWsUrl()
     {
         return $this->remoteWsFile . '?' . http_build_query($this->remoteQueryUrlSign);
 
     }
 
+    /**
+     * magic call.
+     *
+     * @param string $name ws name.
+     * @param array  $args args.
+     *
+     * @return mixed
+     */
     public function __call($name, $args = array())
     {
         $remoteQueryUrlSign = array();
@@ -91,6 +120,14 @@ class ArService extends ArApi
 
     }
 
+    /**
+     * exec remote process.
+     *
+     * @param string $url  url.
+     * @param array  $args args.
+     *
+     * @return mixed
+     */
     public function callApi($url, $args = array())
     {
         $this->method = 'post';
@@ -106,28 +143,12 @@ class ArService extends ArApi
      *
      * @return void
      */
-    public function response($data = '', $exitAndFlush = false)
+    public function response($data = '')
     {
-        static $backToClientData = 'NOT_EXEC';
-
-        if ($exitAndFlush) :
-            $remoteStdOutMsg = ob_get_contents();
-            ob_end_clean();
-            if (AR_DEBUG && $remoteStdOutMsg) :
-                $backInfo = array(
-                    'data' => $backToClientData,
-                    'stdOutMsg' => $remoteStdOutMsg,
-                );
-                $backToClientData = $backInfo;
-            endif;
-            echo $this->encrypt($backToClientData);
-        else :
-            $backToClientData = $data;
-        endif;
+        echo $this->TAG_MSG_SEP . $this->encrypt($data);
         exit;
 
     }
-
 
     /**
      * process remote server response.
@@ -138,27 +159,35 @@ class ArService extends ArApi
      */
     protected function processResponse($response = '')
     {
+        // empty response
         if (empty($response)) :
             throw new ArException('Remote Service Error (  Service Response Empty )', '1012');
         endif;
-
-        $remoteBackResult = $this->decrypt($response);
-
-        if (!empty($remoteBackResult['stdOutMsg'])) :
-            if (preg_match('#.*error.*on line.*#', $remoteBackResult['stdOutMsg'])) :
-                throw new ArException('Remote Service Error ( ' . $remoteBackResult['stdOutMsg'] . ' )', '1101');
-            endif;
-            if (AR_DEBUG) :
-                arComp('ext.out')->deBug('[SERVER_STD_OUT_MSG]');
-                arComp('ext.out')->deBug($remoteBackResult['stdOutMsg']);
-            endif;
-            $remoteBackResult = $remoteBackResult['data'];
+        // error hanlder
+        if (preg_match('#.*error.*on line.*#', $response)) :
+            throw new ArException('Remote Service Error ( ' . $response . ' )', '1101');
         endif;
+
+        // std debug info
+        if (($pos = strpos($response, $this->TAG_MSG_SEP)) !== false) :
+            if ($pos === 0) :
+                $response = substr($response, strlen($this->TAG_MSG_SEP));
+            else :
+                list($stdOutMsg, $response) = explode($this->TAG_MSG_SEP, $response);
+                if (AR_DEBUG) :
+                    arComp('ext.out')->debug('[SERVICE_STD_OUT_MSG]');
+                    arComp('ext.out')->debug($stdOutMsg);
+                endif;
+            endif;
+        else :
+            throw new ArException('not found response hanlder ', '1011');
+        endif;
+
+        // result
+        $remoteBackResult = $this->decrypt($response);
 
         if (is_array($remoteBackResult) && !empty($remoteBackResult['error_msg'])) :
             throw new ArException('Remote Service Error ( ' . $remoteBackResult['error_msg'] . ' )', $remoteBackResult['error_code']);
-        elseif ($remoteBackResult === 'NOT_EXEC') :
-            throw new ArException('Remote Service Error ( may be a fatal error occur )', '1101');
         endif;
 
         return $remoteBackResult;

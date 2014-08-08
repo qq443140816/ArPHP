@@ -56,7 +56,8 @@ if (!AR_OUTER_START) :
     set_exception_handler('Ar::exceptionHandler');
     set_error_handler('Ar::errorHandler');
 else :
-    defined('AR_MAN_PATH') or define('AR_MAN_PATH', AR_ROOT_PATH . 'Arman' . DS);
+    defined('AR_MAN_NAME') or define('AR_MAN_NAME', 'Arman');
+    defined('AR_MAN_PATH') or define('AR_MAN_PATH', AR_ROOT_PATH . AR_MAN_NAME . DS);
 endif;
 
 Ar::init();

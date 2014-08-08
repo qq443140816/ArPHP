@@ -38,6 +38,10 @@ class ArApplication
      */
     public function shutDown()
     {
+        if (AR_RUN_AS_SERVICE_HTTP) :
+            return;
+        endif;
+
         if (AR_DEBUG) :
             if (arCfg('DEBUG_SHOW_EXCEPTION')) :
                 arComp('ext.out')->deBug('', 'EXCEPTION', true);
@@ -51,10 +55,6 @@ class ArApplication
                 arComp('ext.out')->deBug('[SHUTDOWN]', 'TRACE', true);
             endif;
 
-        endif;
-
-        if (AR_RUN_AS_SERVICE_HTTP) :
-            arComp('rpc.service')->response('', true);
         endif;
 
     }

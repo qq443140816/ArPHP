@@ -54,6 +54,7 @@ class ArRoute extends ArComponent
     public function host($scriptName = false)
     {
         $host = $this->serverName() . '/' . trim(str_replace(array('/', '\\', DS), '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+        $host = rtrim($host, '/');
         if ($scriptName) :
             $host .= '/' . basename($_SERVER['SCRIPT_NAME']);
         endif;

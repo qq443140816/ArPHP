@@ -44,15 +44,13 @@ class ArHttpService
 
     }
 
+    /**
+     * first exec func.
+     *
+     * @return mixed
+     */
     public function init()
     {
-        ob_start();
-
-    }
-
-    public function notResponseToClientHanlder()
-    {
-        throw new ArServiceException('not found response hanlder ', '1011');
 
     }
 

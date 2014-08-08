@@ -44,6 +44,11 @@ class ArApplicationServiceHttp extends ArApplicationService
 
     }
 
+    /**
+     * parse hanlder.
+     *
+     * @return mixed
+     */
     public function parseHttpServiceHanlder()
     {
         if ($ws = arPost('ws')) :
@@ -67,25 +72,31 @@ class ArApplicationServiceHttp extends ArApplicationService
 
     }
 
-    public function runService($ws)
+    /**
+     * service exec.
+     *
+     * @param array $ws ws param.
+     *
+     * @return mixed
+     */
+    protected function runService($ws = array())
     {
         $service = $ws['class'] . 'Service';
         $method = $ws['method'] . 'Worker';
         $param = $ws['param'];
 
         try {
+
             $serviceHolder = new $service;
             $serviceHolder->init();
-        } catch(Exeception $e) {
-            throw new ArServiceException('ws service "' . $service . '" does not exist ');
+
+            if (!is_callable(array($serviceHolder, $method))) :
+                throw new ArServiceException('ws service do not hava a method ' . $method);
+            endif;
+            return call_user_func_array(array($serviceHolder, $method), $param);
+        } catch(Exception $e) {
+            throw new ArServiceException($e->getMessage());
         }
-
-        if (!is_callable(array($serviceHolder, $method))) :
-            throw new ArServiceException('ws service do not hava a method ' . $method);
-        endif;
-        call_user_func_array(array($serviceHolder, $method), $param);
-        $serviceHolder->notResponseToClientHanlder();
-
     }
 
 }
