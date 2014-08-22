@@ -79,13 +79,13 @@ class ArApplicationWeb extends ArApplication
 
         Ar::setConfig('requestRoute', $route);
 
-        if (empty($route['c'])) :
+        if (empty($route['a_c'])) :
             $c = 'Index';
         else :
-            $c = ucfirst($route['c']);
+            $c = ucfirst($route['a_c']);
         endif;
 
-        $this->route['c'] = $c;
+        $this->route['a_c'] = $c;
         $class = $c . 'Controller';
 
         if (AR_DEBUG) :
@@ -95,8 +95,8 @@ class ArApplicationWeb extends ArApplication
         if (class_exists($class)) :
             $this->_c = new $class;
             $this->_c->init();
-            $action = ($a = empty($route['a']) ? 'index' : $route['a']) . 'Action';
-            $this->route['a'] = $a;
+            $action = ($a = empty($route['a_a']) ? 'index' : $route['a_a']) . 'Action';
+            $this->route['a_a'] = $a;
             if (is_callable(array($this->_c, $action))) :
                 try {
                     if (AR_DEBUG) :

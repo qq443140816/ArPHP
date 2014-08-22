@@ -116,17 +116,17 @@ class ArRoute extends ArComponent
             $_GET = array_merge($_GET, $query);
         endif;
 
-        if (arGet('m')) :
-            $m = arGet('m');
+        if (arGet('a_m')) :
+            $m = arGet('a_m');
         endif;
-        if (arGet('c')) :
-            $c = arGet('c');
+        if (arGet('a_c')) :
+            $c = arGet('a_c');
         endif;
-        if (arGet('a')) :
-            $a = arGet('a');
+        if (arGet('a_a')) :
+            $a = arGet('a_a');
         endif;
 
-        $requestRoute = array('m' => $m, 'c' => empty($c) ? 'Index' : $c, 'a' => empty($a) ? 'index' : $a);
+        $requestRoute = array('a_m' => $m, 'a_c' => empty($c) ? 'Index' : $c, 'a_a' => empty($a) ? 'index' : $a);
         Ar::setConfig('requestRoute', $requestRoute);
 
         return $requestRoute;
@@ -143,35 +143,35 @@ class ArRoute extends ArComponent
      */
     public function createUrl($url = '', $params = array())
     {
-        $defaultModule = arCfg('requestRoute.m') == AR_DEFAULT_APP_NAME ? '' : arCfg('requestRoute.m');
+        $defaultModule = arCfg('requestRoute.a_m') == AR_DEFAULT_APP_NAME ? '' : arCfg('requestRoute.a_m');
 
         $urlMode = arCfg('URL_MODE', 'PATH');
 
         $prefix = rtrim(AR_SERVER_PATH . $defaultModule, '/');
 
         $urlParam = arCfg('requestRoute');
-        $urlParam['m'] = $defaultModule;
+        $urlParam['a_m'] = $defaultModule;
 
         if (empty($url)) :
             if ($urlMode == 'PATH') :
                 $url = $prefix;
-                $controller = arCfg('requestRoute.c');
-                $action = arCfg('requestRoute.a');
+                $controller = arCfg('requestRoute.a_c');
+                $action = arCfg('requestRoute.a_a');
                 $url .= '/' . $controller . '/' . $action;
             endif;
         else :
             if (strpos($url, '/') === false) :
                 if ($urlMode != 'PATH') :
-                    $urlParam['a'] = $url;
+                    $urlParam['a_a'] = $url;
                 else :
-                    $url = $prefix . '/' . arCfg('requestRoute.c') . '/' . $url;
+                    $url = $prefix . '/' . arCfg('requestRoute.a_c') . '/' . $url;
                 endif;
             elseif (strpos($url, '/') === 0) :
                 if ($urlMode != 'PATH') :
                     $eP = explode('/', ltrim($url, '/'));
-                    $urlParam['m'] = $eP[0];
-                    $urlParam['c'] = $eP[1];
-                    $urlParam['a'] = $eP[2];
+                    $urlParam['a_m'] = $eP[0];
+                    $urlParam['a_c'] = $eP[1];
+                    $urlParam['a_a'] = $eP[2];
                 else :
                     $url = ltrim($url, '/');
                     $url = AR_SERVER_PATH . $url;
@@ -179,8 +179,8 @@ class ArRoute extends ArComponent
             else :
                 if ($urlMode != 'PATH') :
                     $eP = explode('/', $url);
-                    $urlParam['c'] = $eP[0];
-                    $urlParam['a'] = $eP[1];
+                    $urlParam['a_c'] = $eP[0];
+                    $urlParam['a_a'] = $eP[1];
                 else :
                     $url = $prefix . '/' . $url;
                 endif;
@@ -190,9 +190,9 @@ class ArRoute extends ArComponent
 
         if (!empty($params['greedyUrl']) && $params['greedyUrl']) :
             unset($params['greedyUrl']);
-            unset($_GET['m']);
-            unset($_GET['c']);
-            unset($_GET['a']);
+            unset($_GET['a_m']);
+            unset($_GET['a_c']);
+            unset($_GET['a_a']);
             $params = array_merge($_GET, $params);
         endif;
         if ($urlMode != 'PATH') :

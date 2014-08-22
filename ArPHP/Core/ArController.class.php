@@ -54,7 +54,7 @@ class ArController
      */
     public function __call($name, $params)
     {
-        $mName = empty($params[0]) ? arCfg('requestRoute.c') : $params[0];
+        $mName = empty($params[0]) ? arCfg('requestRoute.a_c') : $params[0];
         if ($name == 'module') :
             return arModule($mName);
         elseif ($name == 'model') :
@@ -145,22 +145,22 @@ class ArController
 
 
         if (empty($view)) :
-            $viewPath .= $r['c'] . DS . $r['a'];
+            $viewPath .= $r['a_c'] . DS . $r['a_a'];
         elseif(strpos($view, '/') !== false) :
             if (substr($view, 0, 1) == '/') :
                 $absolute = true;
                 $viewPath .= str_replace('/', DS, ltrim($view, '/'));
             else :
-                $viewPath .= $r['c'] . DS  . str_replace('/', DS, ltrim($view, '/'));
+                $viewPath .= $r['a_c'] . DS  . str_replace('/', DS, ltrim($view, '/'));
             endif;
             if (substr($view, -1) == '/') :
-                $viewPath .= $r['a'];
+                $viewPath .= $r['a_a'];
             endif;
         else :
-            $viewPath .= $r['c'] . DS . $view;
+            $viewPath .= $r['a_c'] . DS . $view;
         endif;
 
-        $currentC = $tempC = $r['c'] . 'Controller';
+        $currentC = $tempC = $r['a_c'] . 'Controller';
 
         $preFix = '';
 
@@ -168,7 +168,7 @@ class ArController
             while ($cP = get_parent_class($tempC)) :
                 if (!in_array(substr($cP, 0, -10), array('Ar', 'Base'))) :
                     $preFix = substr($cP, 0, -10) . DS . $preFix;
-                    if (!$overRide && method_exists($cP, $r['a'] . 'Action')) :
+                    if (!$overRide && method_exists($cP, $r['a_a'] . 'Action')) :
                         $viewPath = str_replace(substr($tempC, 0, -10) . DS, '', $viewPath);
                     endif;
                     $tempC = $cP;
@@ -341,9 +341,9 @@ str;
         $route = explode('/', $module);
 
         $requestRoute = array(
-                'm' => arCfg('requestRoute.m'),
-                'c' => $route[0],
-                'a' => $route[1],
+                'a_m' => arCfg('requestRoute.a_m'),
+                'a_c' => $route[0],
+                'a_a' => $route[1],
             );
 
         Ar::a('ArApplicationWeb')->runController($requestRoute);

@@ -14,12 +14,12 @@
 return array(
         // path
         'PATH' => array(
-            'PUBLIC' => AR_SERVER_PATH . arCfg('requestRoute.m') . '/Public/',
+            'PUBLIC' => AR_SERVER_PATH . arCfg('requestRoute.a_m') . '/Public/',
             'GPUBLIC' => AR_SERVER_PATH . 'Public/',
-            'CACHE' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'Cache' . DS,
-            'VIEW' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'View' . DS,
-            'UPLOAD' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'Upload' . DS,
-            'EXT' => AR_ROOT_PATH . arCfg('requestRoute.m') . DS . 'Ext' . DS,
+            'CACHE' => AR_ROOT_PATH . arCfg('requestRoute.a_m') . DS . 'Cache' . DS,
+            'VIEW' => AR_ROOT_PATH . arCfg('requestRoute.a_m') . DS . 'View' . DS,
+            'UPLOAD' => AR_ROOT_PATH . arCfg('requestRoute.a_m') . DS . 'Upload' . DS,
+            'EXT' => AR_ROOT_PATH . arCfg('requestRoute.a_m') . DS . 'Ext' . DS,
         ),
 
         // url

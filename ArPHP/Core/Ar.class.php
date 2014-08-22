@@ -250,7 +250,7 @@ class Ar
         if (AR_OUTER_START) :
             $appModule = AR_MAN_PATH;
         else :
-            $appModule = arCfg('requestRoute.m') . DS;
+            $appModule = arCfg('requestRoute.a_m') . DS;
         endif;
 
         array_push(self::$autoLoadPath, $appModule);
