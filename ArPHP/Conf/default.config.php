@@ -17,6 +17,7 @@ return array(
             'PUBLIC' => AR_SERVER_PATH . arCfg('requestRoute.a_m') . '/Public/',
             'GPUBLIC' => AR_SERVER_PATH . 'Public/',
             'CACHE' => AR_ROOT_PATH . arCfg('requestRoute.a_m') . DS . 'Cache' . DS,
+            'LOG' => AR_ROOT_PATH . arCfg('requestRoute.a_m') . DS . 'Log' . DS,
             'VIEW' => AR_ROOT_PATH . arCfg('requestRoute.a_m') . DS . 'View' . DS,
             'UPLOAD' => AR_ROOT_PATH . arCfg('requestRoute.a_m') . DS . 'Upload' . DS,
             'EXT' => AR_ROOT_PATH . arCfg('requestRoute.a_m') . DS . 'Ext' . DS,
