@@ -50,12 +50,10 @@ class ArUpload extends ArComponent
     }
 
     // mimemap
-    static public $mimeMap = array(
-
-            'jpg' => 'image/jpeg',
-            'png' => 'image/png',
-            'gif' => 'image/gif',
-
+    static public $extensionMap = array(
+            'img' => array(
+                'jpg', 'gif', 'png'
+            ),
         );
 
     /**
@@ -74,14 +72,14 @@ class ArUpload extends ArComponent
         $this->upField = $upField;
 
         if (!empty($_FILES[$this->upField]) && is_uploaded_file($_FILES[$this->upField]['tmp_name'])) :
-            if ($extension == 'all' || $this->checkFileType($_FILES[$this->upField]['type'], $extension)) :
+            if ($extension == 'all' || $this->checkFileType($this->getFileExtensionName($_FILES[$this->upField]['name']), $extension)) :
                 $dest = empty($dest) ? arCfg('PATH.UPLOAD') : $dest;
-
                 if (!is_dir($dest)) :
                     mkdir($dest);
                 endif;
 
                 $upFileName = $this->generateFileName();
+
                 $destFile = rtrim($dest, DS) . DS . $upFileName;
 
                 if (move_uploaded_file($_FILES[$this->upField]['tmp_name'], $destFile)) :
@@ -112,20 +110,14 @@ class ArUpload extends ArComponent
      *
      * @return boolean
      */
-    protected function checkFileType($fileType, $extension)
+    protected function checkFileType($extension, $aExtension = 'img')
     {
-        if ($extension == 'img') :
-            if (!in_array($fileType, array(self::$mimeMap['jpg'], self::$mimeMap['png'], self::$mimeMap['gif']))) :
-                $this->errorMsg = "仅支持图片类型";
+        if (in_array($aExtension, self::$extensionMap[$aExtension])) :
+            if (!in_array($extension, self::$extensionMap[$aExtension])) :
+                $this->errorMsg = "仅支持" . implode(',', self::$extensionMap[$aExtension]). "类型";
             endif;
-        elseif (empty(self::$mimeMap[$extension])) :
-
-            $this->errorMsg = ".{$extension}不支持的上传类型,支持的类型:" . implode(',', self::$mimeMap);
-
-        else :
-            if ($fileType != self::$mimeMap[$extension]) :
-                $this->errorMsg ="仅支持.{$extension}类型";
-            endif;
+        elseif ($extension != $aExtension) :
+            $this->errorMsg ="仅支持.{$extension}类型";
         endif;
 
         return !$this->errorMsg;
@@ -139,7 +131,18 @@ class ArUpload extends ArComponent
      */
     protected function generateFileName()
     {
-        return md5(time() . rand()) . '.' . substr($_FILES[$this->upField]['name'], strrpos($_FILES[$this->upField]['name'], '.') + 1);
+        return md5(time() . rand()) . '.' . $this->getFileExtensionName($_FILES[$this->upField]['name']);
+
+    }
+
+    /**
+     * get file extension
+     *
+     * @return void
+     */
+    protected function getFileExtensionName($fileName)
+    {
+        return substr($fileName, strrpos($fileName, '.') + 1);
 
     }
 

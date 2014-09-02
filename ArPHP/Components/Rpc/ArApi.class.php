@@ -44,7 +44,7 @@ class ArApi extends ArComponent
      *
      * @return string
      */
-    protected function remoteCall($url, $params = array())
+    public function remoteCall($url, $params = array())
     {
         $init = curl_init($url);
 
