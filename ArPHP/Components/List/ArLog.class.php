@@ -46,7 +46,7 @@ class ArLog extends ArList
     {
         $obj = parent::init($config, $class);
 
-        $obj->logPath = empty($obj->config['logPath']) ? arCfg('PATH.LOG') : $obj->config['logPath'];
+        $obj->logPath = empty($obj->config['logPath']) ? (AR_OUTER_START ? AR_ROOT_PATH . 'Log' . DS : arCfg('PATH.LOG')) : $obj->config['logPath'];
 
         if(!is_dir($obj->logPath)) :
             mkdir($obj->logPath, 0777, true);
