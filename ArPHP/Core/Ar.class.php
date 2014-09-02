@@ -340,20 +340,6 @@ class Ar
     }
 
     /**
-     * url manage.
-     *
-     * @param string  $url    url.
-     * @param boolean $params url get param.
-     *
-     * @return string
-     */
-    static public function createUrl($url = '', $params = array())
-    {
-        return arComp('url.route')->createUrl($url, $params);
-
-    }
-
-    /**
      * exception handler.
      *
      * @param object $e Exception.

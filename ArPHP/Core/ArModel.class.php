@@ -62,12 +62,12 @@ class ArModel
             // not instance model
             if (strlen($class) <= 5 || substr($class, '-5') !== 'Model') :
                 $obj = new self;
-                $obj->nowModel = $class . 'Model';
                 $obj->tableName = strtolower($class);
             else :
                 $obj = new $class;
-                $obj->nowModel = $class;
             endif;
+
+            $obj->nowModel = $class;
 
             if (AR_DEBUG) :
                 arComp('ext.out')->deBug('|MODEL_START:' . $class . '|');

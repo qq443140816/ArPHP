@@ -134,18 +134,47 @@ class ArRoute extends ArComponent
     }
 
     /**
+     * generate url get parame.
+     *
+     * @return array
+     */
+    public function parseGetUrlIntoArray()
+    {
+        static $staticMark = array(
+            'firstParse' => true,
+            'getUrlParamArray' => array(),
+        );
+        if ($staticMark['firstParse']) :
+            $parseUrl = parse_url($_SERVER['REQUEST_URI']);
+
+            if (empty($parseUrl['query'])) :
+
+            else :
+                parse_str($parseUrl['query'], $params);
+                $staticMark['getUrlParamArray'] = $params;
+            endif;
+            $staticMark['firstParse'] = false;
+        endif;
+        return $staticMark['getUrlParamArray'];
+
+    }
+
+    /**
      * url manage.
      *
-     * @param string  $url    url.
-     * @param boolean $params url get param.
+     * @param string  $url     url.
+     * @param boolean $params  url get param.
+     * @param string  $urlMode url mode.
      *
      * @return string
      */
-    public function createUrl($url = '', $params = array())
+    public function createUrl($url = '', $params = array(), $urlMode = 'NOT_INIT')
     {
         $defaultModule = arCfg('requestRoute.a_m') == AR_DEFAULT_APP_NAME ? '' : arCfg('requestRoute.a_m');
 
-        $urlMode = arCfg('URL_MODE', 'PATH');
+        if ($urlMode === 'NOT_INIT') :
+            $urlMode = arCfg('URL_MODE', 'PATH');
+        endif;
 
         $prefix = rtrim(AR_SERVER_PATH . $defaultModule, '/');
 
@@ -193,7 +222,7 @@ class ArRoute extends ArComponent
             unset($_GET['a_m']);
             unset($_GET['a_c']);
             unset($_GET['a_a']);
-            $params = array_merge($_GET, $params);
+            $params = array_merge(arGet(), $params);
         endif;
         if ($urlMode != 'PATH') :
             $urlParam = array_filter(array_merge($urlParam, $params));
@@ -220,6 +249,39 @@ class ArRoute extends ArComponent
 
     }
 
+    /**
+     * redirect function.
+     *
+     * @param mixed  $r    route.
+     * @param string $show show string.
+     * @param string $time time display.
+     *
+     * @return mixed
+     */
+    public function redirect($r = '', $show = '', $time = '0')
+    {
+        if (is_string($r)) :
+            $url = $r;
+        else :
+            $route = empty($r[0]) ? '' : $r[0];
+            $param = empty($r[1]) ? array() : $r[1];
+            $url = arComp('url.route')->createUrl($route, $param);
+        endif;
 
+        $redirectUrl = <<<str
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Refresh" content="$time;URL=$url" />
+</head>
+<body>
+$show<a href="$url">立即跳转</a>
+</body>
+</html>
+str;
+        echo $redirectUrl;
+        exit;
+
+    }
 
 }

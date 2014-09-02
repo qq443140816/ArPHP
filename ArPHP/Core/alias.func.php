@@ -45,14 +45,15 @@ function arCfg($name = '', $default = 'NOT_RGI')
 /**
  * route holder.
  *
- * @param string $name   route path.
- * @param mixed  $params route param.
+ * @param string $name    route path.
+ * @param mixed  $params  route param.
+ * @param string $urlMode url mode.
  *
  * @return string
  */
-function arU($name = '', $params = array())
+function arU($name = '', $params = array(), $urlMode = 'NOT_INIT')
 {
-    return Ar::createUrl($name, $params);
+    return arComp('url.route')->createUrl($name, $params, $urlMode);
 
 }
 
@@ -87,15 +88,16 @@ function arModule($name = '')
  */
 function arGet($key = '', $default = null)
 {
+    $getUrlParamsArray = arComp('url.route')->parseGetUrlIntoArray();
     $ret = array();
 
     if (empty($key)) :
-        $ret = $_GET;
+        $ret = $getUrlParamsArray;
     else :
-        if (!isset($_GET[$key])) :
+        if (!isset($getUrlParamsArray[$key])) :
             $ret = null;
         else :
-            $ret = $_GET[$key];
+            $ret = $getUrlParamsArray[$key];
         endif;
     endif;
 
@@ -106,7 +108,7 @@ function arGet($key = '', $default = null)
         $ret = $default;
     endif;
 
-    return $ret;
+    return arComp('format.format')->trim($ret);
 
 }
 
@@ -131,7 +133,7 @@ function arPost($key = '')
         endif;
     endif;
 
-    return arComp('format.format')->addslashes($ret);
+    return arComp('format.format')->addslashes(arComp('format.format')->trim($ret));
 
 }
 

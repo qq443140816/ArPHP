@@ -187,7 +187,7 @@ class ArService extends ArApi
         $remoteBackResult = $this->decrypt($response);
 
         if (is_array($remoteBackResult) && !empty($remoteBackResult['error_msg'])) :
-            throw new ArException('Remote Service Error ( ' . $remoteBackResult['error_msg'] . ' )', $remoteBackResult['error_code']);
+            throw new ArException($remoteBackResult['error_msg'], $remoteBackResult['error_code']);
         endif;
 
         return $remoteBackResult;

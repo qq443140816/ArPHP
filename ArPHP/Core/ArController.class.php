@@ -202,27 +202,7 @@ class ArController
      */
     public function redirect($r = '', $show = '', $time = '0')
     {
-        if (is_string($r)) :
-            $url = $r;
-        else :
-            $route = empty($r[0]) ? '' : $r[0];
-            $param = empty($r[1]) ? array() : $r[1];
-            $url = Ar::createUrl($route, $param);
-        endif;
-
-        $redirectUrl = <<<str
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta http-equiv="Refresh" content="$time;URL=$url" />
-</head>
-<body>
-$show<a href="$url">立即跳转</a>
-</body>
-</html>
-str;
-        echo $redirectUrl;
-        exit;
+        return arComp('url.route')->redirect($r, $show, $time);
 
     }
 
