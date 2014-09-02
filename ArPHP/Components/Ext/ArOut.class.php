@@ -122,4 +122,59 @@ class ArOut extends ArComponent
 
     }
 
+    /**
+     * array transfer to xml.
+     *
+     * @param array $array array.
+     * @param mixed $xml   xml object.
+     *
+     * @return string
+     */
+    public function array2xml(array $array, $xml = false, $root = 'root')
+    {
+        if ($xml === false) :
+            $xml = new SimpleXMLElement('<' . $root . '/>');
+        endif;
+
+        foreach ($array as $key => $value) :
+            if (is_array($value)) :
+                $this->array2xml($value, $xml->addChild($key));
+            else :
+                $xml->addChild($key, $value);
+            endif;
+        endforeach;
+
+        return $xml->asXML();
+    }
+
+    /**
+     * Xml 转 数组, 包括根键.
+     *
+     * @param string $xml string xml.
+     *
+     * @return mixed
+     */
+    public function xml2array($xml, $trimCdata = false)
+    {
+        $reg = "/<(\w+)[^>]*>([\\x00-\\xFF]*)<\\/\\1>/";
+        if (preg_match_all($reg, $xml, $matches)) :
+            $count = count($matches[0]);
+            for ($i = 0; $i < $count; $i++) :
+                $subxml = $matches[2][$i];
+                $key = $matches[1][$i];
+                if (preg_match($reg, $subxml)) :
+                    $arr[$key] = $this->xml2array($subxml, $trimCdata);
+                else :
+                    if ($trimCdata) :
+                        $arr[$key] = str_replace(array('<![CDATA[', ']]>'), '', $subxml);
+                    else :
+                        $arr[$key] = $subxml;
+                    endif;
+                endif;
+            endfor;
+        endif;
+        return $arr;
+
+    }
+
 }
