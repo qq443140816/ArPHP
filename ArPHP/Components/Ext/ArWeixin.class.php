@@ -68,6 +68,8 @@ class ArWeixin extends ArComponent
     protected $token;
     // 微信 请求数据
     protected $rawDataArray;
+    // 事件推送
+    private static $events = array();
 
     /**
      * initialization function.
@@ -172,6 +174,9 @@ class ArWeixin extends ArComponent
      */
     private function checkSignature()
     {
+        if (!empty($this->config['notCheckSign'])) :
+            return true;
+        endif;
         $signature = arGet('signature');
         $timestamp = arGet('timestamp');
         $nonce = arGet('nonce');
@@ -181,10 +186,11 @@ class ArWeixin extends ArComponent
         sort($tmpArr);
         $tmpStr = implode($tmpArr);
         $tmpStr = sha1($tmpStr);
-        arComp('list.log')->record($tmpStr);
         if ($tmpStr == $signature) :
+            arComp('list.log')->record('sign check true');
             return true;
         else :
+            arComp('list.log')->record('sign check false');
             return false;
         endif;
 
@@ -197,19 +203,41 @@ class ArWeixin extends ArComponent
      */
     public function response($type = 'text', $data = array())
     {
+        // 分发处理
+        $result = call_user_func_array(array($this, 'process' . ucfirst($type)), array($data));
+        arComp('list.log')->record($result);
+        echo $result;
+
+    }
+
+    /**
+     * 数据处理监听.
+     *
+     * @return void.
+     */
+    public function listen()
+    {
         if ($this->checkSignature()) :
-            $result = call_user_func_array(array($this, 'process' . ucfirst($type)), array($data));
-            arComp('list.log')->record($result);
-            echo $result;
+            $this->processWxServerRequest();
+            $eventName = strtolower($this->rawDataArray['Event']);
+            arComp('list.log')->record(array('ename' => $eventName));
+            $this->emit($eventName, '');
         endif;
 
     }
 
+    /**
+     * 处理文本消息.
+     *
+     * @param string $data msg
+     *
+     * @return string
+     */
     protected function processText($data)
     {
         $tplXmlArray = array(
-            'ToUserName' => $this->rawurlencode['FromUserName'],
-            'FromUserName' => $this->rawurlencode['ToUserName'],
+            'ToUserName' => $this->rawDataArray['FromUserName'],
+            'FromUserName' => $this->rawDataArray['ToUserName'],
             'CreateTime' => time(),
             'MsgType' => 'text',
             'Content' => $data,
@@ -224,16 +252,19 @@ class ArWeixin extends ArComponent
      *
      * @return void
      */
-    public function processRequest()
+    public function processWxServerRequest()
     {
+        // 第一次验证
+        $this->weixinFirstCheck();
+
         $rawData = file_get_contents('php://input');
         if ($rawData) :
-            $xmlArray = arComp('ext.out')->xml2array();
+            $xmlArray = arComp('ext.out')->xml2array($rawData, true);
             arComp('list.log')->record(array('xml' => $xmlArray));
             $this->rawDataArray = $xmlArray['xml'];
         else :
-            echo '';
-            exit;
+            arComp('list.log')->record('raw empty');
+            exit('');
         endif;
 
     }
@@ -248,9 +279,55 @@ class ArWeixin extends ArComponent
         $echostr = arGet('echostr');
         if ($this->checkSignature() && !empty($echostr)) :
             echo $echostr;
+            arComp('list.log')->record('check first');
             exit;
         endif;
 
+    }
+
+
+    /**
+     * 第一次关注.
+     *
+     * @return void
+     */
+
+    // public function
+
+    /**
+     * 注册各种事件回调函数.
+     *
+     * @param string   $eventName     事件名称, 如: read, recv.
+     * @param function $eventCallback 回调函数.
+     *
+     * @return void
+     */
+    public function registerEvent($eventName, $eventCallback)
+    {
+        if (empty(self::$events[$eventName])) :
+            self::$events[$eventName] = array();
+        endif;
+        array_push(self::$events[$eventName], $eventCallback);
+    }
+
+    /**
+     * 调用事件回调函数.
+     *
+     * @param $eventName 事件名称.
+     *
+     * @return void.
+     */
+    private static function emit($eventName)
+    {
+        if (!empty(self::$events[$eventName])) :
+            $args = array_slice(func_get_args(), 1);
+            if (empty($args)) :
+                $args = array();
+            endif;
+            foreach (self::$events[$eventName] as $callback) :
+                call_user_func_array($callback, $args);
+            endforeach;
+        endif;
     }
 
 }

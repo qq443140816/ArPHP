@@ -63,7 +63,7 @@ class ArLog extends ArList
      *
      * @return mixed
      */
-    public function record($data = '')
+    public function record($data = '', $level = 'info')
     {
         if (is_array($data)) :
             $data = var_export($data, true);
@@ -71,7 +71,7 @@ class ArLog extends ArList
 
         $data = '------' . date('Y-m-d H:i:s', time()) . ' ' . time() . "------\n" . $data . "\n";
 
-        return file_put_contents($this->generateLogFileName(), $data, LOCK_EX|FILE_APPEND);
+        return file_put_contents($this->generateLogFileName($level), $data, FILE_APPEND);
 
     }
 
@@ -80,9 +80,9 @@ class ArLog extends ArList
      *
      * @return void
      */
-    protected function generateLogFileName()
+    protected function generateLogFileName($level)
     {
-        return $this->logPath . date('Ymd') . '.log.txt';
+        return $this->logPath . date('Ymd') . '.' . $level . '.log.txt';
 
     }
 

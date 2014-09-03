@@ -31,4 +31,7 @@ return array(
         'DEBUG_SHOW_ERROR' => true,
         'DEBUG_SHOW_EXCEPTION' => true,
 
+        // 是否调试信息到日志文件
+        'DEBUG_LOG' => false,
+
    );

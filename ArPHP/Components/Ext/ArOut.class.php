@@ -112,10 +112,14 @@ class ArOut extends ArComponent
                 );
 
             if (arCfg('DEBUG_SHOW_TRACE')) :
-                    $showContentBox['trance'] = '<div style="background:#f8f8f8">RUN TIME : ' . (microtime(1) - AR_START_TIME) . 's</div>';
+                $showContentBox['trance'] = '<div style="background:#f8f8f8">RUN TIME : ' . (microtime(1) - AR_START_TIME) . 's</div>';
             endif;
 
-            echo join($showContentBox, '');
+            if (arCfg('DEBUG_LOG')) :
+                arComp('list.log')->record($showContentBox, 'debug');
+            else :
+                echo join($showContentBox, '');
+            endif;
 
             $deBugMsg[$tag] = '';
         endif;
