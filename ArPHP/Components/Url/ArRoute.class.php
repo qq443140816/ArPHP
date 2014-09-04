@@ -171,7 +171,6 @@ class ArRoute extends ArComponent
     public function createUrl($url = '', $params = array(), $urlMode = 'NOT_INIT')
     {
         $defaultModule = arCfg('requestRoute.a_m') == AR_DEFAULT_APP_NAME ? '' : arCfg('requestRoute.a_m');
-
         if ($urlMode === 'NOT_INIT') :
             $urlMode = arCfg('URL_MODE', 'PATH');
         endif;
@@ -228,7 +227,13 @@ class ArRoute extends ArComponent
             $urlParam = array_filter(array_merge($urlParam, $params));
         endif;
 
+        // 初始化config时
+        if (empty($urlMode)) :
+            $urlMode = 'PATH';
+        endif;
+
         switch ($urlMode) {
+
         case 'PATH' :
             foreach ($params as $pkey => $pvalue) :
                 if (!$pvalue && !is_numeric($pvalue)) :

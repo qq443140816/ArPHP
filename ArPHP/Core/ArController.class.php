@@ -124,12 +124,12 @@ class ArController
     /**
      * display function.
      *
-     * @param string $view  view template.
-     * @param string $class fromClass.
+     * @param string  $view  view template.
+     * @param boolean $fetch fetch view template.
      *
      * @return mixed
      */
-    public function display($view = '', $class = __CLASS__)
+    public function display($view = '', $fetch = false)
     {
         $viewPath = '';
         $viewBasePath = arCfg('PATH.VIEW');
@@ -142,7 +142,6 @@ class ArController
         endif;
 
         $r = Ar::a('ArApplicationWeb')->route;
-
 
         if (empty($view)) :
             $viewPath .= $r['a_c'] . DS . $r['a_a'];
@@ -182,11 +181,18 @@ class ArController
 
         if (is_file($viewFile)) :
             extract($this->assign);
-            include $viewFile;
+            if ($fetch === true) :
+                ob_start();
+                include $viewFile;
+                $fetchStr = ob_get_contents();
+                ob_end_clean();
+                return $fetchStr;
+            else :
+                include $viewFile;
+            endif;
         else :
             throw new ArException('view : ' . $viewFile . ' not found');
         endif;
-
         exit;
 
     }

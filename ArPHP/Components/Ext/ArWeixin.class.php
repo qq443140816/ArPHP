@@ -22,8 +22,8 @@
     'lazy' => true,
     'weixin' => array(
         'config' => array(
-            'APPID' => 'wx37b8059cb2bf452e',
-            'APPSECRET' => 'a732c465fb149c4937e012b60081f677',
+            'APPID' => 'wx37b8059cb2bf453e',
+            'APPSECRET' => 'a732c465fb149c4937e012b60081f687',
             'menu' => array(
                 'button' => array(
                     array(
@@ -113,6 +113,23 @@ class ArWeixin extends ArComponent
     }
 
     /**
+     * 获取微信服务器推送xml元素值.
+     *
+     * @param string $name key.
+     *
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        if (isset($this->rawDataArray[$name])) :
+            return $this->rawDataArray[$name];
+        else :
+            return null;
+        endif;
+
+    }
+
+    /**
      * get Access Token
      *
      * @return string
@@ -140,8 +157,8 @@ class ArWeixin extends ArComponent
             throw new ArException("wx config mission error : " . "'menu' required !");
         endif;
 
-        $result = arComp('rpc.api')->remoteCall('https://api.weixin.qq.com/cgi-bin/menu/create?access_token=' . $this->getAccessToken(), json_encode($this->config['menu']));
-
+        $jsonPostMenu = urldecode(json_encode(arComp('format.format')->urlencode($this->config['menu'])));
+        $result = arComp('rpc.api')->remoteCall('https://api.weixin.qq.com/cgi-bin/menu/create?access_token=' . $this->getAccessToken(), $jsonPostMenu);
         $resultArray = $this->handlerRemoteData($result);
 
         return $resultArray;
@@ -243,7 +260,7 @@ class ArWeixin extends ArComponent
             'Content' => $data,
         );
         arComp('list.log')->record($tplXmlArray);
-        return arComp('ext.out')->array2xml($tplXmlArray, false, 'xml');
+        return urldecode(arComp('ext.out')->array2xml(arComp('format.format')->urlencode($tplXmlArray), false, 'xml'));
 
     }
 
@@ -258,6 +275,7 @@ class ArWeixin extends ArComponent
         $this->weixinFirstCheck();
 
         $rawData = file_get_contents('php://input');
+        arComp('list.log')->record($rawData);
         if ($rawData) :
             $xmlArray = arComp('ext.out')->xml2array($rawData, true);
             arComp('list.log')->record(array('xml' => $xmlArray));
@@ -321,13 +339,18 @@ class ArWeixin extends ArComponent
     {
         if (!empty(self::$events[$eventName])) :
             $args = array_slice(func_get_args(), 1);
+            arComp('list.log')->record($args);
+            arComp('list.log')->record(self::$events[$eventName]);
             if (empty($args)) :
                 $args = array();
             endif;
             foreach (self::$events[$eventName] as $callback) :
                 call_user_func_array($callback, $args);
             endforeach;
+        else :
+            arComp('list.log')->record('event empty');
         endif;
+
     }
 
 }
