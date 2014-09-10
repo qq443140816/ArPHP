@@ -70,7 +70,8 @@ class ArOut extends ArComponent
             endif;
 
             echo json_encode($retArr);
-            exit;
+            // crashed when use exit in contorller this->showJson() php 5.2.6
+            // exit;
         else :
             return $data;
         endif;
@@ -104,7 +105,6 @@ class ArOut extends ArComponent
         endif;
 
         if ($show && !empty($deBugMsg[$tag])) :
-
             $showContentBox = array(
                     'header' => '<div style="width:98%;bottom:30px"><div style="border-top:1px #666 dashed;background:#f1f1f1;text-align:center;font-size:20px;margin:10px 0px 10px;">[DEBUG ' . $tag . ' INFO] </div>',
                     'showMsg' => '<div style="padding:5px;background:#f3f3f1;line-height:30px">' . $deBugMsg[$tag] . '</div>',
