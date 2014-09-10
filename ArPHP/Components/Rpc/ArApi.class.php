@@ -49,6 +49,7 @@ class ArApi extends ArComponent
         $init = curl_init($url);
 
         $options = array(CURLOPT_HEADER => false, CURLOPT_RETURNTRANSFER => 1);
+
         if ($this->method == 'post') :
             $options[CURLOPT_POST] = true;
             $options[CURLOPT_POSTFIELDS] = $params;
@@ -66,6 +67,16 @@ class ArApi extends ArComponent
 
         if ($rtStr === false) :
             throw new ArException('Curl error: ' . curl_error($init));
+        endif;
+
+        if ($curlInfo = curl_getinfo($init)) :
+            switch ($curlInfo['http_code']) {
+                case '404':
+                    throw new ArException('Curl error: ' . 'url ' . '"' . $curlInfo['url'] . '" not found');
+                    break;
+                default:
+                    break;
+            }
         endif;
 
         curl_close($init);

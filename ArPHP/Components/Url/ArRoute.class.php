@@ -198,8 +198,8 @@ class ArRoute extends ArComponent
                 if ($urlMode != 'PATH') :
                     $eP = explode('/', ltrim($url, '/'));
                     $urlParam['a_m'] = $eP[0];
-                    $urlParam['a_c'] = $eP[1];
-                    $urlParam['a_a'] = $eP[2];
+                    $urlParam['a_c'] = isset($eP[1]) ? $eP[1] : null;
+                    $urlParam['a_a'] = isset($eP[2]) ? $eP[2] : null;
                 else :
                     $url = ltrim($url, '/');
                     $url = AR_SERVER_PATH . $url;
