@@ -112,12 +112,12 @@ class ArUpload extends ArComponent
      */
     protected function checkFileType($extension, $aExtension = 'img')
     {
-        if (in_array($aExtension, self::$extensionMap[$aExtension])) :
+        if (array_key_exists($aExtension, self::$extensionMap)) :
             if (!in_array($extension, self::$extensionMap[$aExtension])) :
                 $this->errorMsg = "仅支持" . implode(',', self::$extensionMap[$aExtension]). "类型";
             endif;
         elseif ($extension != $aExtension) :
-            $this->errorMsg ="仅支持.{$extension}类型";
+            $this->errorMsg ="仅支持{$aExtension}类型";
         endif;
 
         return !$this->errorMsg;

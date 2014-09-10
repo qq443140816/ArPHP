@@ -221,7 +221,9 @@ class ArRoute extends ArComponent
             unset($_GET['a_m']);
             unset($_GET['a_c']);
             unset($_GET['a_a']);
-            $params = array_merge(arGet(), $params);
+            if (is_array(arGet())) :
+                $params = array_merge(arGet(), $params);
+            endif;
         endif;
         if ($urlMode != 'PATH') :
             $urlParam = array_filter(array_merge($urlParam, $params));
