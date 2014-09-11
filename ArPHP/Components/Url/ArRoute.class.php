@@ -153,6 +153,7 @@ class ArRoute extends ArComponent
                 parse_str($parseUrl['query'], $params);
                 $staticMark['getUrlParamArray'] = $params;
             endif;
+            $staticMark['getUrlParamArray'] = array_merge($_GET, $staticMark['getUrlParamArray']);
             $staticMark['firstParse'] = false;
         endif;
         return $staticMark['getUrlParamArray'];
