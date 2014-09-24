@@ -34,13 +34,14 @@ class ArRoute extends ArComponent
     /**
      * serverPath.
      *
-     * @param string $dir dir.
+     * @param string  $dir            dir.
+     * @param boolean $showServerName showServerName.
      *
      * @return string
      */
-    public function serverPath($dir)
+    public function serverPath($dir, $showServerName = false)
     {
-        return str_replace(array(realpath($_SERVER['DOCUMENT_ROOT']), DS), array('', '/'), $dir);
+        return ($showServerName ? $this->serverName() : '') . str_replace(array(realpath($_SERVER['DOCUMENT_ROOT']), DS), array('', '/'), $dir);
 
     }
 
