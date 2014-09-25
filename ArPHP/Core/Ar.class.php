@@ -270,7 +270,6 @@ class Ar
             array_push(self::$autoLoadPath, $appEnginePath, $extPath);
         endif;
 
-
         foreach (self::$autoLoadPath as $path) :
             $classFile = $path . $class . '.class.php';
             if (is_file($classFile)) :

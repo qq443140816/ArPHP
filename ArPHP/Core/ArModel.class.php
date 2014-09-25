@@ -108,11 +108,13 @@ class ArModel
     /**
      * db connection.
      *
+     * @param string $dbType Db Driver Type
+     *
      * @return Object
      */
-    public function getDb()
+    public function getDb($dbType = 'mysql')
     {
-        return ArComp('db.mysql')->table($this->tableName)->setSource($this->nowModel);
+        return ArComp('db.' . $dbType)->table($this->tableName)->setSource($this->nowModel);
 
     }
 
