@@ -75,7 +75,7 @@ class ArUpload extends ArComponent
             if ($extension == 'all' || $this->checkFileType($this->getFileExtensionName($_FILES[$this->upField]['name']), $extension)) :
                 $dest = empty($dest) ? arCfg('PATH.UPLOAD') : $dest;
                 if (!is_dir($dest)) :
-                    mkdir($dest);
+                    mkdir($dest, 0777, true);
                 endif;
 
                 $upFileName = $this->generateFileName();

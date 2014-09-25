@@ -133,7 +133,7 @@ class ArMcrypt extends ArComponent
         $ciphertext_dec = substr($ciphertext_dec, $iv_size);
 
         // may remove 00h valued characters from end of plain text
-        $plaintext_dec = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $ciphertext_dec, MCRYPT_MODE_CBC, $iv_dec);
+        $plaintext_dec = @mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $ciphertext_dec, MCRYPT_MODE_CBC, $iv_dec);
 
         return trim($plaintext_dec);
 

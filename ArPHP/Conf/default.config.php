@@ -14,6 +14,8 @@
 return array(
         // path
         'PATH' => array(
+            // Web服务器地址
+            'APP_SERVER_PATH' => AR_SERVER_PATH . arCfg('requestRoute.a_m') . '/',
             'PUBLIC' => AR_SERVER_PATH . arCfg('requestRoute.a_m') . '/Public/',
             'GPUBLIC' => AR_SERVER_PATH . 'Public/',
             'CACHE' => AR_ROOT_PATH . arCfg('requestRoute.a_m') . DS . 'Cache' . DS,
