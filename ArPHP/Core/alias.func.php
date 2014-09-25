@@ -115,19 +115,20 @@ function arGet($key = '', $default = null)
 /**
  * filter $_POST.
  *
- * @param string $key post key.
+ * @param string $key     post key.
+ * @param mixed  $default return value.
  *
  * @return mixed
  */
-function arPost($key = '')
+function arPost($key = '', $default = null)
 {
     $ret = array();
 
     if (empty($key)) :
         $ret = $_POST;
     else :
-        if (empty($_POST[$key])) :
-            $ret = null;
+        if (!isset($_POST[$key])) :
+            $ret = $default;
         else :
             $ret = $_POST[$key];
         endif;
