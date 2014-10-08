@@ -374,7 +374,10 @@ class ArOracle extends ArDb
             endforeach;
             return $return;
         else :
-            $data = $this->getDbConnection()->quote($data);
+            // 不过滤函数
+            if (!preg_match("#\(.+\)#", $data)) :
+                $data = $this->getDbConnection()->quote($data);
+            endif;
             if (false === $data) :
                 $data = "''";
             endif;
@@ -591,7 +594,7 @@ class ArOracle extends ArDb
 
         if ($conStr) :
             if ($this->options['where']) :
-                $this->options['where'] .= ' AND ( ' . $conStr . ' . ) ';
+                $this->options['where'] .= ' AND ( ' . $conStr . '  ) ';
             else :
                 $this->options['where'] = ' WHERE ' . $conStr;
             endif;

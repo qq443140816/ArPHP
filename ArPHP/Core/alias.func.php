@@ -71,6 +71,9 @@ function arModule($name = '')
     if (!array_key_exists($module, $moduleList)) :
         arComp('ext.out')->deBug('|MODULE_INIT:' . $module .'|');
         $moduleList[$module] = new $module;
+        if (is_callable(array($moduleList[$module], 'initModule'))) :
+            call_user_func_array(array($moduleList[$module], 'initModule'), array());
+        endif;
     endif;
     arComp('ext.out')->deBug('|MODULE_EXEC:' . $module .'|');
     return $moduleList[$module];
@@ -131,6 +134,32 @@ function arPost($key = '', $default = null)
             $ret = $default;
         else :
             $ret = $_POST[$key];
+        endif;
+    endif;
+
+    return arComp('format.format')->addslashes(arComp('format.format')->trim($ret));
+
+}
+
+/**
+ * filter $_REQUEST.
+ *
+ * @param string $key     post key.
+ * @param mixed  $default return value.
+ *
+ * @return mixed
+ */
+function arRequest($key = '', $default = null)
+{
+    $ret = array();
+
+    if (empty($key)) :
+        $getArr = arGet('', array());
+        $postArr = arPost('', array());
+        $ret = array_merge($getArr, $postArr);
+    else :
+        if (!$ret = arPost($key, $default)) :
+            $ret = arGet($key, $default);
         endif;
     endif;
 
