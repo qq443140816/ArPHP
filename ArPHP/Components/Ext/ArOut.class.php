@@ -42,8 +42,8 @@ class ArOut extends ArComponent
     public function json($data = array(), array $options = array())
     {
         if (empty($options['showJson']) || $options['showJson'] == true) :
-            header('charset:utf-8');
-            header('Content-type:text/html');
+            // header('charset:utf-8');
+            // header('Content-type:text/html');
             if (empty($options['data'])) :
                 $retArr = array(
                         'ret_code' => '1000',
@@ -68,8 +68,8 @@ class ArOut extends ArComponent
             else :
                 $retArr = $data;
             endif;
-
-            echo json_encode($retArr);
+            // json_encode chinese transfer bug
+            echo urldecode(json_encode(arComp('format.format')->urlencode($retArr)));
             // crashed when use exit in contorller this->showJson() php 5.2.6
             // exit;
         else :

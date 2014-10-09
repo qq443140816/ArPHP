@@ -142,28 +142,35 @@ function arPost($key = '', $default = null)
 }
 
 /**
- * filter $_REQUEST.
+ * filter $_REQUEST 有缓冲.
  *
- * @param string $key     post key.
- * @param mixed  $default return value.
+ * @param string $key      post      key.
+ * @param mixed  $default  return    value.
+ * @param array  $addArray add merge array.
  *
  * @return mixed
  */
-function arRequest($key = '', $default = null)
+function arRequest($key = '', $default = null, $addArray = array())
 {
-    $ret = array();
-
-    if (empty($key)) :
+    static $request = array();
+    if (empty($request) || !empty($addArray)) :
         $getArr = arGet('', array());
         $postArr = arPost('', array());
-        $ret = array_merge($getArr, $postArr);
-    else :
-        if (!$ret = arPost($key, $default)) :
-            $ret = arGet($key, $default);
-        endif;
+        $request = array_merge($getArr, $postArr, $addArray);
+        $request = arComp('format.format')->addslashes(arComp('format.format')->trim($request));
     endif;
 
-    return arComp('format.format')->addslashes(arComp('format.format')->trim($ret));
+    if ($key) :
+        if (array_key_exists($key, $request)) :
+            $ret = $request[$key];
+        else :
+            $ret = $default;
+        endif;
+    else :
+        $ret = $request;
+    endif;
+
+    return $ret;
 
 }
 
