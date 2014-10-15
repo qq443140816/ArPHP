@@ -127,7 +127,7 @@ class ArRoute extends ArComponent
             $a = arGet('a_a');
         endif;
 
-        $requestRoute = array('a_m' => $m, 'a_c' => empty($c) ? 'Index' : $c, 'a_a' => empty($a) ? 'index' : $a);
+        $requestRoute = array('a_m' => $m, 'a_c' => empty($c) ? AR_DEFAULT_CONTROLLER : $c, 'a_a' => empty($a) ? AR_DEFAULT_ACTION : $a);
         Ar::setConfig('requestRoute', $requestRoute);
 
         return $requestRoute;

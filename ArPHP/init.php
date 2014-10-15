@@ -11,42 +11,46 @@
  * @version  GIT: : coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
  * @link     http://www.arphp.net
  */
+// 启动时间
 defined('AR_START_TIME') or define('AR_START_TIME', microtime(true));
-
+// 开启调试 是
 defined('AR_DEBUG') or define('AR_DEBUG', true);
-
+// 外部启动 否 默认管理目录ArMan
 defined('AR_OUTER_START') or define('AR_OUTER_START', false);
-
+// 作为外部框架加载 可嵌入其他框架
 defined('AR_AS_OUTER_FRAME') or define('AR_AS_OUTER_FRAME', false);
-
+// 内部实现http webservice 多套 arphp程序互调接口
 defined('AR_RUN_AS_SERVICE_HTTP') or define('AR_RUN_AS_SERVICE_HTTP', false);
-
+// app名 main
 defined('AR_DEFAULT_APP_NAME') or define('AR_DEFAULT_APP_NAME', 'main');
-
+// 默认的控制器名
+defined('AR_DEFAULT_CONTROLLER') or define('AR_DEFAULT_CONTROLLER', 'Index');
+// 默认的Action
+defined('AR_DEFAULT_ACTION') or define('AR_DEFAULT_ACTION', 'index');
+// 目录分割符号
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-
+// ar框架目录
 defined('AR_FRAME_PATH') or define('AR_FRAME_PATH', dirname(__FILE__) . DS);
-
+// 项目根目录
 defined('AR_ROOT_PATH') or define('AR_ROOT_PATH', realpath(dirname($_SERVER['SCRIPT_FILENAME'])) . DS);
-
+// 子项目目录
 defined('AR_APP_PATH') or define('AR_APP_PATH', AR_ROOT_PATH . (AR_DEFAULT_APP_NAME ? AR_DEFAULT_APP_NAME . DS : ''));
-
+// 模板目录
 defined('AR_APP_VIEW_PATH') or define('AR_APP_VIEW_PATH', AR_APP_PATH . 'View' . DS);
-
+// 核心目录
 defined('AR_CORE_PATH') or define('AR_CORE_PATH', AR_FRAME_PATH . 'Core' . DS);
-
+// 配置目录
 defined('AR_CONFIG_PATH') or define('AR_CONFIG_PATH', AR_FRAME_PATH . 'Conf' . DS);
-
+// app 配置目录
 defined('AR_APP_CONFIG_PATH') or define('AR_APP_CONFIG_PATH', AR_APP_PATH . 'Conf' . DS);
-
+// app 控制器目录
 defined('AR_APP_CONTROLLER_PATH') or define('AR_APP_CONTROLLER_PATH', AR_APP_PATH . 'Controller' . DS);
-
+// 扩展目录
 defined('AR_EXT_PATH') or define('AR_EXT_PATH', AR_FRAME_PATH . 'Extensions' . DS);
-
+// 模块目录
 defined('AR_COMP_PATH') or define('AR_COMP_PATH', AR_FRAME_PATH . 'Components' . DS);
-
+// 服务地址
 defined('AR_SERVER_PATH') or define('AR_SERVER_PATH', ($dir = dirname($_SERVER['SCRIPT_NAME'])) == DS ? '/' : str_replace(DS, '/', $dir) . '/');
-
 
 require_once AR_CORE_PATH . 'Ar.class.php';
 

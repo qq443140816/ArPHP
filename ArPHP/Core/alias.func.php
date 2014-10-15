@@ -154,6 +154,9 @@ function arRequest($key = '', $default = null, $addArray = array())
 {
     static $request = array();
     if (empty($request) || !empty($addArray)) :
+        if (!is_array($addArray)) :
+            $addArray = array();
+        endif;
         $getArr = arGet('', array());
         $postArr = arPost('', array());
         $request = array_merge($getArr, $postArr, $addArray);

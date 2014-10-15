@@ -82,7 +82,11 @@ class ArLog extends ArList
      */
     protected function generateLogFileName($level)
     {
-        return $this->logPath . date('Ymd') . '.' . $level . '.log.txt';
+        $dirName = $this->logPath . date('Ymd') . DS;
+        if(!is_dir($dirName)) :
+            mkdir($dirName, 0777, true);
+        endif;
+        return $dirName . $level . '.log.txt';
 
     }
 

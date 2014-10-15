@@ -53,6 +53,14 @@ class ArDb extends ArComponent
     public function read($name = 'default', $returnPdoConnection = false)
     {
         $this->connectionMark = 'read.' . $name;
+
+        // 默认取第一个
+        if (empty($this->config['read']['default'])) :
+            $tempCk = array_keys($this->config['read']);
+            $fistrKey = array_shift($tempCk);
+            $this->config['read']['default'] = $this->config['read'][$fistrKey];
+        endif;
+
         if (!isset(self::$readConnections[$name]) && isset($this->config['read'][$name])) :
             $this->addReadConnection($name);
         endif;

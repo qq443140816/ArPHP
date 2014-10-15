@@ -277,9 +277,10 @@ class ArMysql extends ArDb
             endif;
 
             $sql = $this->bulidInsertSql();
-            $this->exec($sql);
+            $rtstatus = $this->exec($sql);
+            $this->lastInsertId = $this->getDbConnection()->lastInsertId();
 
-            return $this->lastInsertId = $this->getDbConnection()->lastInsertId();
+            return $this->lastInsertId ? $this->lastInsertId : $rtstatus;
 
         endif;
 

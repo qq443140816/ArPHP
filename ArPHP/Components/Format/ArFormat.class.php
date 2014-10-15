@@ -193,7 +193,9 @@ class ArFormat extends ArComponent
                 $obj[$key] = $this->urlencode($obj[$key]);
             endif;
         else :
-            $obj = urlencode($obj);
+            if (!is_numeric($obj)) :
+                $obj = urlencode($obj);
+            endif;
         endif;
 
         return $obj;

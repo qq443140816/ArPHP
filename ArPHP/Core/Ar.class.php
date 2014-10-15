@@ -279,9 +279,9 @@ class Ar
                 break;
             endif;
         endforeach;
-
         if (empty($rt)) :
-            if (AR_AS_OUTER_FRAME) :
+            // 外部调用时其他框架还有其他处理 此处就忽略
+            if (AR_AS_OUTER_FRAME || AR_OUTER_START) :
                 return false;
             else :
                 trigger_error('class : ' . $class . ' does not exist !', E_USER_ERROR);
