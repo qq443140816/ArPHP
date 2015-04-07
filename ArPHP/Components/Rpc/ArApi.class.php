@@ -47,7 +47,6 @@ class ArApi extends ArComponent
     public function remoteCall($url, $params = array())
     {
         $init = curl_init($url);
-
         $options = array(CURLOPT_HEADER => false, CURLOPT_RETURNTRANSFER => 1);
 
         if ($this->method == 'post') :

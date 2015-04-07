@@ -46,6 +46,29 @@ class ArRoute extends ArComponent
     }
 
     /**
+     * pathToDir.
+     *
+     * @param string $path path.
+     *
+     * @return string
+     */
+    public function pathToDir($path)
+    {
+        if (strpos($path, '/') === 0) :
+            $dir = rtrim(realpath($_SERVER['DOCUMENT_ROOT']), DS) . DS;
+            $path = trim($path, '/');
+            $path = str_replace('/', DS, $path);
+            $dir = $dir . $path;
+        else :
+            $path = str_replace('/', DS, $path);
+            $dir = AR_ROOT_PATH . $path;
+        endif;
+
+        return $dir;
+
+    }
+
+    /**
      * host.
      *
      * @param boolean $scriptName return scriptname.
@@ -75,16 +98,47 @@ class ArRoute extends ArComponent
     }
 
     /**
+     * parse url rules.
+     *
+     * @param string $url url.
+     *
+     * @return string
+     */
+    public function parseUrlForRules($url)
+    {
+        $urlRouteRules = arCfg('URL_ROUTE_RULES');
+        foreach ($urlRouteRules as $key => &$rules) :
+            preg_match_all('|:(.*):|U', $rules['mode'], $match);
+            if (!empty($match[1])) :
+                $rules['mode'] = preg_replace('|(:.*:)|U', '([a-zA-z0-9]+)', $rules['mode']);
+                $urlRegRules = '|' . $rules['mode'] . '|';
+                if (preg_match_all($urlRegRules, $url, $matchRules)) :
+                    $lengthOfVariable = count($match[1]);
+                    for ($i = 0; $i < $lengthOfVariable; $i++) :
+                        $rulesKey = $i + 1;
+                        $_GET[$match[1][$i]] = $matchRules[$rulesKey][0];
+                    endfor;
+                    $url = preg_replace('|(.*)' . $rules['mode'] . '(.*)|', "$1" . $key . "$" . ($lengthOfVariable + 2), $url);
+                    break;
+                else :
+                    continue;
+                endif;
+            endif;
+        endforeach;
+        return $url;
+
+    }
+
+    /**
      * parse string.
      *
      * @return mixed
      */
     public function parse()
     {
-        $requestUrl = $_SERVER['REQUEST_URI'];
+        $requestUrl = $this->parseUrlForRules($_SERVER['REQUEST_URI']);
 
         $phpSelf = $_SERVER['SCRIPT_NAME'];
-
         if (strpos($requestUrl, $phpSelf) !== false) :
             $requestUrl = str_replace($phpSelf, '', $requestUrl);
         endif;
@@ -164,14 +218,20 @@ class ArRoute extends ArComponent
     /**
      * url manage.
      *
-     * @param string  $url     url.
+     * @param string  $urlKey      route key.
      * @param boolean $params  url get param.
      * @param string  $urlMode url mode.
      *
      * @return string
      */
-    public function createUrl($url = '', $params = array(), $urlMode = 'NOT_INIT')
+    public function createUrl($urlKey = '', $params = array(), $urlMode = 'NOT_INIT')
     {
+        // 路由url
+        $url = $urlKey;
+
+        // 路由规则
+        $urlRouteRules = arCfg('URL_ROUTE_RULES');
+
         $defaultModule = arCfg('requestRoute.a_m') == AR_DEFAULT_APP_NAME ? '' : arCfg('requestRoute.a_m');
         if ($urlMode === 'NOT_INIT') :
             $urlMode = arCfg('URL_MODE', 'PATH');
@@ -182,6 +242,25 @@ class ArRoute extends ArComponent
         $urlParam = arCfg('requestRoute');
         $urlParam['a_m'] = $defaultModule;
 
+        if (isset($params['greedyUrl']) && $params['greedyUrl'] === false) :
+            // do nothing
+        else :
+            if ((isset($params['greedyUrl']) && $params['greedyUrl'] === true) || arCfg('URL_GREEDY') === true) :
+                unset($params['greedyUrl']);
+                unset($_GET['a_m']);
+                unset($_GET['a_c']);
+                unset($_GET['a_a']);
+                // 合并参数
+                if (is_array(arGet())) :
+                    $getArr = arGet();
+                    unset($getArr['a_m']);
+                    unset($getArr['a_c']);
+                    unset($getArr['a_a']);
+                    $params = array_merge($getArr, $params);
+                endif;
+            endif;
+        endif;
+
         if (empty($url)) :
             if ($urlMode == 'PATH') :
                 $url = $prefix;
@@ -190,7 +269,20 @@ class ArRoute extends ArComponent
                 $url .= '/' . $controller . '/' . $action;
             endif;
         else :
-            if (strpos($url, '/') === false) :
+            // url
+            if (strpos($url, 'http') === 0) :
+                $urlArr = parse_url($url);
+                $reBuildUrlArr = $params;
+                if (!empty($urlArr['query'])) :
+                    parse_str($urlArr['query'], $urlStrArr);
+                    $reBuildUrlArr = array_filter(array_merge($params, $urlStrArr));
+                    $baseUrl = substr($url, 0, strpos($url, '?'));
+                else :
+                    $baseUrl = rtrim($url, '?');
+                endif;
+                $reBuildUrl = $baseUrl . '?' . http_build_query($reBuildUrlArr);
+                return $reBuildUrl;
+            elseif (strpos($url, '/') === false) :
                 if ($urlMode != 'PATH') :
                     $urlParam['a_a'] = $url;
                 else :
@@ -218,15 +310,6 @@ class ArRoute extends ArComponent
 
         endif;
 
-        if (!empty($params['greedyUrl']) && $params['greedyUrl']) :
-            unset($params['greedyUrl']);
-            unset($_GET['a_m']);
-            unset($_GET['a_c']);
-            unset($_GET['a_a']);
-            if (is_array(arGet())) :
-                $params = array_merge(arGet(), $params);
-            endif;
-        endif;
         if ($urlMode != 'PATH') :
             $urlParam = array_filter(array_merge($urlParam, $params));
         endif;
@@ -235,10 +318,22 @@ class ArRoute extends ArComponent
         if (empty($urlMode)) :
             $urlMode = 'PATH';
         endif;
-
         switch ($urlMode) {
 
         case 'PATH' :
+            // 路由解析
+            if (array_key_exists($urlKey, $urlRouteRules)) :
+                $url = str_replace($urlKey, $urlRouteRules[$urlKey]['mode'], $url);
+                preg_match_all('|:(.*):|U', $url, $match);
+                if (!empty($match[1])) :
+                    foreach ($match[1] as $variable) :
+                        if (array_key_exists($variable, $params)) :
+                            $url = str_replace(':' . $variable . ':', $params[$variable], $url);
+                            unset($params[$variable]);
+                        endif;
+                    endforeach;
+                endif;
+            endif;
             foreach ($params as $pkey => $pvalue) :
                 if (!$pvalue && !is_numeric($pvalue)) :
                     continue;
@@ -253,7 +348,6 @@ class ArRoute extends ArComponent
             $url = arComp('url.route')->host(true) . '?' . http_build_query($urlParam);
             break;
         }
-
         return $url;
 
     }
@@ -261,22 +355,43 @@ class ArRoute extends ArComponent
     /**
      * redirect function.
      *
-     * @param mixed  $r    route.
+     * @param mixed  $r         route.
      * @param string $show show string.
      * @param string $time time display.
+     * @param string $seg  seg  seg redirect.
      *
      * @return mixed
      */
-    public function redirect($r = '', $show = '', $time = '0')
+    public function redirect($r = '', $show = '', $time = '0', $seg = '')
     {
+        $show = trim($show);
+        $show = preg_replace("/\n/", ' ', $show);
         if (is_string($r)) :
-            $url = $r;
+            $url = '';
+            if (empty($r)) :
+                $urlTemp = arComp('list.session')->get('ar_back_url');
+                if ($urlTemp) :
+                    $url = $urlTemp;
+                    arComp('list.session')->set('ar_back_url', null);
+                endif;
+            else :
+                if ($r == 'up') :
+                    if (!empty($_SERVER['HTTP_REFERER'])) :
+                        $url = $_SERVER['HTTP_REFERER'];
+                    endif;
+                endif;
+            endif;
         else :
             $route = empty($r[0]) ? '' : $r[0];
             $param = empty($r[1]) ? array() : $r[1];
+            // 跳转回来
+            if (isset($param['ar_back']) && $param['ar_back'] === true) :
+                unset($param['ar_back']);
+                arComp('list.session')->set('ar_back_url', $_SERVER['REQUEST_URI']);
+            endif;
             $url = arComp('url.route')->createUrl($route, $param);
         endif;
-
+        // search seg if found then render
         $redirectUrl = <<<str
 <html>
 <head>
@@ -288,6 +403,16 @@ $show<a href="$url">立即跳转</a>
 </body>
 </html>
 str;
+        if ($seg) :
+            // filename
+            $seg = 'Redirect/' . $seg;
+            try {
+                arSeg(array('segKey' => $seg, 'url' => $url, 'show' => $show, 'time' => $time));
+                exit;
+            } catch (ArException $e) {
+
+            }
+        endif;
         echo $redirectUrl;
         exit;
 

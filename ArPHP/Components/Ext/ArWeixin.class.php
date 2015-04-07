@@ -103,7 +103,7 @@ class ArWeixin extends ArComponent
 
         // 设置curl ssl 请求参数
         arComp('rpc.api')->curlOptions = array(
-            CURLOPT_SSL_VERIFYPEER => false
+            CURLOPT_SSL_VERIFYPEER => false,
         );
 
         arComp('rpc.api')->method = 'post';
@@ -130,6 +130,124 @@ class ArWeixin extends ArComponent
     }
 
     /**
+     * upload.
+     *
+     * @param string $filePath filePath.
+     * @param string $type     file type.
+     *
+     * @return string | false
+     */
+    public function upload($filePath, $type)
+    {
+        $postFile = array('media' => '@' . $filePath);
+
+        $accessToken = $this->getAccessToken();
+
+        $result = arComp('rpc.api')->remoteCall(
+            'http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=' . $accessToken . '&type=' . $type,
+            $postFile);
+
+        $resultArray = $this->handlerRemoteData($result);
+
+        return $resultArray;
+
+    }
+
+    /**
+     * 群发消息.
+     *
+     * @param string $filePath filePath.
+     * @param string $type     file type.
+     *
+     * @return string | false
+     */
+    public function send(array $news)
+    {
+        $accessToken = $this->getAccessToken();
+
+        $jsonNews = urldecode(json_encode(arComp('format.format')->urlencode($news)));
+        $result = arComp('rpc.api')->remoteCall(
+            'https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token=' . $accessToken,
+            $jsonNews);
+
+        $resultArray = $this->handlerRemoteData($result);
+
+        return $resultArray;
+
+    }
+
+    /**
+     * 上传素材到服务器.数据格式
+     * {
+        "thumb_media_id":"qI6_Ze_6PtV7svjolgs-rN6stStuHIjs9_DidOHaj0Q-mwvBelOXCFZiq2OsIU-p",
+        "author":"xxx",
+        "title":"Happy Day",
+        "content_source_url":"www.qq.com",
+        "content":"content",
+        "digest":"digest",
+        "show_cover_pic":"1"
+        },
+     * @param string $filePath filePath.
+     * @param string $type     file type.
+     *
+     * @return string | false
+     */
+    public function uploadNews(array $news)
+    {
+        $articles = array();
+        if (arComp('validator.validator')->checkMutiArray($news)) :
+            foreach ($news as $new) :
+                // 验证数据正确性
+                if (count($news) == 7) :
+                    $article['thumb_media_id'] = $new[0];
+                    $article['author'] = $new[1];
+                    $article['title'] = $new[2];
+                    $article['content_source_url'] = $new[3];
+                    $article['content'] = $new[4];
+                    $article['digest'] = $new[5];
+                    $article['show_cover_pic'] = $new[6];
+                    $articles['articles'][] = $article;
+                else :
+                    throw new ArException("数组长度不对应");
+                endif;
+            endforeach;
+        else :
+            // 验证数据正确性
+            $new = $news;
+            if (count($new) == 7) :
+                $article['thumb_media_id'] = $new[0];
+                $article['author'] = $new[1];
+                $article['title'] = $new[2];
+                $article['content_source_url'] = $new[3];
+                $article['content'] = $new[4];
+                $article['digest'] = $new[5];
+                $article['show_cover_pic'] = $new[6];
+                $articles['articles'][] = $article;
+            else :
+                throw new ArException("数组长度不对应");
+            endif;
+            $articles['articles'][] = $article;
+        endif;
+
+        if (empty($articles)) :
+            throw new ArException("提交数据为空");
+        endif;
+
+        $accessToken = $this->getAccessToken();
+
+        $jsonArticles = urldecode(json_encode(arComp('format.format')->urlencode($articles)));
+
+        $result = arComp('rpc.api')->remoteCall(
+            'https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token=' . $accessToken,
+            $jsonArticles);
+
+        $resultArray = $this->handlerRemoteData($result);
+
+        return $resultArray;
+
+    }
+
+    /**
      * get Access Token
      *
      * @return string
@@ -143,6 +261,36 @@ class ArWeixin extends ArComponent
         endif;
 
         return arComp('cache.file')->get('wx_token');
+
+    }
+
+    /**
+     * 获取 关注者 openid 列表
+     *
+     * @return string
+     */
+    public function getOpenIdList()
+    {
+        $accessToken = $this->getAccessToken();
+
+        $result = arComp('rpc.api')->remoteCall('https://api.weixin.qq.com/cgi-bin/user/get?' . 'access_token=' . $accessToken);
+        $resultArray = $this->handlerRemoteData($result);
+
+        return $resultArray;
+
+    }
+
+    // 获取jstiket
+    public function getJsTicket()
+    {
+        if (!arComp('cache.file')->get('wx_jsticket')) :
+            $accessToken = $this->getAccessToken();
+            $result = arComp('rpc.api')->remoteCall('https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&' . 'access_token=' . $accessToken);
+            $resultArray = $this->handlerRemoteData($result);
+            arComp('cache.file')->set('wx_jsticket', $resultArray['ticket'], $resultArray['expires_in']);
+        endif;
+
+        return arComp('cache.file')->get('wx_jsticket');
 
     }
 
@@ -264,6 +412,50 @@ class ArWeixin extends ArComponent
 
     }
 
+     /**
+     * 处理文本消息.
+     *
+     * @param string $data msg
+     *
+     * @return string
+     */
+    protected function processNews($data)
+    {
+        $tplXmlArray = array(
+            'ToUserName' => $this->rawDataArray['FromUserName'],
+            'FromUserName' => $this->rawDataArray['ToUserName'],
+            'CreateTime' => time(),
+            'MsgType' => 'news',
+            'Articles' => array(),
+        );
+
+        if (arComp('validator.validator')->checkMutiArray($data)) :
+            $tplXmlArray['ArticleCount'] = count($data);
+            foreach ($data as $news) :
+                $tplXmlArray['Articles']['item'][] = array(
+                    'Title' => $news[0],
+                    'Description' => $news[1],
+                    'PicUrl' => $news[2],
+                    'Url' => $news[3],
+                );
+            endforeach;
+        else :
+            $news = $data;
+            $tplXmlArray['ArticleCount'] = "1";
+            $tplXmlArray['Articles']['item'][] = array(
+                'Title' => $news[0],
+                'Description' => $news[1],
+                'PicUrl' => $news[2],
+                'Url' => $news[3],
+            );
+        endif;
+
+        arComp('list.log')->record($tplXmlArray);
+        $str = urldecode(arComp('ext.out')->array2xml(arComp('format.format')->urlencode($tplXmlArray), false, 'xml'));
+        return $str = preg_replace("#<\d+>|</\d+>#", '', $str);
+
+    }
+
     /**
      * 处理微信拉取数据.
      *
@@ -275,7 +467,9 @@ class ArWeixin extends ArComponent
         $this->weixinFirstCheck();
 
         $rawData = file_get_contents('php://input');
-        arComp('list.log')->record($rawData);
+
+        arComp('list.log')->record($rawData, 'raw');
+
         if ($rawData) :
             $xmlArray = arComp('ext.out')->xml2array($rawData, true);
             arComp('list.log')->record(array('xml' => $xmlArray));

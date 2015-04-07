@@ -45,7 +45,7 @@ class ArSkeleton extends ArComponent
     {
         $folderLists = array(
                 $this->basePath,
-                AR_ROOT_PATH . 'Conf',
+                AR_PUBLIC_CONFIG_PATH,
                 $this->basePath . 'Controller',
                 $this->basePath . 'View',
                 $this->basePath . 'View' . DS . 'Index',
@@ -85,8 +85,8 @@ class ArSkeleton extends ArComponent
 /**
  * Default Controller of webapp.
  */
-class IndexController extends ArController {
-
+class IndexController extends ArController
+{
     /**
      * just the example of get contents.
      *
@@ -111,9 +111,11 @@ class IndexController extends ArController {
 /**
  * Default Model of webapp.
  */
-class MyModel extends ArModel {
+class MyModel extends ArModel
+{
 
-    static public function model($class = __CLASS__) {
+    static public function model($class = __CLASS__)
+    {
         return parent::model($class);
 
     }
@@ -137,9 +139,9 @@ class MyModel extends ArModel {
  * @author ycassnr <ycassnr@gmail.com>
  */
 return array(
-    );',
+);',
 
-        AR_ROOT_PATH . 'Conf' . DS . 'public.config.php' => '<?php
+        AR_PUBLIC_CONFIG_PATH . 'public.config.php' => '<?php
 /**
  * Ar default public config file.
  *
@@ -147,9 +149,9 @@ return array(
  */
 return array(
     \'moduleLists\' => array(
-                    \'' . $this->appName . '\'
-                ),
-    );',
+        \'' . $this->appName . '\'
+    ),
+);',
 
             );
 
@@ -184,7 +186,7 @@ return array(
      */
     public function generate($appName = '')
     {
-        if (empty($appName) && $appGlobalConfig = Ar::import(AR_ROOT_PATH . 'Conf' . DS . 'public.config.php', true)) :
+        if (empty($appName) && $appGlobalConfig = Ar::import(AR_PUBLIC_CONFIG_PATH . 'public.config.php', true)) :
             if (empty($appGlobalConfig['moduleLists'])) :
                 throw new ArException("can not find param 'moduleLists'!");
             endif;

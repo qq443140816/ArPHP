@@ -31,10 +31,22 @@
  */
 class ArProxy extends ArApi
 {
+    // mime 类型
+    static $MIMETYPEMAP = array(
+        'image/gif' => 'gif',
+        'image/jpeg' => 'jpg',
+        'image/pjpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/tiff' => 'tif',
+    );
+
     // domain
     protected $domainInfo = array();
     // default mime type
     protected $mimeType = 'text/html';
+
+    // file suffix
+    protected $fileSuffix;
 
     /**
      * remote call.
@@ -43,7 +55,7 @@ class ArProxy extends ArApi
      *
      * @return mixed
      */
-    protected function remoteCall($url)
+    public function remoteCall($url, $params = array())
     {
         $init = curl_init($url);
 
@@ -66,8 +78,12 @@ class ArProxy extends ArApi
 
         $info = curl_getinfo($init);
 
+
         if (!empty($info['content_type'])) :
             $this->mimeType = $info['content_type'];
+            if (array_key_exists($this->mimeType, self::$MIMETYPEMAP)) :
+                $this->fileSuffix = self::$MIMETYPEMAP[$this->mimeType];
+            endif;
         endif;
 
         curl_close($init);
@@ -79,20 +95,30 @@ class ArProxy extends ArApi
     /**
      * call api
      *
-     * @param string $url url.
+     * @param string $url   url.
+     * @param boolean $show display.
      *
      * @return void
      */
-    public function callApi($url)
+    public function callApi($url, $show = true)
     {
 
         $this->parse($url);
 
         $source = $this->remoteCall($url);
 
-        header('Content-Type:' . $this->mimeType);
-
-        echo $source;
+        // 是否显示
+        if ($show === true) :
+            header('Content-Type:' . $this->mimeType);
+            echo $source;
+        else :
+            if (strstr($show, '.') === false && $this->fileSuffix) :
+                $show .= '.' . $this->fileSuffix;
+            endif;
+            // 保存文件
+            file_put_contents($show, $source);
+            return $show;
+        endif;
 
     }
 

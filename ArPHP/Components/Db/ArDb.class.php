@@ -244,7 +244,7 @@ class ArDb extends ArComponent
      *
      * @return boolean
      */
-    public function transRoolBack()
+    public function transRollBack()
     {
         return $this->getDbConnection()->rollBack();
 

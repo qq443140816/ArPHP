@@ -41,7 +41,6 @@ class ArApplicationWeb extends ArApplication
      */
     public function start()
     {
-        parent::start();
         if (AR_DEBUG) :
             arComp('ext.out')->deBug('[APP_WEB_START]');
         endif;
@@ -95,7 +94,7 @@ class ArApplicationWeb extends ArApplication
         if (class_exists($class)) :
             $this->_c = new $class;
             $this->_c->init();
-            $action = ($a = empty($route['a_a']) ? 'index' : $route['a_a']) . 'Action';
+            $action = ($a = empty($route['a_a']) ? AR_DEFAULT_ACTION : $route['a_a']) . 'Action';
             $this->route['a_a'] = $a;
             if (is_callable(array($this->_c, $action))) :
                 try {
@@ -103,7 +102,6 @@ class ArApplicationWeb extends ArApplication
                         arComp('ext.out')->deBug('|ACTION_RUN:' . $action . '|');
                     endif;
                     $this->_c->$action();
-                    exit;
                 } catch (ArException $e) {
                     if (!AR_AS_OUTER_FRAME) :
                         throw new ArException($e->getMessage());

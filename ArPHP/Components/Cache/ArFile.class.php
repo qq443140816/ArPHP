@@ -84,8 +84,10 @@ class ArFile extends ArCache
             if ($this->checkExpire($cacheFile)) :
                 $data = null;
                 $this->del($key);
+                $data = null;
+            else :
+                $data = $this->decrypt(file_get_contents($cacheFile, false, null, 10));
             endif;
-            $data = $this->decrypt(file_get_contents($cacheFile, false, null, 10));
         else :
             $data = null;
         endif;
@@ -153,23 +155,46 @@ class ArFile extends ArCache
      * cache flush.
      *
      * @param boolean $force cleal all cache.
+     * @param string  $dir   cleal all cache.
      *
      * @return mixed
      */
-    public function flush($force = false)
+    public function flush($force = false, $dir = '')
     {
-        $source = opendir($this->cachePath);
-
-        while ($file = readdir($source)) :
-            $file = $this->cachePath . $file;
-            if (is_file($file)) :
-                if ($force || $this->checkExpire($file)) :
-                    unlink($file);
+        $cachePath = $dir ? $dir : $this->cachePath;
+        if (is_dir($cachePath)) :
+            $source = opendir($cachePath);
+            while ($file = readdir($source)) :
+                $file = $cachePath . $file;
+                if (is_file($file)) :
+                    if ($force || $this->checkExpire($file)) :
+                        unlink($file);
+                    endif;
                 endif;
-            endif;
-        endwhile;
+            endwhile;
+            closedir($source);
+        endif;
 
-        closedir($source);
+    }
+
+    /**
+     * cache flush all.
+     *
+     * @param boolean $force cleal all cache.
+     * @param array   $dir   array module.
+     *
+     * @return mixed
+     */
+    public function flushAll($force = true, $module = array())
+    {
+        if (empty($module)) :
+            $module = arCfg('moduleLists');
+        endif;
+        foreach ($module as $dir) :
+            $dir = AR_ROOT_PATH . $dir . DS . 'Cache' . DS;
+            $this->flush($force, $dir);
+        endforeach;
+
     }
 
 }

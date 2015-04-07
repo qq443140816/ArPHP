@@ -70,8 +70,7 @@ class ArUpload extends ArComponent
         $this->errorMsg = null;
 
         $this->upField = $upField;
-
-        if (!empty($_FILES[$this->upField]) && is_uploaded_file($_FILES[$this->upField]['tmp_name'])) :
+        if (!empty($_FILES[$this->upField]) && empty($_FILES['error']) && is_uploaded_file($_FILES[$this->upField]['tmp_name'])) :
             if ($extension == 'all' || $this->checkFileType($this->getFileExtensionName($_FILES[$this->upField]['name']), $extension)) :
                 $dest = empty($dest) ? arCfg('PATH.UPLOAD') : $dest;
                 if (!is_dir($dest)) :
@@ -142,7 +141,7 @@ class ArUpload extends ArComponent
      */
     protected function getFileExtensionName($fileName)
     {
-        return substr($fileName, strrpos($fileName, '.') + 1);
+        return strtolower(substr($fileName, strrpos($fileName, '.') + 1));
 
     }
 

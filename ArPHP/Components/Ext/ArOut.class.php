@@ -43,7 +43,7 @@ class ArOut extends ArComponent
     {
         if (empty($options['showJson']) || $options['showJson'] == true) :
             // header('charset:utf-8');
-            // header('Content-type:text/html');
+            // header('Content-type:text/javascript');
             if (empty($options['data'])) :
                 $retArr = array(
                         'ret_code' => '1000',
@@ -68,8 +68,10 @@ class ArOut extends ArComponent
             else :
                 $retArr = $data;
             endif;
+            echo json_encode($retArr);
             // json_encode chinese transfer bug
-            echo urldecode(json_encode(arComp('format.format')->urlencode($retArr)));
+            // json_decode 返回不了数组
+            // echo urldecode(json_encode(arComp('format.format')->urlencode($retArr)));
             // crashed when use exit in contorller this->showJson() php 5.2.6
             // exit;
         else :
@@ -117,10 +119,22 @@ class ArOut extends ArComponent
 
             if (arCfg('DEBUG_LOG')) :
                 arComp('list.log')->record($showContentBox, 'debug');
+                switch ($tag) {
+                    case 'EXCEPTION':
+                        // $segFile = arCfg('DIR.SEG') . 'Redirect' . DS . '';
+                        Header("HTTP/1.1 404 Not Found");
+                        arSeg(array('segKey' => 'Redirect/404'));
+                        break;
+                    case 'SERVER_ERROR':
+                        Header("HTTP/1.1 500 App Error");
+                        arSeg(array('segKey' => 'Redirect/500'));
+                        break;
+                    default:
+                        break;
+                }
             else :
                 echo join($showContentBox, '');
             endif;
-
             $deBugMsg[$tag] = '';
         endif;
 

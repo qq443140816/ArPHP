@@ -218,3 +218,33 @@ function arEcho($echo = '', $default = '', $key = '')
 
 }
 
+/**
+ * Html segment.
+ *
+ * @param string $seg html 片段 通过 $this->assign 分配.
+ *
+ * @return void
+ */
+function arSeg($segment)
+{
+    if (!is_array($segment)) :
+        throw new ArException("segment must be an array");
+    endif;
+
+    if (empty($segment['segKey'])) :
+        $keyBundle = array_keys($segment);
+        $segKey = $keyBundle[0];
+    else :
+        $segKey = $segment['segKey'];
+    endif;
+    extract($segment);
+    $segFile = arCfg('DIR.SEG') . str_replace('/', DS, $segKey) . '.seg';
+    if (!is_file($segFile)) :
+        $segFile .= '.php';
+        if (!is_file($segFile)) :
+            throw new ArException("segment file " . $segFile . ' not found');
+        endif;
+    endif;
+    include $segFile;
+
+}

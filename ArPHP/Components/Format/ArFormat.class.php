@@ -273,4 +273,26 @@ class ArFormat extends ArComponent
 
     }
 
+    /**
+     * Parameters are passed by reference, though only for performance reasons. They're not
+     * altered by this function.
+     *
+     * @param array arrayFirst
+     * @param array arraySecond
+     * @return array
+     */
+    function arrayMergeRecursiveDistinct(array $arrayFirst, array $arraySecond)
+    {
+        $merged = $arrayFirst;
+        foreach ($arraySecond as $key => &$value) :
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) :
+                $merged[$key] = $this->arrayMergeRecursiveDistinct($merged[$key], $value);
+            else :
+                $merged[$key] = $value;
+            endif;
+        endforeach;
+        return $merged;
+
+    }
+
 }

@@ -32,7 +32,7 @@
 class ArMssql extends ArDb
 {
     // driver
-    public $driverName = __CLASS__;
+    // public $driverName = __CLASS__;
     // last sql
     public $lastSql = '';
     // last insert id
@@ -108,7 +108,6 @@ class ArMssql extends ArDb
         } catch (PDOException $e) {
             throw new ArDbException($e->getMessage() . ' lastsql :' . $sql);
         }
-
         if ($returnResult) :
             return $this->pdoStatement->fetchAll(PDO::FETCH_ASSOC);
         endif;

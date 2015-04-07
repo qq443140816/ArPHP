@@ -31,5 +31,14 @@
  */
 class ArApplicationService extends ArApplication
 {
+    /**
+     * 实现接口的方法.
+     *
+     * @return void
+     */
+    public function start()
+    {
+
+    }
 
 }

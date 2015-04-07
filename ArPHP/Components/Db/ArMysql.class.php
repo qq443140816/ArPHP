@@ -39,6 +39,12 @@ class ArMysql extends ArDb
     public $lastInsertId = '';
     // guess
     public $allowGuessConditionOperator = true;
+
+    // cache
+    public $cacheEnabled;
+    public $cacheTime;
+    public $cacheType;
+
     // query options
     protected $options = array(
         'columns' => '*',
@@ -51,6 +57,7 @@ class ArMysql extends ArDb
         'limit' => '',
         'union' => '',
         'comment' => '',
+        'source' => 'ArModel',
     );
 
     /**
@@ -191,7 +198,29 @@ class ArMysql extends ArDb
     public function queryRow()
     {
         $this->limit(1);
-        return $this->query()->fetch(PDO::FETCH_ASSOC);
+        // sql
+        $sql = $this->buildSelectSql();
+        $this->flushOptions();
+
+        // 开启缓存检测
+        if ($this->cacheEnabled) :
+            $cacheKey = $this->cacheType . $sql;
+            $cacheResult = arComp('cache.' . $this->cacheType)->get($cacheKey);
+            if ($cacheResult !== null) :
+                $this->cacheEnabled = false;
+                return $cacheResult;
+            endif;
+        endif;
+
+        $result = $this->query($sql)->fetch(PDO::FETCH_ASSOC);
+
+        // 设置缓存
+        if ($this->cacheEnabled) :
+            $this->cacheEnabled = false;
+            $cacheKey = $this->cacheType . $sql;
+            arComp('cache.' . $this->cacheType)->set($cacheKey, $result, $this->cacheTime);
+        endif;
+        return $result;
 
     }
 
@@ -220,7 +249,22 @@ class ArMysql extends ArDb
      */
     public function queryAll($columnKey = '')
     {
-        $result = $this->query()->fetchAll(PDO::FETCH_ASSOC);
+        // sql
+        $sql = $this->buildSelectSql();
+        $this->flushOptions();
+
+        // 开启缓存检测
+        if ($this->cacheEnabled) :
+            $cacheKey = $this->cacheType . $sql;
+            $cacheResult = arComp('cache.' . $this->cacheType)->get($cacheKey);
+            if ($cacheResult !== null) :
+                $this->cacheEnabled = false;
+                return $cacheResult;
+            endif;
+        endif;
+
+        // 查询数据
+        $result = $this->query($sql)->fetchAll(PDO::FETCH_ASSOC);
         if ($result && $columnKey) :
             $dataBox = array();
             foreach ($result as $row) :
@@ -230,7 +274,31 @@ class ArMysql extends ArDb
             endforeach;
             $result = $dataBox;
         endif;
+
+        // 设置缓存
+        if ($this->cacheEnabled) :
+            $this->cacheEnabled = false;
+            $cacheKey = $this->cacheType . $sql;
+            arComp('cache.' . $this->cacheType)->set($cacheKey, $result, $this->cacheTime);
+        endif;
         return $result;
+
+    }
+
+    /**
+     * data cache.
+     *
+     * @param int    $time second.
+     * @param string $type cache type file memcached redis...
+     *
+     * @return mixed
+     */
+    public function cache($time = 0, $type = 'file')
+    {
+        $this->cacheEnabled = true;
+        $this->cacheTime = $time;
+        $this->cacheType = $type;
+        return $this;
 
     }
 
@@ -258,13 +326,19 @@ class ArMysql extends ArDb
      */
     public function insert(array $data = array(), $checkData = false)
     {
+        if (empty($this->options['source'])) :
+            $this->options['source'] = 'ArModel';
+        endif;
         $options = $this->options;
-
         if (ArModel::model($this->options['source'])->insertCheck($data)) :
 
             $data = ArModel::model($this->options['source'])->formatData($data);
 
+
             if (!empty($data)) :
+
+                $this->options = $options;
+
                 if ($checkData) :
                     $data = arComp('format.format')->filterKey($this->getColumns(), $data);
                 endif;
@@ -285,6 +359,31 @@ class ArMysql extends ArDb
         endif;
 
         return false;
+
+    }
+
+    /**
+     * barch insert.
+     *
+     * @param array   $data data.
+     *
+     * @return mixed
+     */
+    public function batchInsert(array $data = array())
+    {
+        $options = $this->options;
+        // batch insert
+        $this->data($data, true);
+
+        $sql = $this->bulidInsertSql();
+
+        $this->options = $options;
+
+        $rtstatus = $this->exec($sql);
+
+        $this->lastInsertId = $this->getDbConnection()->lastInsertId();
+
+        return $this->lastInsertId ? $this->lastInsertId : $rtstatus;
 
     }
 
@@ -579,13 +678,14 @@ class ArMysql extends ArDb
     /**
      * where.
      *
-     * @param mixed $conditions cond.
+     * @param mixed  $conditions cond.
+     * @param string $logic      or | and.
      *
      * @return mixed
      */
-    public function where($conditions = '')
+    public function where($conditions = '', $logic = 'AND')
     {
-        $conStr = $this->buildCondition($conditions);
+        $conStr = $this->buildCondition($conditions, $logic);
         $this->options['where'] = empty($conStr) ? '' : ' WHERE ' . $conStr;
         return $this;
 
@@ -659,21 +759,45 @@ class ArMysql extends ArDb
     /**
      * where.
      *
-     * @param array $data data.
+     * @param array   $data  data.
+     * @param boolean $batch batch.
      *
      * @return mixed
      */
-    public function data(array $data)
+    public function data(array $data, $batch = false)
     {
-        $values  =  $fields    = array();
-        foreach ($data as $key => $val) :
-            if(is_scalar($val) || is_null($val)) :
-                $fields[] = $this->quoteObj($key);
-                $values[] = $this->quote($val);
-            endif;
-        endforeach;
-        $this->options['data'] = '(' . implode($fields, ',') . ') VALUES (' . implode($values, ',') . ')';
+        $values = $fields = array();
+
+        if (!$batch) :
+            foreach ($data as $key => $val) :
+                if(is_scalar($val) || is_null($val)) :
+                    $fields[] = $this->quoteObj($key);
+                    $values[] = $this->quote($val);
+                endif;
+            endforeach;
+            $this->options['data'] = '(' . implode($fields, ',') . ') VALUES (' . implode($values, ',') . ')';
+        else :
+            $fields =  array_keys($data[0]);
+            $valueString = '';
+            foreach ($data as $key => $value) :
+                $valueBundle = array();
+                foreach ($value as $val) :
+                    if(is_scalar($val) || is_null($val)) :
+                        $valueBundle[] = $this->quote($val);
+                    endif;
+                endforeach;
+
+                if ($valueString) :
+                    $valueString .= ',(' . implode($valueBundle, ',') . ')';
+                else :
+                    $valueString .= '(' . implode($valueBundle, ',') . ')';
+                endif;
+            endforeach;
+            $this->options['data'] = '(' . implode($fields, ',') . ') VALUES ' . $valueString;
+        endif;
+
         return $this;
+
     }
 
     /**

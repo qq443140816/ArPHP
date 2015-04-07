@@ -33,18 +33,10 @@ defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 defined('AR_FRAME_PATH') or define('AR_FRAME_PATH', dirname(__FILE__) . DS);
 // 项目根目录
 defined('AR_ROOT_PATH') or define('AR_ROOT_PATH', realpath(dirname($_SERVER['SCRIPT_FILENAME'])) . DS);
-// 子项目目录
-defined('AR_APP_PATH') or define('AR_APP_PATH', AR_ROOT_PATH . (AR_DEFAULT_APP_NAME ? AR_DEFAULT_APP_NAME . DS : ''));
-// 模板目录
-defined('AR_APP_VIEW_PATH') or define('AR_APP_VIEW_PATH', AR_APP_PATH . 'View' . DS);
 // 核心目录
 defined('AR_CORE_PATH') or define('AR_CORE_PATH', AR_FRAME_PATH . 'Core' . DS);
 // 配置目录
 defined('AR_CONFIG_PATH') or define('AR_CONFIG_PATH', AR_FRAME_PATH . 'Conf' . DS);
-// app 配置目录
-defined('AR_APP_CONFIG_PATH') or define('AR_APP_CONFIG_PATH', AR_APP_PATH . 'Conf' . DS);
-// app 控制器目录
-defined('AR_APP_CONTROLLER_PATH') or define('AR_APP_CONTROLLER_PATH', AR_APP_PATH . 'Controller' . DS);
 // 扩展目录
 defined('AR_EXT_PATH') or define('AR_EXT_PATH', AR_FRAME_PATH . 'Extensions' . DS);
 // 模块目录
@@ -59,9 +51,9 @@ spl_autoload_register('Ar::autoLoader');
 if (!AR_OUTER_START) :
     set_exception_handler('Ar::exceptionHandler');
     set_error_handler('Ar::errorHandler');
+    register_shutdown_function('Ar::shutDown');
 else :
     defined('AR_MAN_NAME') or define('AR_MAN_NAME', 'Arman');
     defined('AR_MAN_PATH') or define('AR_MAN_PATH', AR_ROOT_PATH . AR_MAN_NAME . DS);
 endif;
-
 Ar::init();

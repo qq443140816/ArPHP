@@ -38,7 +38,6 @@ class ArApplicationServiceHttp extends ArApplicationService
      */
     public function start()
     {
-        parent::start();
         $data = $this->parseHttpServiceHanlder();
         return $this->runService($data);
 
