@@ -38,10 +38,7 @@ class ArModel
     public $tableName = '';
 
     // container of model
-    private static $_models = array(
-
-        );
-
+    private static $_models = array();
 
     /**
      * model prototype.
@@ -55,7 +52,7 @@ class ArModel
         $key = strtolower($class);
 
         if (!isset(self::$_models[$key])) :
-            if (AR_DEBUG) :
+            if (AR_DEBUG && !AR_AS_CMD) :
                 arComp('ext.out')->deBug('|MODEL_INIT:' . $class . '|');
             endif;
 
@@ -69,13 +66,13 @@ class ArModel
 
             $obj->nowModel = $class;
 
-            if (AR_DEBUG) :
+            if (AR_DEBUG && !AR_AS_CMD) :
                 arComp('ext.out')->deBug('|MODEL_START:' . $class . '|');
             endif;
 
             self::$_models[$key] = $obj;
         else :
-            if (AR_DEBUG) :
+            if (AR_DEBUG && !AR_AS_CMD) :
                 arComp('ext.out')->deBug('|MODEL_RESTART:' . $class . '|');
             endif;
         endif;

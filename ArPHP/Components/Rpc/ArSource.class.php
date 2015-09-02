@@ -54,12 +54,13 @@ class ArSource extends ArApi
      */
     protected function getApi($api, $params)
     {
-        if (arCfg('URL_MODE') == 'PATH') :
-            $prefix = rtrim(empty($this->config['remotePrefix']) ? arComp('url.route')->ServerName() : $this->config['remotePrefix'], '/');
+        if (strpos($api, 'http://') === false) :
+            if (arCfg('URL_MODE') == 'PATH') :
+                $prefix = rtrim(empty($this->config['remotePrefix']) ? arComp('url.route')->ServerName() : $this->config['remotePrefix'], '/');
+            endif;
         else :
             $prefix = '';
         endif;
-
         if (!empty($params['curlOptions'])) :
             $this->curlOptions = $params['curlOptions'];
             unset($params['curlOptions']);
@@ -83,7 +84,7 @@ class ArSource extends ArApi
 
         $url = trim($prefix, '/');
 
-        return $this->remoteCall($url, $params);
+        return $this->remoteCall($url, $params, $this->method);
 
     }
 

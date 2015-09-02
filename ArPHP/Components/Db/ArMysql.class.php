@@ -107,10 +107,18 @@ class ArMysql extends ArDb
         $this->flushOptions();
 
         try {
-            $this->pdoStatement = $this->getDbConnection()->query($sql);
-            $i[] = $this->pdoStatement;
+            $connection = $this->getDbConnection();
+            $this->pdoStatement = $connection->query($sql);
+            // $i[] = $this->pdoStatement;
         } catch (PDOException $e) {
-            throw new ArDbException($e->getMessage() . ' lastsql :' . $sql);
+            // 重连
+            if ((strpos($e->getMessage(), 'Lost connection to MySQL server') !== false) || (strpos($e->getMessage(), 'server has gone away') !== false)) :
+                $connection = null;
+                $connection = $this->addConnection($this->connectionMark, true);
+                $this->pdoStatement = $connection->query($sql);
+            else :
+                throw new ArDbException($e->getMessage() . ' lastsql :' . $sql);
+            endif;
         }
 
         $this->connectionMark = 'read.default';
@@ -158,6 +166,7 @@ class ArMysql extends ArDb
      */
     public function getColumns()
     {
+        $connectionMark = $this->connectionMark;
         $table = $this->options['table'];
 
         $sql = 'show columns from ' . $table;
@@ -169,10 +178,11 @@ class ArMysql extends ArDb
         foreach ($ret as $value) :
             $columns[] = $value['Field'];
         endforeach;
-
+        $this->connectionMark = $connectionMark;
         return $columns;
 
     }
+
     /**
      * count.
      *
@@ -447,12 +457,19 @@ class ArMysql extends ArDb
         try {
             $this->lastSql = $sql;
             $this->flushOptions();
-            $rt = $this->getDbConnection()->exec($sql);
-            $this->connectionMark = 'read.default';
-            return $rt;
+            $connection = $this->getDbConnection();
+            $rt = $connection->exec($sql);
         } catch (PDOException $e) {
-            throw new ArDbException($e->getMessage() . ' lastsql :' . $sql);
+            if ((strpos($e->getMessage(), 'Lost connection to MySQL server') !== false) || (strpos($e->getMessage(), 'server has gone away') !== false)) :
+                $connection = null;
+                $connection = $this->addConnection($this->connectionMark, true);
+                $rt = $connection->exec($sql);
+            else :
+                throw new ArDbException($e->getMessage() . ' lastsql :' . $sql);
+            endif;
         }
+        $this->connectionMark = 'read.default';
+        return $rt;
 
     }
 
@@ -636,6 +653,8 @@ class ArMysql extends ArDb
                     $v[$k_1] = implode('.', $v_1);
                 elseif (preg_match('#\(.+\)#', $v_1)) :
                     $v[$k_1] = $v_1;
+                elseif ($v_1 === '*') :
+                    $v[$k_1] = $v_1;
                 else :
                     $v[$k_1] = '`'.$v_1.'`';
                 endif;
@@ -816,9 +835,9 @@ class ArMysql extends ArDb
                 if (!$count) :
                     throw new ArDbException('bad sql condition: must be a valid sql condition');
                 endif;
-                $condition = explode($logic[0], $condition);
-                $condition[0] = $this->quoteObj($condition[0]);
-                $condition = implode($logic[0], $condition);
+                // $condition = explode($logic[0], $condition);
+                // $condition[0] = $this->quoteObj($condition[0]);
+                // $condition = implode($logic[0], $condition);
                 return $condition;
             endif;
             throw new ArDbException('bad sql condition: ' . gettype($condition));

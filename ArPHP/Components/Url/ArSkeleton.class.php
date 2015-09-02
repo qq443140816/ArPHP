@@ -207,6 +207,39 @@ return array(
 
     }
 
+    /**
+     * generate cmd file.
+     *
+     * @return void
+     */
+    public function generateCmdFile()
+    {
+        $folderMan = AR_CMD_PATH;
+        $folderConf = $folderMan . 'Conf' . DS;
+        $folderBin = $folderMan . 'Bin' . DS;
+        $configFile = $folderConf . 'app.config.ini';
+        if (!$this->check($folderMan)) :
+            mkdir($folderMan);
+        endif;
+        if (!$this->check($folderConf)) :
+            mkdir($folderConf);
+        endif;
+        if (!$this->check($folderBin)) :
+            mkdir($folderBin);
+        endif;
+        if (!$this->check($configFile)) :
+            file_put_contents($configFile, ';cmd config file
+listen_port=10008
+listen_ip=127.0.0.1');
+        endif;
+
+    }
+
+    /**
+     * ar outer start
+     *
+     * @return void
+     */
     public function generateIntoOther()
     {
         $folderMan = AR_MAN_PATH;
@@ -230,6 +263,7 @@ return array(
     );');
 
         endif;
+
     }
 
 }

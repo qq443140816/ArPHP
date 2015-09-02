@@ -17,11 +17,6 @@
  *
  * default hash comment :
  *
- * <code>
- * #1. arComp('list.log')->record(array('132', 'ff'));
- * #2. arComp('list.log')->record('test log');
- * </code>
- *
  * @category ArPHP
  * @package  Core.Component.List
  * @author   yc <ycassnr@gmail.com>
@@ -57,9 +52,12 @@ class ArLog extends ArList
     }
 
     /**
-     * 记录日志.
+     * 记录日志:
      *
-     * @param mixed $data 记录信息.
+     * {@source }
+     *
+     * @param mixed $data  记录信息.
+     * @param mixed $level 记录等级.
      *
      * @return mixed
      */

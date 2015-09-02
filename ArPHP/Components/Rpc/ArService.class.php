@@ -174,7 +174,7 @@ class ArService extends ArApi
                 $response = substr($response, strlen($this->TAG_MSG_SEP));
             else :
                 list($stdOutMsg, $response) = explode($this->TAG_MSG_SEP, $response);
-                if (AR_DEBUG) :
+                if (AR_DEBUG && !AR_AS_CMD) :
                     arComp('ext.out')->debug('[SERVICE_STD_OUT_MSG]');
                     arComp('ext.out')->debug($stdOutMsg);
                 endif;

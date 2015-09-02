@@ -166,11 +166,17 @@ class ArController
         if ($footerFile) :
             if (is_file($footerFile)) :
                 $this->fetch($footerFile);
+
             else :
                 if ($this->layOutFile !== 'NOT_INIT') :
                     throw new ArException("not fount layout footer file : " . $footerFile, '2000');
                 endif;
             endif;
+        endif;
+
+        if ($fetch === false) :
+            // 加载退出
+            exit;
         endif;
 
     }

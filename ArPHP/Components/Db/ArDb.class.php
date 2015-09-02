@@ -101,18 +101,14 @@ class ArDb extends ArComponent
 
     }
 
-
-    /**
-     * read connection.
-     *
-     * @param string $name connection name.
-     *
-     * @return void
-     */
-    protected function addReadConnection($name = '')
+    // 添加数据库连接获更新
+    protected function addConnection($mark)
     {
-        if (!isset(self::$readConnections[$name])) :
-            self::$readConnections[$name] = $this->createConnection('read.' . $name);
+        list($dataBaseType, $name) = explode('.', $mark);
+        if ($dataBaseType == 'read') :
+            return $this->addReadConnection($name, true);
+        else :
+            return $this->addWriteConnection($name, true);
         endif;
 
     }
@@ -120,15 +116,34 @@ class ArDb extends ArComponent
     /**
      * read connection.
      *
-     * @param string $name connection name.
+     * @param string  $name   connection name.
+     * @param boolean $update update connection data.
      *
      * @return void
      */
-    protected function addWriteConnection($name = '')
+    protected function addReadConnection($name = '', $update = false)
     {
-        if (!isset(self::$writeConnections[$name])) :
-            self::$writeConnections[$name] = $this->createConnection('write.' . $name);
+        if (!isset(self::$readConnections[$name]) || $update) :
+            self::$readConnections[$name] = $this->createConnection('read.' . $name, $update);
         endif;
+        return self::$readConnections[$name];
+
+    }
+
+    /**
+     * read connection.
+     *
+     * @param string  $name   connection name.
+     * @param boolean $update update connection data.
+     *
+     * @return void
+     */
+    protected function addWriteConnection($name = '', $update = false)
+    {
+        if (!isset(self::$writeConnections[$name]) || $update) :
+            self::$writeConnections[$name] = $this->createConnection('write.' . $name, $update);
+        endif;
+        return self::$writeConnections[$name];
 
     }
 
@@ -139,7 +154,7 @@ class ArDb extends ArComponent
      *
      * @return PDO
      */
-    protected function createConnection($name = '')
+    protected function createConnection($name = '', $reConnect = false)
     {
         list($dataBaseType, $mark) = explode('.', $name);
         $dsn = $this->config[$dataBaseType][$mark]['dsn'];
@@ -149,6 +164,12 @@ class ArDb extends ArComponent
         try {
             return new $this->driverName($dsn, $user, $pass, $option);
         } catch (PDOException $e) {
+            if ($reConnect === true) :
+                if ((strpos($e->getMessage(), 'Lost connection to MySQL server') !== false) || (strpos($e->getMessage(), 'server has gone away') !== false)) :
+                    sleep(1);
+                    return $this->createConnection($name, true);
+                endif;
+            endif;
             throw $e;
         }
 
@@ -185,7 +206,6 @@ class ArDb extends ArComponent
             throw new ArDbException("Connection Mark Error : " . $this->connectionMark);
         endif;
         list($dataBaseType, $mark) = explode('.', $this->connectionMark);
-
         switch ($dataBaseType) {
             case 'read':
                 return $this->read($mark, true);

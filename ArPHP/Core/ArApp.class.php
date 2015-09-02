@@ -38,17 +38,20 @@ class ArApp
      */
     static public function run()
     {
-        if (AR_DEBUG) :
+        if (AR_DEBUG && !AR_AS_CMD) :
             arComp('ext.out')->deBug('[APP_RUN]');
         endif;
 
         self::_initComponents(Ar::getConfig('components', array()));
 
-        if (AR_RUN_AS_SERVICE_HTTP) :
+        if (AR_AS_WEB) :
+            $app = self::_createWebApplication('ArApplicationWeb');
+            $app->start();
+        elseif (AR_RUN_AS_SERVICE_HTTP) :
             $app = self::_createWebApplication('ArApplicationServiceHttp');
             $app->start();
-        elseif (!AR_OUTER_START) :
-            $app = self::_createWebApplication('ArApplicationWeb');
+        elseif (AR_AS_CMD) :
+            $app = self::_createWebApplication('ArApplicationCmd');
             $app->start();
         endif;
 
@@ -67,11 +70,10 @@ class ArApp
             if (!is_array($component)) :
                 continue;
             endif;
-
-            if (!empty($component['lazy']) && $component['lazy'] == true) :
+            // 默认的加载规则 lazy=false才会预加载
+            if (empty($component['lazy']) || $component['lazy'] == true) :
                 continue;
             endif;
-
             foreach ($component as $engine => $cfg) :
                 if (!empty($cfg['lazy']) && $cfg['lazy'] == true || $engine == 'lazy') :
                     continue;

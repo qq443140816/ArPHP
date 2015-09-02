@@ -21,6 +21,10 @@ defined('AR_OUTER_START') or define('AR_OUTER_START', false);
 defined('AR_AS_OUTER_FRAME') or define('AR_AS_OUTER_FRAME', false);
 // 内部实现http webservice 多套 arphp程序互调接口
 defined('AR_RUN_AS_SERVICE_HTTP') or define('AR_RUN_AS_SERVICE_HTTP', false);
+// 实现 cmd socket 编程
+defined('AR_AS_CMD') or define('AR_AS_CMD', false);
+// web application 默认方式
+defined('AR_AS_WEB') or define('AR_AS_WEB', true);
 // app名 main
 defined('AR_DEFAULT_APP_NAME') or define('AR_DEFAULT_APP_NAME', 'main');
 // 默认的控制器名
@@ -48,12 +52,14 @@ require_once AR_CORE_PATH . 'Ar.class.php';
 
 spl_autoload_register('Ar::autoLoader');
 
-if (!AR_OUTER_START) :
+if (AR_OUTER_START) :
+    defined('AR_MAN_NAME') or define('AR_MAN_NAME', 'Arman');
+    defined('AR_MAN_PATH') or define('AR_MAN_PATH', AR_ROOT_PATH . AR_MAN_NAME . DS);
+elseif (AR_AS_CMD) :
+    defined('AR_CMD_PATH') or define('AR_CMD_PATH', AR_ROOT_PATH . AR_DEFAULT_APP_NAME . DS);
+else :
     set_exception_handler('Ar::exceptionHandler');
     set_error_handler('Ar::errorHandler');
     register_shutdown_function('Ar::shutDown');
-else :
-    defined('AR_MAN_NAME') or define('AR_MAN_NAME', 'Arman');
-    defined('AR_MAN_PATH') or define('AR_MAN_PATH', AR_ROOT_PATH . AR_MAN_NAME . DS);
 endif;
 Ar::init();

@@ -67,24 +67,29 @@ class Ar
             AR_COMP_PATH . 'Cache' . DS,
             AR_COMP_PATH . 'Ext' . DS
         );
-
-        if (AR_DEBUG) :
+        if (AR_DEBUG && !AR_AS_CMD) :
             arComp('ext.out')->deBug('[START]');
         endif;
-
         // 子项目目录
         defined('AR_PUBLIC_CONFIG_PATH') or define('AR_PUBLIC_CONFIG_PATH', AR_ROOT_PATH . 'Conf' . DS);
-        if (!AR_OUTER_START) :
+
+        // 外部扩展库工具
+        if (AR_OUTER_START) :
+            Ar::c('url.skeleton')->generateIntoOther();
+            $comonConfigFile = realpath(dirname(AR_MAN_PATH)) . DS . 'Conf' . DS . 'public.config.php';
+            self::$_config = arComp('format.format')->arrayMergeRecursiveDistinct(
+                Ar::import($comonConfigFile, true),
+                Ar::import(AR_MAN_PATH . 'Conf' . DS . 'public.config.php')
+            );
+        elseif (AR_AS_WEB) :
             // 目录生成
             Ar::c('url.skeleton')->generate();
-
             // 公共配置
             if (!is_file(AR_PUBLIC_CONFIG_PATH . 'public.config.php')) :
                 echo 'config file not found : ' . AR_PUBLIC_CONFIG_PATH . 'public.config.php';
                 exit;
             endif;
             self::setConfig('', Ar::import(AR_PUBLIC_CONFIG_PATH . 'public.config.php', false));
-
             // 路由解析
             Ar::c('url.route')->parse();
             // 子项目目录
@@ -95,19 +100,14 @@ class Ar
             defined('AR_APP_VIEW_PATH') or define('AR_APP_VIEW_PATH', AR_APP_PATH . 'View' . DS);
             // app 控制器目录
             defined('AR_APP_CONTROLLER_PATH') or define('AR_APP_CONTROLLER_PATH', AR_APP_PATH . 'Controller' . DS);
-
-            // 项目配置
-            $appConfigFile = AR_APP_CONFIG_PATH . 'app.config.php';
-            $appConfig = self::import($appConfigFile, true);
-            if (is_array($appConfig)) :
-                self::setConfig('', arComp('format.format')->arrayMergeRecursiveDistinct(self::getConfig(), $appConfig));
-            endif;
-        else :
-            Ar::c('url.skeleton')->generateIntoOther();
-            $comonConfigFile = realpath(dirname(AR_MAN_PATH)) . DS . 'Conf' . DS . 'public.config.php';
+        // 命令行模式
+        elseif (AR_AS_CMD) :
+            // 目录生成
+            Ar::c('url.skeleton')->generateCmdFile();
+            self::$_config = Ar::import(AR_CMD_PATH . 'Conf' . DS . 'app.config.ini');
             self::$_config = arComp('format.format')->arrayMergeRecursiveDistinct(
-                Ar::import($comonConfigFile, true),
-                Ar::import(AR_MAN_PATH . 'Conf' . DS . 'public.config.php')
+                Ar::import(AR_CMD_PATH . 'Conf' . DS . 'app.config.ini'),
+                Ar::import(AR_CMD_PATH . 'Conf' . DS . 'app.config.php', true)
             );
         endif;
 
@@ -302,7 +302,7 @@ class Ar
         if (AR_OUTER_START) :
             $appModule = AR_MAN_PATH;
         else :
-            $appModule = arCfg('requestRoute.a_m') . DS;
+            $appModule = AR_ROOT_PATH . DS . arCfg('requestRoute.a_m', AR_DEFAULT_APP_NAME) . DS;
         endif;
 
         array_push(self::$autoLoadPath, $appModule);
@@ -310,9 +310,12 @@ class Ar
         if (preg_match("#[A-Z]{1}[a-z0-9]+$#", $class, $match)) :
             $appEnginePath = $appModule . $match[0] . DS;
             $extPath = $appModule . 'Ext' . DS;
-            array_push(self::$autoLoadPath, $appEnginePath, $extPath);
+            // cmd mode
+            $binPath = $appModule . 'Bin' . DS;
+            $protocolPath = $appModule . 'Protocol' . DS;
+            array_push(self::$autoLoadPath, $appEnginePath, $extPath, $binPath, $protocolPath);
         endif;
-
+        self::$autoLoadPath = array_unique(self::$autoLoadPath);
         foreach (self::$autoLoadPath as $path) :
             $classFile = $path . $class . '.class.php';
             if (is_file($classFile)) :
@@ -367,12 +370,20 @@ class Ar
         endif;
 
         if (is_file($fileName)) :
-            $file = include_once $fileName;
-            if ($file === true) :
-                return $holdFile[$fileName];
+            if (substr($fileName, (strrpos($fileName, '.') + 1)) == 'ini') :
+                $config = parse_ini_file($fileName, true);
+                if (empty($config)) :
+                    $config = array();
+                endif;
+                return $config;
             else :
-                $holdFile[$fileName] = $file;
-                return $file;
+                $file = include_once $fileName;
+                if ($file === true) :
+                    return $holdFile[$fileName];
+                else :
+                    $holdFile[$fileName] = $file;
+                    return $file;
+                endif;
             endif;
         else :
             if ($allowTry) :
@@ -398,7 +409,7 @@ class Ar
             exit;
         endif;
 
-        if (AR_DEBUG) :
+        if (AR_DEBUG && !AR_AS_CMD) :
             $msg = '<b style="color:#ec8186;">' . get_class($e) . '</b> : ' . $e->getMessage();
             if (arCfg('DEBUG_SHOW_TRACE')) :
                 arComp('ext.out')->deBug($msg, 'TRACE');
@@ -488,7 +499,7 @@ class Ar
             return;
         endif;
 
-        if (AR_DEBUG) :
+        if (AR_DEBUG && !AR_AS_CMD) :
             if (arCfg('DEBUG_SHOW_EXCEPTION')) :
                 arComp('ext.out')->deBug('', 'EXCEPTION', true);
             endif;

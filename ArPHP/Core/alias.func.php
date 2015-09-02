@@ -75,7 +75,9 @@ function arModule($name = '')
             call_user_func_array(array($moduleList[$module], 'initModule'), array());
         endif;
     endif;
-    arComp('ext.out')->deBug('|MODULE_EXEC:' . $module .'|');
+    if (AR_DEBUG && !AR_AS_CMD) :
+        arComp('ext.out')->deBug('|MODULE_EXEC:' . $module .'|');
+    endif;
     return $moduleList[$module];
 
 }

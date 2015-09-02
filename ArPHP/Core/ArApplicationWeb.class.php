@@ -41,7 +41,7 @@ class ArApplicationWeb extends ArApplication
      */
     public function start()
     {
-        if (AR_DEBUG) :
+        if (AR_DEBUG && !AR_AS_CMD) :
             arComp('ext.out')->deBug('[APP_WEB_START]');
         endif;
         if (ini_get('session.auto_start') == 0) :
@@ -72,7 +72,7 @@ class ArApplicationWeb extends ArApplication
      */
     public function runController($route)
     {
-        if (AR_DEBUG) :
+        if (AR_DEBUG && !AR_AS_CMD) :
             arComp('ext.out')->deBug('[CONTROLLER_RUN]');
         endif;
 
@@ -87,7 +87,7 @@ class ArApplicationWeb extends ArApplication
         $this->route['a_c'] = $c;
         $class = $c . 'Controller';
 
-        if (AR_DEBUG) :
+        if (AR_DEBUG && !AR_AS_CMD) :
             arComp('ext.out')->deBug('|CONTROLLER_EXEC:'. $class .'|');
         endif;
 
@@ -98,7 +98,7 @@ class ArApplicationWeb extends ArApplication
             $this->route['a_a'] = $a;
             if (is_callable(array($this->_c, $action))) :
                 try {
-                    if (AR_DEBUG) :
+                    if (AR_DEBUG && !AR_AS_CMD) :
                         arComp('ext.out')->deBug('|ACTION_RUN:' . $action . '|');
                     endif;
                     $this->_c->$action();

@@ -44,8 +44,14 @@ class ArApi extends ArComponent
      *
      * @return string
      */
-    public function remoteCall($url, $params = array())
+    public function remoteCall($url, $params = array(), $method = '')
     {
+        if ($method) :
+            $this->method = $method;
+        else :
+            $this->method = empty($this->config['method']) ? 'get' : $this->config['method'];
+        endif;
+
         $init = curl_init($url);
         $options = array(CURLOPT_HEADER => false, CURLOPT_RETURNTRANSFER => 1);
 
