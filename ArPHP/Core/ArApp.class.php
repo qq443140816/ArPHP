@@ -7,9 +7,9 @@
  * @category PHP
  * @package  Core.base
  * @author   yc <ycassnr@gmail.com>
- * @license  http://www.arphp.net/licence BSD Licence
+ * @license  http://www.arphp.org/licence MIT Licence
  * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
- * @link     http://www.arphp.net
+ * @link     http://www.arphp.org
  */
 
 /**
@@ -25,9 +25,9 @@
  * @category ArPHP
  * @package  Core.base
  * @author   yc <ycassnr@gmail.com>
- * @license  http://www.arphp.net/licence BSD Licence
+ * @license  http://www.arphp.org/licence MIT Licence
  * @version  Release: @package_version@
- * @link     http://www.arphp.net
+ * @link     http://www.arphp.org
  */
 class ArApp
 {
@@ -43,15 +43,18 @@ class ArApp
         endif;
 
         self::_initComponents(Ar::getConfig('components', array()));
-
-        if (AR_AS_WEB) :
-            $app = self::_createWebApplication('ArApplicationWeb');
-            $app->start();
-        elseif (AR_RUN_AS_SERVICE_HTTP) :
+        // 外部启用直接不执行app
+        if (AR_OUTER_START) :
+            return;
+        endif;
+        if (AR_RUN_AS_SERVICE_HTTP) :
             $app = self::_createWebApplication('ArApplicationServiceHttp');
             $app->start();
         elseif (AR_AS_CMD) :
             $app = self::_createWebApplication('ArApplicationCmd');
+            $app->start();
+        elseif (AR_AS_WEB) :
+            $app = self::_createWebApplication('ArApplicationWeb');
             $app->start();
         endif;
 

@@ -7,9 +7,9 @@
  * @category PHP
  * @package  Core.Component
  * @author   yc <ycassnr@gmail.com>
- * @license  http://www.arphp.net/licence BSD Licence
+ * @license  http://www.arphp.org/licence MIT Licence
  * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
- * @link     http://www.arphp.net
+ * @link     http://www.arphp.org
  */
 
 /**
@@ -25,9 +25,9 @@
  * @category ArPHP
  * @package  Core.Component
  * @author   yc <ycassnr@gmail.com>
- * @license  http://www.arphp.net/licence BSD Licence
+ * @license  http://www.arphp.org/licence MIT Licence
  * @version  Release: @package_version@
- * @link     http://www.arphp.net
+ * @link     http://www.arphp.org
  */
 class ArRoute extends ArComponent
 {
@@ -42,10 +42,10 @@ class ArRoute extends ArComponent
     public function serverPath($dir, $showServerName = false)
     {
         $dir = str_replace(DS, '/', $dir);
-        $path = dirname($_SERVER['SCRIPT_NAME']);
+        $path = dirname($_SERVER['SCRIPT_FILENAME']);
         $position = strpos($dir, $path);
         if ($position !== false) :
-            $dir = substr($dir, $position);
+            $dir = AR_SERVER_PATH . trim(str_replace($path, '', $dir), '/');
         endif;
         return ($showServerName ? $this->serverName() : '') . $dir;
 

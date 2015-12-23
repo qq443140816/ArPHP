@@ -7,9 +7,9 @@
  * @category PHP
  * @package  Core.base
  * @author   yc <ycassnr@gmail.com>
- * @license  http://www.arphp.net/licence BSD Licence
+ * @license  http://www.arphp.org/licence MIT Licence
  * @version  GIT: : coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
- * @link     http://www.arphp.net
+ * @link     http://www.arphp.org
  */
 // 启动时间
 defined('AR_START_TIME') or define('AR_START_TIME', microtime(true));
@@ -17,6 +17,8 @@ defined('AR_START_TIME') or define('AR_START_TIME', microtime(true));
 defined('AR_DEBUG') or define('AR_DEBUG', true);
 // 外部启动 否 默认管理目录ArMan
 defined('AR_OUTER_START') or define('AR_OUTER_START', false);
+// 自启动session
+defined('AR_AUTO_START_SESSION') or define('AR_AUTO_START_SESSION', true);
 // 作为外部框架加载 可嵌入其他框架
 defined('AR_AS_OUTER_FRAME') or define('AR_AS_OUTER_FRAME', false);
 // 内部实现http webservice 多套 arphp程序互调接口
@@ -47,6 +49,8 @@ defined('AR_EXT_PATH') or define('AR_EXT_PATH', AR_FRAME_PATH . 'Extensions' . D
 defined('AR_COMP_PATH') or define('AR_COMP_PATH', AR_FRAME_PATH . 'Components' . DS);
 // 服务地址
 defined('AR_SERVER_PATH') or define('AR_SERVER_PATH', ($dir = dirname($_SERVER['SCRIPT_NAME'])) == DS ? '/' : str_replace(DS, '/', $dir) . '/');
+// 默认配置文件
+defined('AR_PUBLIC_CONFIG_FILE') or define('AR_PUBLIC_CONFIG_FILE', '');
 
 require_once AR_CORE_PATH . 'Ar.class.php';
 

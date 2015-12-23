@@ -7,9 +7,9 @@
  * @category PHP
  * @package  Core.base
  * @author   yc <ycassnr@gmail.com>
- * @license  http://www.arphp.net/licence BSD Licence
+ * @license  http://www.arphp.org/licence MIT Licence
  * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
- * @link     http://www.arphp.net
+ * @link     http://www.arphp.org
  */
 
 /**
@@ -25,9 +25,9 @@
  * @category ArPHP
  * @package  Core.base
  * @author   yc <ycassnr@gmail.com>
- * @license  http://www.arphp.net/licence BSD Licence
+ * @license  http://www.arphp.org/licence MIT Licence
  * @version  Release: @package_version@
- * @link     http://www.arphp.net
+ * @link     http://www.arphp.org
  */
 class Ar
 {
@@ -65,6 +65,7 @@ class Ar
             AR_COMP_PATH . 'Rpc' . DS,
             AR_COMP_PATH . 'List' . DS,
             AR_COMP_PATH . 'Cache' . DS,
+            AR_COMP_PATH . 'Tools' . DS,
             AR_COMP_PATH . 'Ext' . DS
         );
         if (AR_DEBUG && !AR_AS_CMD) :
@@ -85,11 +86,26 @@ class Ar
             // 目录生成
             Ar::c('url.skeleton')->generate();
             // 公共配置
-            if (!is_file(AR_PUBLIC_CONFIG_PATH . 'public.config.php')) :
-                echo 'config file not found : ' . AR_PUBLIC_CONFIG_PATH . 'public.config.php';
+            if (!is_file(AR_PUBLIC_CONFIG_PATH . 'public.config.php') && !is_file(AR_PUBLIC_CONFIG_PATH . 'public.config.ini')) :
+                echo 'config file not found : ' . AR_PUBLIC_CONFIG_PATH . 'public.config.php or ' . AR_PUBLIC_CONFIG_PATH . 'public.config.ini';
                 exit;
             endif;
-            self::setConfig('', Ar::import(AR_PUBLIC_CONFIG_PATH . 'public.config.php', false));
+            self::setConfig('', Ar::import(AR_PUBLIC_CONFIG_PATH . 'public.config.php', true));
+            // 加载ini
+            $iniConfigFile = AR_PUBLIC_CONFIG_PATH . 'public.config.ini';
+            $iniConfig = Ar::import($iniConfigFile, true);
+            if (!empty($iniConfig)) :
+                Ar::setConfig('', arComp('format.format')->arrayMergeRecursiveDistinct(Ar::getConfig(), $iniConfig));
+            endif;
+
+            // 引入新配置文件
+            if (AR_PUBLIC_CONFIG_FILE && is_file(AR_PUBLIC_CONFIG_FILE)) :
+                $otherConfig = include_once AR_PUBLIC_CONFIG_FILE;
+                if (is_array($otherConfig)) :
+                    Ar::setConfig('', arComp('format.format')->arrayMergeRecursiveDistinct($otherConfig, Ar::getConfig()));
+                endif;
+            endif;
+
             // 路由解析
             Ar::c('url.route')->parse();
             // 子项目目录

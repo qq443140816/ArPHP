@@ -7,9 +7,9 @@
  * @category PHP
  * @package  Core.base
  * @author   yc <ycassnr@gmail.com>
- * @license  http://www.arphp.net/licence BSD Licence
+ * @license  http://www.arphp.org/licence MIT Licence
  * @version  GIT: 1: coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
- * @link     http://www.arphp.net
+ * @link     http://www.arphp.org
  */
 
 /**
@@ -25,9 +25,9 @@
  * @category ArPHP
  * @package  Core.base
  * @author   yc <ycassnr@gmail.com>
- * @license  http://www.arphp.net/licence BSD Licence
+ * @license  http://www.arphp.org/licence MIT Licence
  * @version  Release: @package_version@
- * @link     http://www.arphp.net
+ * @link     http://www.arphp.org
  */
 class ArApplicationWeb extends ArApplication
 {
@@ -44,7 +44,7 @@ class ArApplicationWeb extends ArApplication
         if (AR_DEBUG && !AR_AS_CMD) :
             arComp('ext.out')->deBug('[APP_WEB_START]');
         endif;
-        if (ini_get('session.auto_start') == 0) :
+        if (AR_AUTO_START_SESSION && ini_get('session.auto_start') == 0) :
             session_start();
         endif;
 
