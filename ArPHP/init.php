@@ -56,8 +56,8 @@ require_once AR_CORE_PATH . 'Ar.class.php';
 
 spl_autoload_register('Ar::autoLoader');
 
+defined('AR_MAN_NAME') or define('AR_MAN_NAME', 'Arman');
 if (AR_OUTER_START) :
-    defined('AR_MAN_NAME') or define('AR_MAN_NAME', 'Arman');
     defined('AR_MAN_PATH') or define('AR_MAN_PATH', AR_ROOT_PATH . AR_MAN_NAME . DS);
 elseif (AR_AS_CMD) :
     defined('AR_CMD_PATH') or define('AR_CMD_PATH', AR_ROOT_PATH . AR_DEFAULT_APP_NAME . DS);

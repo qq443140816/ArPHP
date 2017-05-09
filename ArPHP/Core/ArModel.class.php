@@ -112,9 +112,9 @@ class ArModel
     public function getDb($dbType = 'mysql', $dbString = 'default', $read = true)
     {
         if ($read) :
-            return ArComp('db.' . $dbType)->table($this->tableName)->read($dbString)->setSource($this->nowModel);
+            return ArComp('db.' . $dbType)->read($dbString)->table($this->tableName)->setSource($this->nowModel);
         else :
-            return ArComp('db.' . $dbType)->table($this->tableName)->write($dbString)->setSource($this->nowModel);
+            return ArComp('db.' . $dbType)->write($dbString)->table($this->tableName)->setSource($this->nowModel);
         endif;
 
     }

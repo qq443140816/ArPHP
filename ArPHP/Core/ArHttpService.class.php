@@ -49,8 +49,16 @@ class ArHttpService
      *
      * @return mixed
      */
-    public function init()
+    public function init($auth)
     {
+        $this->checkAuth($auth);
+
+    }
+
+    // auth param
+    public function checkAuth($param)
+    {
+
 
     }
 

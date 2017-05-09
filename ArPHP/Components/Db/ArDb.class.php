@@ -35,6 +35,9 @@ class ArDb extends ArComponent
     static public $readConnections = array();
     // write
     static public $writeConnections = array();
+    // ArDbs
+    static public $dbHolder = array();
+
     // connectionMark
     public $connectionMark = 'read.default';
     // pdoStatement
@@ -52,7 +55,7 @@ class ArDb extends ArComponent
      */
     public function read($name = 'default', $returnPdoConnection = false)
     {
-        $this->connectionMark = 'read.' . $name;
+        $connectionMark = 'read.' . $name;
 
         // 默认取第一个
         if (empty($this->config['read']['default'])) :
@@ -62,15 +65,26 @@ class ArDb extends ArComponent
         endif;
 
         if (!isset(self::$readConnections[$name]) && isset($this->config['read'][$name])) :
-            $this->addReadConnection($name);
+            if (isset($this->config['read'][$name]['pconnect'])) :
+                self::addReadConnection($name, $this->config['read'][$name]['pconnect']);
+            else :
+                self::addReadConnection($name, false);
+            endif;
         endif;
+
         if (!isset(self::$readConnections[$name])) :
             throw new ArDbException('dbReadConfig not hava a param ' . $name, 1);
         endif;
+
         if ($returnPdoConnection) :
             return self::$readConnections[$name];
         else :
-            return $this;
+            if (!isset(self::$dbHolder[$connectionMark])) :
+                $newDbHolder = clone $this;
+                $newDbHolder->connectionMark = $connectionMark;
+                self::$dbHolder[$connectionMark] = $newDbHolder;
+            endif;
+            return self::$dbHolder[$connectionMark];
         endif;
 
     }
@@ -87,7 +101,12 @@ class ArDb extends ArComponent
     {
         $this->connectionMark = 'write.' . $name;
         if (!isset(self::$writeConnections[$name]) && isset($this->config['write'][$name])) :
-            $this->addWriteConnection($name);
+
+            if (isset($this->config['write'][$name]['pconnect'])) :
+                self::addWriteConnection($name, $this->config['write'][$name]['pconnect']);
+            else :
+                self::addWriteConnection($name, false);
+            endif;
         endif;
         if (!isset(self::$writeConnections[$name])) :
             throw new ArDbException('dbWriteConfig not hava a param ' . $name, 1);
@@ -95,20 +114,31 @@ class ArDb extends ArComponent
         if ($returnPdoConnection) :
             return self::$writeConnections[$name];
         else :
-            return $this;
+            if (!isset(self::$dbHolder[$connectionMark])) :
+                $newDbHolder = clone $this;
+                $newDbHolder->connectionMark = $connectionMark;
+                self::$dbHolder[$connectionMark] = $newDbHolder;
+            endif;
+            return self::$dbHolder[$connectionMark];
         endif;
-
 
     }
 
-    // 添加数据库连接获更新
-    protected function addConnection($mark)
+    /**
+     * read connection.
+     *
+     * @param string  $name   connection name.
+     * @param boolean $update update connection data.
+     *
+     * @return void
+     */
+    protected function addConnection($mark, $update = false)
     {
         list($dataBaseType, $name) = explode('.', $mark);
         if ($dataBaseType == 'read') :
-            return $this->addReadConnection($name, true);
+            return $this->addReadConnection($name, $update);
         else :
-            return $this->addWriteConnection($name, true);
+            return $this->addWriteConnection($name, $update);
         endif;
 
     }
@@ -165,16 +195,31 @@ class ArDb extends ArComponent
             return new $this->driverName($dsn, $user, $pass, $option);
         } catch (PDOException $e) {
             if ($reConnect === true) :
+                // [2002] server has gone away
+                if ($e->getCode() == 2002) :
+                    sleep(1);
+                    return $this->createConnection($name, true);
+                endif;
+                /*
                 if ((strpos($e->getMessage(), 'Lost connection to MySQL server') !== false) || (strpos($e->getMessage(), 'server has gone away') !== false)) :
                     sleep(1);
                     return $this->createConnection($name, true);
                 endif;
+                */
             endif;
             throw $e;
+
         }
 
     }
 
+    /**
+     * config key
+     *
+     * @param string $configKey.
+     *
+     * @return String
+     */
     protected function getCurrentConfig($configKey = '')
     {
         list($dataBaseType, $mark) = explode('.', $this->connectionMark);
@@ -279,6 +324,13 @@ class ArDb extends ArComponent
     {
         // This method actually seems to work fine on PHP5.3.5 (and probably a few older versions).
         return $this->getDbConnection()->inTransaction();
+
+    }
+
+    // clone objects
+    public function __clone()
+    {
+        $this->connectionMark = '';
 
     }
 

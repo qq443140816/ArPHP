@@ -112,8 +112,17 @@ class ArRoute extends ArComponent
      */
     public function parseUrlForRules($url)
     {
+
+        $phpSelf = $_SERVER['SCRIPT_NAME'];
+        if (strpos($url, $phpSelf) !== false) :
+            $url = str_replace($phpSelf, '', $url);
+            $baseTrimUrl = $url;
+        else :
+            $baseTrimUrl = substr($url, strlen(AR_SERVER_PATH));
+        endif;
+
         $foundMode = false;
-        $baseTrimUrl = substr($url, strlen(AR_SERVER_PATH));
+
         $absolutePath = ltrim($baseTrimUrl, '/');
         if (strpos($absolutePath, '?') !== false) :
             $absolutePath = substr($absolutePath, 0, strpos($absolutePath, '?'));
@@ -123,9 +132,19 @@ class ArRoute extends ArComponent
         else :
             $virtualModule = substr($absolutePath, 0, strpos($absolutePath, '/'));
         endif;
-        if (!in_array($virtualModule, arCfg('moduleLists'))) :
-            $virtualModule = AR_DEFAULT_APP_NAME;
+
+        if (!$virtualModule && arRequest('a_m')) :
+            $virtualModule = arRequest('a_m');
+        else :
+            if (!in_array($virtualModule, arCfg('moduleLists'))) :
+                if (arCfg('URL_MODE') == 'FULL') :
+                    $virtualModule = arRequest('a_m');
+                else :
+                    $virtualModule = AR_DEFAULT_APP_NAME;
+                endif;
+            endif;
         endif;
+
         // 预加载config
         $appConfigFile = AR_ROOT_PATH . $virtualModule . DS . 'Conf' . DS . 'app.config.php';
         // ini
@@ -186,9 +205,7 @@ class ArRoute extends ArComponent
     {
         $requestUrl = $this->parseUrlForRules($_SERVER['REQUEST_URI']);
         $phpSelf = $_SERVER['SCRIPT_NAME'];
-        if (strpos($requestUrl, $phpSelf) !== false) :
-            $requestUrl = str_replace($phpSelf, '', $requestUrl);
-        endif;
+
         if (($pos = strpos($requestUrl, '?')) !== false) :
             $queryStr = substr($requestUrl, $pos + 1);
             $requestUrl = substr($requestUrl, 0, $pos);
@@ -197,6 +214,13 @@ class ArRoute extends ArComponent
             $requestUrl = preg_replace("#^{$root}#", '', $requestUrl);
         endif;
         $requestUrl = trim($requestUrl, '/');
+        // URL 伪静态
+        if (arCfg('URL_MODE', 'PATH') == 'PATH' && arCfg('URL_SUFFIX')) :
+            if (($posSuffix = strrpos($requestUrl, '.' . arCfg('URL_SUFFIX'))) !== false) :
+                $requestUrl = substr($requestUrl, 0, $posSuffix);
+            endif;
+        endif;
+
         $pathArr = explode('/', $requestUrl);
         $temp = array_shift($pathArr);
         $m = in_array($temp, Ar::getConfig('moduleLists', array())) ? $temp : AR_DEFAULT_APP_NAME;
@@ -229,6 +253,13 @@ class ArRoute extends ArComponent
             $serverHostArray = explode('.', $_SERVER['HTTP_HOST']);
             if (count($serverHostArray) == 3) :
                 $a_h = $serverHostArray[0];
+            endif;
+        endif;
+        // 分布式host
+        $moduleLists = arCfg('moduleLists');
+        if (empty($c) && empty($a)) :
+            if ($a_h && is_array($moduleLists) && in_array($a_h, $moduleLists)) :
+                $m = $a_h;
             endif;
         endif;
         $requestRoute = array('a_h' => $a_h, 'a_m' => $m, 'a_c' => empty($c) ? AR_DEFAULT_CONTROLLER : $c, 'a_a' => empty($a) ? AR_DEFAULT_ACTION : $a);
@@ -282,6 +313,10 @@ class ArRoute extends ArComponent
     {
         // 路由url
         $url = $urlKey;
+        // 不处理js
+        if (strpos($url, 'javascript:') === 0) :
+            return $url;
+        endif;
         // 路由规则
         $urlRouteRules = arCfg('URL_ROUTE_RULES');
         $defaultModule = arCfg('requestRoute.a_m') == AR_DEFAULT_APP_NAME ? '' : arCfg('requestRoute.a_m');
@@ -428,7 +463,11 @@ class ArRoute extends ArComponent
                     continue;
                 endif;
                 $url .= '/' . $pkey . '/' . $pvalue;
+
             endforeach;
+            if (arCfg('URL_SUFFIX')) :
+                $url = $url . '.' . arCfg('URL_SUFFIX');
+            endif;
             break;
         case 'QUERY' :
             $url = arComp('url.route')->host() . '?' . http_build_query($urlParam);
@@ -481,14 +520,13 @@ class ArRoute extends ArComponent
             $url = arComp('url.route')->createUrl($route, $param);
         endif;
         // search seg if found then render
-        $redirectUrl = <<<str
+        $redirectUrlString = <<<str
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta http-equiv="Refresh" content="$time;URL=$url" />
 </head>
 <body>
-$show<a href="$url">立即跳转</a>
 </body>
 </html>
 str;
@@ -502,8 +540,9 @@ str;
 
             }
         endif;
-        echo $redirectUrl;
-        exit;
+        // header('Location: ' . $url);
+        // header('Location: ' . $redirectUrl);
+        exit($redirectUrlString);
 
     }
 

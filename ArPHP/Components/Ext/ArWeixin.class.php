@@ -304,9 +304,8 @@ class ArWeixin extends ArComponent
         if (empty($this->config['menu'])) :
             throw new ArException("wx config mission error : " . "'menu' required !");
         endif;
-
         $jsonPostMenu = urldecode(json_encode(arComp('format.format')->urlencode($this->config['menu'])));
-        $result = arComp('rpc.api')->remoteCall('https://api.weixin.qq.com/cgi-bin/menu/create?access_token=' . $this->getAccessToken(), $jsonPostMenu);
+        $result = arComp('rpc.api')->remoteCall('https://api.weixin.qq.com/cgi-bin/menu/create?access_token=' . $this->getAccessToken(), $jsonPostMenu, 'post');
         $resultArray = $this->handlerRemoteData($result);
 
         return $resultArray;
@@ -382,11 +381,18 @@ class ArWeixin extends ArComponent
      */
     public function listen()
     {
+        $eventName = '';
         if ($this->checkSignature()) :
             $this->processWxServerRequest();
-            $eventName = strtolower($this->rawDataArray['Event']);
-            arComp('list.log')->record(array('ename' => $eventName));
-            $this->emit($eventName, '');
+            if (isset($this->rawDataArray['Event'])) :
+                $eventName = strtolower($this->rawDataArray['Event']);
+            elseif(isset($this->rawDataArray['MsgType'])) :
+                $eventName = 'msg_' . strtolower($this->rawDataArray['MsgType']);
+            endif;
+            if ($eventName) :
+                arComp('list.log')->record(array('ename' => $eventName), 'listen');
+                $this->emit($eventName, $this->rawDataArray);
+            endif;
         endif;
 
     }
@@ -544,6 +550,66 @@ class ArWeixin extends ArComponent
         else :
             arComp('list.log')->record('event empty');
         endif;
+
+    }
+
+    // 获取code
+    public function getWebCode($url, $scope = 'snsapi_base')
+    {
+        return 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='. $this->config['APPID']. '&redirect_uri='. $url .'&response_type=code&scope='. $scope . '&state=STATE#wechat_redirect';
+
+    }
+
+    // auth跳转
+    public function authToUrl($url, $scope = 'snsapi_base')
+    {
+        return $this->getWebCode(urlencode($url), $scope);
+
+    }
+
+    // 获取access_token 与基本的不同
+    public function getAuthAccessToken($code)
+    {
+        $result = arComp('rpc.api')->remoteCall('https://api.weixin.qq.com/sns/oauth2/access_token', array('grant_type' => 'authorization_code', 'appid' => $this->appId, 'secret' => $this->appSecret, 'code' => $code));
+        $resultArray = $this->handlerRemoteData($result);
+        return $resultArray;
+
+    }
+
+    // oauth2.0获取用户基本信息
+    public function getUserInfo($access_token, $openid)
+    {
+        $result = arComp('rpc.api')->remoteCall('https://api.weixin.qq.com/sns/userinfo', array('access_token' => $access_token, 'openid' => $openid));
+        $resultArray = $this->handlerRemoteData($result);
+        return $resultArray;
+
+    }
+
+    // 是否微信客户端
+    public function isWeixin()
+    {
+        if (strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false) :
+            return true;
+        else :
+            return false;
+        endif;
+
+    }
+
+    // 发送模板信息
+    public function sendTemplateMsg($openid, $templateId, $url, $data)
+    {
+        $sendData = array(
+            'touser' => $openid,
+            'template_id' => $templateId,
+            'url' => $url,
+            'data' => $data,
+
+        );
+        $jsonPostData = urldecode(json_encode(arComp('format.format')->urlencode($sendData)));
+        $result = arComp('rpc.api')->remoteCall('https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $this->getAccessToken(), $jsonPostData, 'post');
+        $resultArray = $this->handlerRemoteData($result);
+        return $resultArray;
 
     }
 

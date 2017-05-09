@@ -188,7 +188,11 @@ return array(
     {
         if (empty($appName) && $appGlobalConfig = Ar::import(AR_PUBLIC_CONFIG_PATH . 'public.config.php', true)) :
             if (empty($appGlobalConfig['moduleLists'])) :
-                throw new ArException("can not find param 'moduleLists'!");
+                if (!AR_DEFAULT_APP_NAME) :
+                    return;
+                else :
+                    throw new ArException("can not find param 'moduleLists'!");
+                endif;
             endif;
             $moduleLists = $appGlobalConfig['moduleLists'];
             foreach ($moduleLists as $moduleName) :

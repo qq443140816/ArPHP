@@ -102,6 +102,9 @@ class ArApplicationWeb extends ArApplication
                         arComp('ext.out')->deBug('|ACTION_RUN:' . $action . '|');
                     endif;
                     $this->_c->$action();
+                    if (AR_AS_OUTER_FRAME) :
+                        exit;
+                    endif;
                 } catch (ArException $e) {
                     if (!AR_AS_OUTER_FRAME) :
                         throw new ArException($e->getMessage());

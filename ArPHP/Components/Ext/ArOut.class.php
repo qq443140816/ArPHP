@@ -46,22 +46,21 @@ class ArOut extends ArComponent
             // header('Content-type:text/javascript');
             if (empty($options['data'])) :
                 $retArr = array(
-                        'ret_code' => '1000',
-                        'ret_msg' => '',
-                    );
+                    'ret_code' => '1000',
+                    'ret_msg' => '',
+                );
 
                 if (is_array($data)) :
                     if (!isset($data['ret_code']) || !isset($data['ret_msg'])) :
                         $retArr['data'] = $data;
                         $retArr['total_lines'] = Ar::c('validator.validator')->checkMutiArray($data) ? (string)count($data) : 1;
-
-                        $retArr = array_merge($retArr, $options);
                     else :
                         if (!empty($data['error_msg']) && empty($data['ret_code'])) :
                             $retArr['ret_code'] = "1001";
                         endif;
                         $retArr = array_merge($retArr, $data);
                     endif;
+                    $retArr = array_merge($retArr, $options);
                 else :
                     $retArr['ret_msg'] = $data;
                 endif;

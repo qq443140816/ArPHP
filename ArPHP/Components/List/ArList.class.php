@@ -68,13 +68,44 @@ class ArList extends ArComponent
      *
      * @return mixed
      */
-    public function get($key)
+    public function get($ckey, $defaultReturn = null)
     {
-        $r = null;
-        if ($this->contains($key)) :
-            $r = $this->c[$key];
+        $rt = null;
+
+        if (empty($ckey)) :
+            $rt = $this->c;
+        else :
+            if (strpos($ckey, '.') === false) :
+                if (isset($this->c[$ckey])) :
+                    $rt = $this->c[$ckey];
+                else :
+                    if (func_num_args() > 1) :
+                        $rt = $defaultReturn;
+                    else :
+                        $rt = null;
+                    endif;
+                endif;
+            else :
+                $cE = explode('.', $ckey);
+                $rt = $this->c;
+                // 0 判断
+                while (($k = array_shift($cE)) || is_numeric($k)) :
+                    if (!isset($rt[$k])) :
+                        if (func_num_args() > 1) :
+                            $rt = $defaultReturn;
+                        else :
+                            $rt = null;
+                        endif;
+                        break;
+                    else :
+                        $rt = $rt[$k];
+                    endif;
+                endwhile;
+            endif;
+
         endif;
-        return $r;
+
+        return $rt;
 
     }
 

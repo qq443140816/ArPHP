@@ -137,21 +137,31 @@ class ArController
      */
     protected function display($view = '', $fetch = false)
     {
+        Ar::setConfig('BUNDLE_VIEW_ASSIGN', $this->assign);
+
         $headerFile = '';
         $footerFile = '';
+
+        // 加载模板
+        $bodyHtml = $this->fetch($view, true);
+
+        if (arCfg('LAYOUT_NAME') !== null) :
+            $this->layOutFile = arCfg('LAYOUT_NAME');
+        endif;
 
         if ($this->layOutFile === 'NOT_INIT') :
             $headerFile = AR_APP_VIEW_PATH . 'Layout' . DS . 'header' . '.' . arCfg('TPL_SUFFIX');
             $footerFile = AR_APP_VIEW_PATH . 'Layout' . DS . 'footer' . '.' . arCfg('TPL_SUFFIX');
         elseif ($this->layOutFile) :
-            $headerFile = $this->layOutFile . '_header' . '.' . arCfg('TPL_SUFFIX');
-            $footerFile = $this->layOutFile . '_footer' . '.' . arCfg('TPL_SUFFIX');
+            $headerFile = AR_APP_VIEW_PATH . 'Layout' . DS . $this->layOutFile . '_header' . '.' . arCfg('TPL_SUFFIX');
+            $footerFile = AR_APP_VIEW_PATH . 'Layout' . DS . $this->layOutFile . '_footer' . '.' . arCfg('TPL_SUFFIX');
         endif;
 
+        $headerHtml = $footerHtml = '';
         // 加载头
         if ($headerFile) :
             if (is_file($headerFile)) :
-                $this->fetch($headerFile);
+                $headerHtml = $this->fetch($headerFile, true);
             else :
                 if ($this->layOutFile !== 'NOT_INIT') :
                     throw new ArException("not fount layout header file : " . $headerFile, '2000');
@@ -159,14 +169,10 @@ class ArController
             endif;
         endif;
 
-        // 加载模板
-        $this->fetch($view, $fetch);
-
         // 加载尾部
         if ($footerFile) :
             if (is_file($footerFile)) :
-                $this->fetch($footerFile);
-
+                $footerHtml = $this->fetch($footerFile, true);
             else :
                 if ($this->layOutFile !== 'NOT_INIT') :
                     throw new ArException("not fount layout footer file : " . $footerFile, '2000');
@@ -174,9 +180,13 @@ class ArController
             endif;
         endif;
 
+        $returnHtml = $headerHtml . $bodyHtml . $footerHtml;
         if ($fetch === false) :
+            echo $returnHtml;
             // 加载退出
             exit;
+        else :
+            return $returnHtml;
         endif;
 
     }
@@ -305,29 +315,32 @@ class ArController
     }
 
     /**
-     * redirect function.
+     * show json cuccess function.
      *
-     * @param string $msg message.
+     * @param string $msg     message.
+     * @param string $code    code.
+     * @param array  $options data.
      *
      * @return void
      */
-    public function showJsonSuccess($msg = ' ')
+    public function showJsonSuccess($msg = ' ', $code = '1000', array $options = array())
     {
-        $this->showJson(array('ret_msg' => $msg, 'ret_code' => '1000', 'success' => "1"));
+        $this->showJson(array('ret_msg' => $msg, 'ret_code' => $code, 'error_msg' => '', 'success' => "1"), $options);
 
     }
 
     /**
-     * redirect function.
+     * show json error function.
      *
-     * @param string $msg  message.
-     * @param string $code code.
+     * @param string $msg     message.
+     * @param string $code    code.
+     * @param array  $options data.
      *
      * @return void
      */
-    public function showJsonError($msg = ' ', $code = '1001')
+    public function showJsonError($msg = ' ', $code = '1001', array $options = array())
     {
-        $this->showJson(array('ret_msg' => $msg, 'ret_code' => $code, 'error_msg' => $msg, 'success' => "0"));
+        $this->showJson(array('ret_msg' => $msg, 'ret_code' => $code, 'error_msg' => $msg, 'success' => "0"), $options);
 
     }
 
@@ -402,8 +415,8 @@ class ArController
                 $layoutFileName = AR_APP_VIEW_PATH . 'Layout' . DS . $layoutFileName;
             endif;
         endif;
-
         $this->layOutFile = $layoutFileName;
+        Ar::setConfig('LAYOUT_NAME', $layoutFileName);
 
     }
 

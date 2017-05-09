@@ -52,7 +52,7 @@ class ArUpload extends ArComponent
     // mimemap
     static public $extensionMap = array(
             'img' => array(
-                'jpg', 'gif', 'png'
+                'jpg', 'jpe', 'jpeg', 'gif', 'png', 'bmp', 'tiff', 'svg', 'ico',
             ),
         );
 
@@ -70,6 +70,7 @@ class ArUpload extends ArComponent
         $this->errorMsg = null;
 
         $this->upField = $upField;
+
         if (!empty($_FILES[$this->upField]) && empty($_FILES['error']) && is_uploaded_file($_FILES[$this->upField]['tmp_name'])) :
             if ($extension == 'all' || $this->checkFileType($this->getFileExtensionName($_FILES[$this->upField]['name']), $extension)) :
                 $dest = empty($dest) ? arCfg('PATH.UPLOAD') : $dest;
@@ -90,7 +91,15 @@ class ArUpload extends ArComponent
             endif;
 
         else :
-            $this->errorMsg = "Filed '$upField' invalid";
+            if (empty($_FILES)) :
+                $this->errorMsg = 'empty $_FILES uploaded file maybe exceeds the upload_max_filesize(' . ini_get('upload_max_filesize') . ') directive in php.ini';
+            else :
+                if (empty($_FILES[$this->upField])) :
+                    $this->errorMsg = "Filed '$upField' invalid";
+                else :
+                    $this->errorMsg = $this->errorcodeToMessage($_FILES[$this->upField]['error']);
+                endif;
+            endif;
         endif;
 
         if (!!$this->errorMsg) :
@@ -98,6 +107,46 @@ class ArUpload extends ArComponent
         else :
             return $upFileName;
         endif;
+
+    }
+
+    /**
+     * upload.
+     *
+     * @param int $code upload errorcode.
+     *
+     * @return mixed
+     */
+    private function errorcodeToMessage($code)
+    {
+        switch ($code) {
+            case UPLOAD_ERR_INI_SIZE:
+                $message = "The uploaded file exceeds the upload_max_filesize(" . ini_get('upload_max_filesize') . ") directive in php.ini";
+                break;
+            case UPLOAD_ERR_FORM_SIZE:
+                $message = "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form";
+                break;
+            case UPLOAD_ERR_PARTIAL:
+                $message = "The uploaded file was only partially uploaded";
+                break;
+            case UPLOAD_ERR_NO_FILE:
+                $message = "No file was uploaded";
+                break;
+            case UPLOAD_ERR_NO_TMP_DIR:
+                $message = "Missing a temporary folder";
+                break;
+            case UPLOAD_ERR_CANT_WRITE:
+                $message = "Failed to write file to disk";
+                break;
+            case UPLOAD_ERR_EXTENSION:
+                $message = "File upload stopped by extension";
+                break;
+
+            default:
+                $message = "Unknown upload error";
+                break;
+        }
+        return $message;
 
     }
 
@@ -111,12 +160,18 @@ class ArUpload extends ArComponent
      */
     protected function checkFileType($extension, $aExtension = 'img')
     {
-        if (array_key_exists($aExtension, self::$extensionMap)) :
-            if (!in_array($extension, self::$extensionMap[$aExtension])) :
-                $this->errorMsg = "仅支持" . implode(',', self::$extensionMap[$aExtension]). "类型";
+        if (is_array($aExtension)) :
+            if (!in_array($extension, $aExtension)) :
+                $this->errorMsg ="仅支持 " . implode(',', $aExtension) . " 类型";
             endif;
-        elseif ($extension != $aExtension) :
-            $this->errorMsg ="仅支持{$aExtension}类型";
+        else :
+            if (array_key_exists($aExtension, self::$extensionMap)) :
+                if (!in_array($extension, self::$extensionMap[$aExtension])) :
+                    $this->errorMsg = "仅支持 " . implode(',', self::$extensionMap[$aExtension]). " 类型";
+                endif;
+            elseif ($extension != $aExtension) :
+                $this->errorMsg ="仅支持{$aExtension}类型";
+            endif;
         endif;
 
         return !$this->errorMsg;

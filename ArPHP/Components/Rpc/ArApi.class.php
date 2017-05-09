@@ -37,6 +37,24 @@ class ArApi extends ArComponent
     //curl options
     public $curlOptions = array();
 
+    // 设置cookie文件
+    public function handleCookie($file = '')
+    {
+        if (!$file) :
+            $file = AR_ROOT_PATH . 'cookiefile';
+        endif;
+
+        if (!file_exists($file)) :
+            file_put_contents($file, '');
+        endif;
+
+        // curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/cookieFileName");
+        // curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/cookieFileName");
+        $this->curlOptions[CURLOPT_COOKIEJAR] = $file;
+        $this->curlOptions[CURLOPT_COOKIEFILE] = $file;
+
+    }
+
     /**
      * remote call.
      *
@@ -52,13 +70,23 @@ class ArApi extends ArComponent
             $this->method = empty($this->config['method']) ? 'get' : $this->config['method'];
         endif;
 
-        $init = curl_init($url);
         $options = array(CURLOPT_HEADER => false, CURLOPT_RETURNTRANSFER => 1);
 
         if ($this->method == 'post') :
             $options[CURLOPT_POST] = true;
             $options[CURLOPT_POSTFIELDS] = $params;
+        else :
+            if (is_array($params)) :
+                $queryString = http_build_query($params);
+                if (strpos($url, '?') === false) :
+                    $url .= '?' . $queryString;
+                else :
+                    $url .= '&' . $queryString;
+                endif;
+            endif;
         endif;
+
+        $init = curl_init($url);
 
         if ($this->curlOptions) :
             foreach ($this->curlOptions as $ckey => $opt) :

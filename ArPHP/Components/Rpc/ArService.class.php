@@ -32,8 +32,8 @@
 class ArService extends ArApi
 {
     protected $TAG_MSG_SEP = '___SERVICE_STD_OUT_SEP___';
-
     protected $remoteWsFile = '';
+    protected $remoteQueryUrlSign = '';
 
     /**
      * initialization for component.
@@ -46,6 +46,7 @@ class ArService extends ArApi
     static public function init($config = array(), $class = __CLASS__)
     {
         $obj = parent::init($config, $class);
+        isset($config['authSign']) ? ($obj->remoteQueryUrlSign = $config['authSign']) : '';
         $obj->setRemoteWsFile();
         return $obj;
 
@@ -88,7 +89,8 @@ class ArService extends ArApi
      */
     public function gRemoteWsUrl()
     {
-        return $this->remoteWsFile . '?' . http_build_query($this->remoteQueryUrlSign);
+        // return $this->remoteWsFile . '?' . http_build_query($this->remoteQueryUrlSign);
+        return $this->remoteWsFile;
 
     }
 
@@ -102,17 +104,15 @@ class ArService extends ArApi
      */
     public function __call($name, $args = array())
     {
-        $remoteQueryUrlSign = array();
         $remoteQueryData = array();
         if (substr($name, 0, 2) === 'Ws') :
             $remoteQueryData['class'] = ltrim($name, 'Ws');
             $remoteQueryData['method'] = $args[0];
             $remoteQueryData['param'] = empty($args[1]) ? array() : $args[1];
+            $remoteQueryData['authSign'] = $this->remoteQueryUrlSign;
         else :
             throw new ArException("Service do not have a method " . $name);
         endif;
-
-        $this->setAuthUserSignature($remoteQueryUrlSign);
 
         $postServiceData = array('ws' => $this->encrypt($remoteQueryData));
 

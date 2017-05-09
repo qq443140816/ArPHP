@@ -67,18 +67,41 @@ function arU($name = '', $params = array(), $urlMode = 'NOT_INIT')
 function arModule($name = '')
 {
     static $moduleList = array();
-    $module = $name . 'Module';
-    if (!array_key_exists($module, $moduleList)) :
-        arComp('ext.out')->deBug('|MODULE_INIT:' . $module .'|');
-        $moduleList[$module] = new $module;
-        if (is_callable(array($moduleList[$module], 'initModule'))) :
-            call_user_func_array(array($moduleList[$module], 'initModule'), array());
+    $hasNameSpace = false;
+    if (strpos($name, '.') !== false) :
+        list($pathModule, $moduleFunc) = explode('.', $name);
+        arLm($pathModule . '.Module');
+        $module = $moduleFunc . 'Module';
+        $hasNameSpace = true;
+    else :
+        $module = $name . 'Module';
+    endif;
+    $moduleKey = $name . 'Module';
+
+    if (!array_key_exists($moduleKey, $moduleList)) :
+        if (AR_DEBUG && !AR_AS_CMD) :
+            arComp('ext.out')->deBug('|MODULE_INIT:' . $moduleKey .'|');
+        endif;
+        if (version_compare(PHP_VERSION, '5.3.0', '>=')) :
+            if ($hasNameSpace && arCfg('IN_NAMESPACE')) :
+                $nameSpaceModule = $pathModule . '\\Module\\' . $module;
+                $moduleList[$moduleKey] = new $nameSpaceModule;
+                // 兼容写法
+                $moduleList[$module] = $moduleList[$moduleKey];
+            else :
+                $moduleList[$moduleKey] = new $module;
+            endif;
+        else :
+            $moduleList[$moduleKey] = new $module;
+        endif;
+        if (is_callable(array($moduleList[$moduleKey], 'initModule'))) :
+            call_user_func_array(array($moduleList[$moduleKey], 'initModule'), array());
         endif;
     endif;
     if (AR_DEBUG && !AR_AS_CMD) :
-        arComp('ext.out')->deBug('|MODULE_EXEC:' . $module .'|');
+        arComp('ext.out')->deBug('|MODULE_EXEC:' . $moduleKey .'|');
     endif;
-    return $moduleList[$module];
+    return $moduleList[$moduleKey];
 
 }
 
@@ -198,10 +221,11 @@ function arLm($module)
  * @param string $echo    echo.
  * @param string $default default out.
  * @param string $key     key.
+ * @param bool   $ifecho  ifecho.
  *
  * @return void
  */
-function arEcho($echo = '', $default = '', $key = '')
+function arEcho($echo = '', $default = '', $key = '', $ifecho = true)
 {
     if (is_array($default)) :
         $index = (int)$echo;
@@ -216,18 +240,23 @@ function arEcho($echo = '', $default = '', $key = '')
         endif;
     endif;
 
-    echo $echo;
+    if ($ifecho) :
+        echo $echo;
+    else :
+        return $echo;
+    endif;
 
 }
 
 /**
  * Html segment.
  *
- * @param string $seg html 片段 通过 $this->assign 分配.
+ * @param string  $seg     html 片段 通过 $this->assign 分配.
+ * @param boolean $autoCre 自动生成布局文件.
  *
  * @return void
  */
-function arSeg($segment)
+function arSeg($segment, $autoCre = false)
 {
     if (!is_array($segment)) :
         throw new ArException("segment must be an array");
@@ -247,6 +276,17 @@ function arSeg($segment)
             throw new ArException("segment file " . $segFile . ' not found');
         endif;
     endif;
-    include $segFile;
+
+    if ($autoCre) :
+        arComp('tool.util')->copy(arCfg('DIR.SEG') . 'Tpl' . DS . 'Public', AR_ROOT_PATH . 'Public');
+        arComp('tool.util')->copy(arCfg('DIR.SEG') . 'Tpl' . DS . 'Layout', arCfg('DIR.VIEW') . 'Layout');
+    endif;
+
+    extract(arCfg('BUNDLE_VIEW_ASSIGN', array()));
+    if (isset($segment['include_once']) && $segment['include_once'] == 1) :
+        include_once $segFile;
+    else :
+        include $segFile;
+    endif;
 
 }

@@ -60,10 +60,11 @@ class ArApplicationServiceHttp extends ArApplicationService
             endif;
 
             return array(
-                    'class' => $ws['class'],
-                    'method' => $ws['method'],
-                    'param' => $ws['param'],
-                );
+                'class' => $ws['class'],
+                'method' => $ws['method'],
+                'param' => $ws['param'],
+                'authSign' => $ws['authSign'],
+            );
 
         else :
             throw new ArServiceException('ws query ws info missing error');
@@ -87,7 +88,7 @@ class ArApplicationServiceHttp extends ArApplicationService
         try {
 
             $serviceHolder = new $service;
-            $serviceHolder->init();
+            $serviceHolder->init($ws['authSign']);
 
             if (!is_callable(array($serviceHolder, $method))) :
                 throw new ArServiceException('ws service do not hava a method ' . $method);

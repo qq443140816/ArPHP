@@ -121,7 +121,7 @@ class ArMysql extends ArDb
             endif;
         }
 
-        $this->connectionMark = 'read.default';
+        // $this->connectionMark = 'read.default';
 
         return $this->pdoStatement;
 
@@ -468,7 +468,7 @@ class ArMysql extends ArDb
                 throw new ArDbException($e->getMessage() . ' lastsql :' . $sql);
             endif;
         }
-        $this->connectionMark = 'read.default';
+        // $this->connectionMark = 'read.default';
         return $rt;
 
     }
@@ -528,6 +528,27 @@ class ArMysql extends ArDb
         endif;
 
         $this->options['columns'] = $fieldsStr;
+        return $this;
+
+    }
+
+    /**
+     * select distinct field .
+     *
+     * @param mixed $fields fields.
+     *
+     * @return mixed
+     */
+    public function selectDistinct($distinctfield = '', $columns = '')
+    {
+        if ($distinctfield) :
+            if (!$columns) :
+                $this->select($columns);
+                $this->options['columns'] =   'distinct ' .  $this->quoteObj($distinctfield) . ',' . $this->options['columns'];
+            else :
+                $this->options['columns'] =   'distinct ' .  $this->quoteObj($distinctfield);
+            endif;
+        endif;
         return $this;
 
     }
@@ -874,7 +895,7 @@ class ArMysql extends ArDb
             $k_upper = strtoupper($k);
 
             $maybe_connectors = array('>=', '<=', '<>', '!=', '>', '<', '=',
-                ' NOT BETWEEN', ' BETWEEN', 'NOT LIKE', ' LIKE', ' IS NOT', ' NOT IN', ' IS', ' IN');
+                ' NOT BETWEEN', ' BETWEEN', 'NOT LIKE', ' LIKE', ' IS NOT', ' NOT IN', ' IS', ' IN', ' REGEXP');
 
             foreach ($maybe_connectors as $maybe_connector) :
                 $l = strlen($maybe_connector);

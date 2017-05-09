@@ -47,7 +47,7 @@ class ArUtil extends ArComponent
         return $ip;
 
     }
-    
+
     // 获取对外显示的公网ip
     public function getServerIp($os = 'linux', $cli = true)
     {
@@ -144,6 +144,86 @@ class ArUtil extends ArComponent
         endif;
 
         return $password;
+
+    }
+
+    // removes files and non-empty directories
+    public function rmdir($dir)
+    {
+        if (is_dir($dir)) {
+            $files = scandir($dir);
+            foreach ($files as $file)
+            if ($file != "." && $file != "..") $this->rmdir("$dir/$file");
+            rmdir($dir);
+        }
+        else if (file_exists($dir)) unlink($dir);
+
+    }
+
+    // copies files and non-empty directories
+    public function copy($src, $dst)
+    {
+        if (is_dir($src)) {
+            if (file_exists($dst)) :
+                return false;
+            endif;
+            mkdir($dst);
+            $files = scandir($src);
+            foreach ($files as $file)
+                if ($file != "." && $file != "..") $this->copy("$src/$file", "$dst/$file");
+        }
+        else if (file_exists($src)) copy($src, $dst);
+
+    }
+
+    // 数组判断
+    public function dstrpos($bundle, $needles)
+    {
+        $rt = false;
+        if (is_array($needles)) :
+            foreach ($needles as $needle) :
+                $rt = strpos($bundle, $needle);
+                if ($rt !== false) :
+                    break;
+                endif;
+            endforeach;
+        endif;
+        return $rt;
+
+    }
+
+    // 是否手机
+    public function isMobile()
+    {
+        $mobile = array();
+        static $mobilebrowser_list = array('iphone', 'android', 'phone', 'mobile', 'wap', 'netfront', 'java', 'opera mobi', 'opera mini',
+                    'ucweb', 'windows ce', 'symbian', 'series', 'webos', 'sony', 'blackberry', 'dopod', 'nokia', 'samsung',
+                    'palmsource', 'xda', 'pieplus', 'meizu', 'midp', 'cldc', 'motorola', 'foma', 'docomo', 'up.browser',
+                    'up.link', 'blazer', 'helio', 'hosin', 'huawei', 'novarra', 'coolpad', 'webos', 'techfaith', 'palmsource',
+                    'alcatel', 'amoi', 'ktouch', 'nexian', 'ericsson', 'philips', 'sagem', 'wellcom', 'bunjalloo', 'maui', 'smartphone',
+                    'iemobile', 'spice', 'bird', 'zte-', 'longcos', 'pantech', 'gionee', 'portalmmm', 'jig browser', 'hiptop',
+                    'benq', 'haier', '^lct', '320x320', '240x320', '176x220');
+        $pad_list = array('pad', 'gt-p1000');
+        $useragent = strtolower($_SERVER['HTTP_USER_AGENT']);
+        if ($this->dstrpos($useragent, $pad_list) !== false) {
+            return false;
+        }
+
+        if ($this->dstrpos($useragent, $mobilebrowser_list) !== false) {
+            return true;
+        }
+
+        $brower = array('mozilla', 'chrome', 'safari', 'opera', 'm3gate', 'winwap', 'openwave', 'myop');
+
+        if ($this->dstrpos($useragent, $brower) !== false) {
+            return false;
+        }
+
+        if(arGet('mobile') === 'yes') {
+            return true;
+        } else {
+            return false;
+        }
 
     }
 

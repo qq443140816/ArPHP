@@ -116,6 +116,7 @@ class Ar
             defined('AR_APP_VIEW_PATH') or define('AR_APP_VIEW_PATH', AR_APP_PATH . 'View' . DS);
             // app 控制器目录
             defined('AR_APP_CONTROLLER_PATH') or define('AR_APP_CONTROLLER_PATH', AR_APP_PATH . 'Controller' . DS);
+
         // 命令行模式
         elseif (AR_AS_CMD) :
             // 目录生成
@@ -313,15 +314,21 @@ class Ar
      */
     static public function autoLoader($class)
     {
-        $class = str_replace('\\', DS, $class);
+        // $class = str_replace('\\', DS, $class);
+        $posNameSpace = strrpos($class, '\\');
+        if ($posNameSpace !== false) :
+            // $class = substr($class, $posNameSpace + 1);
+            return self::loadByNameSpace($class);
+        endif;
 
         if (AR_OUTER_START) :
             $appModule = AR_MAN_PATH;
         else :
-            $appModule = AR_ROOT_PATH . DS . arCfg('requestRoute.a_m', AR_DEFAULT_APP_NAME) . DS;
+            $appModule = AR_ROOT_PATH . arCfg('requestRoute.a_m', AR_DEFAULT_APP_NAME) . DS;
         endif;
 
-        array_push(self::$autoLoadPath, $appModule);
+        // array_push(self::$autoLoadPath, $appModule);
+        array_unshift(self::$autoLoadPath, $appModule);
 
         if (preg_match("#[A-Z]{1}[a-z0-9]+$#", $class, $match)) :
             $appEnginePath = $appModule . $match[0] . DS;
@@ -329,7 +336,13 @@ class Ar
             // cmd mode
             $binPath = $appModule . 'Bin' . DS;
             $protocolPath = $appModule . 'Protocol' . DS;
-            array_push(self::$autoLoadPath, $appEnginePath, $extPath, $binPath, $protocolPath);
+
+            // 加入Lib公共目录
+            $libPath = AR_ROOT_PATH . 'Lib' . DS . $match[0] . DS;
+            // lib ext
+            $libExtPath = AR_ROOT_PATH . 'Lib' . DS . 'Ext' . DS;
+
+            array_push(self::$autoLoadPath, $appEnginePath, $extPath, $binPath, $protocolPath, $libPath, $libExtPath);
         endif;
         self::$autoLoadPath = array_unique(self::$autoLoadPath);
         foreach (self::$autoLoadPath as $path) :
@@ -353,6 +366,19 @@ class Ar
 
     }
 
+    // loadByNameSpace
+    static function loadByNameSpace($class)
+    {
+        $classFile = AR_ROOT_PATH . str_replace('\\', DS, $class) . '.class.php';
+        if (is_file($classFile)) :
+            include_once $classFile;
+        else :
+            trigger_error('class : ' . $class . ' does not exist !', E_USER_ERROR);
+            exit;
+        endif;
+
+    }
+
     /**
      * set autoLoad path.
      *
@@ -363,7 +389,16 @@ class Ar
     static public function importPath($path)
     {
         // array_push(self::$autoLoadPath, rtrim($path, DS) . DS);
-        array_unshift(self::$autoLoadPath, rtrim($path, DS) . DS);
+        $inkey = rtrim($path, DS) . DS;
+        if (in_array($inkey, self::$autoLoadPath)) :
+            foreach (self::$autoLoadPath as $ink => $path) :
+                if ($path == $inkey) :
+                    unset(self::$autoLoadPath[$ink]);
+                    break;
+                endif;
+            endforeach;
+        endif;
+        array_unshift(self::$autoLoadPath, $inkey);
 
     }
 
@@ -426,7 +461,7 @@ class Ar
         endif;
 
         if (AR_DEBUG && !AR_AS_CMD) :
-            $msg = '<b style="color:#ec8186;">' . get_class($e) . '</b> : ' . $e->getMessage();
+            $msg = '<b style="color:#ec8186;">' . get_class($e) . ',code:'. $e->getCode() .'</b> : ' . $e->getMessage();
             if (arCfg('DEBUG_SHOW_TRACE')) :
                 arComp('ext.out')->deBug($msg, 'TRACE');
             else :
@@ -467,6 +502,7 @@ class Ar
             $errMsg .= "<b style='color:red;'>ERROR</b> [$errno] $errstr<br />\n";
             $errMsg .= "  Fatal error on line $errline in file $errfile";
             $errMsg .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+            header("http/1.1 404 Not Found:" . $errMsg);
             $serverError = true;
             break;
 
@@ -496,6 +532,8 @@ class Ar
                     else :
                         arComp('ext.out')->deBug($errMsg, 'ERROR');
                     endif;
+                else :
+                    exit($errMsg);
                 endif;
             endif;
         endif;
