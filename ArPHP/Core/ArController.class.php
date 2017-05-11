@@ -410,13 +410,7 @@ class ArController
      */
     public function setLayoutFile($layoutFileName = '')
     {
-        if ($layoutFileName) :
-            if (!is_file($layoutFileName)) :
-                $layoutFileName = AR_APP_VIEW_PATH . 'Layout' . DS . $layoutFileName;
-            endif;
-        endif;
-        $this->layOutFile = $layoutFileName;
-        Ar::setConfig('LAYOUT_NAME', $layoutFileName);
+        return ArView::layout($layoutFileName);
 
     }
 
