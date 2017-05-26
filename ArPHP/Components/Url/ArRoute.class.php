@@ -203,6 +203,10 @@ class ArRoute extends ArComponent
      */
     public function parse()
     {
+        if (AR_AS_WEB_CLI) :
+            return $this->parseCli();
+        endif;
+
         $requestUrl = $this->parseUrlForRules($_SERVER['REQUEST_URI']);
         $phpSelf = $_SERVER['SCRIPT_NAME'];
 
@@ -265,6 +269,36 @@ class ArRoute extends ArComponent
         $requestRoute = array('a_h' => $a_h, 'a_m' => $m, 'a_c' => empty($c) ? AR_DEFAULT_CONTROLLER : $c, 'a_a' => empty($a) ? AR_DEFAULT_ACTION : $a);
         Ar::setConfig('requestRoute', $requestRoute);
         return $requestRoute;
+
+    }
+
+    // 处理cli参数
+    public function parseCli()
+    {
+        global $argv;
+
+        $param = $argv[1];
+        if (!$param) :
+            $param = '/'. AR_DEFAULT_APP_NAME . '/' . AR_DEFAULT_CONTROLLER . '/' . AR_DEFAULT_ACTION;
+        endif;
+
+        if (substr($param, 0, 1) === '/') :
+            $paramBundle = explode('/', $param);
+            if (count($paramBundle) === 4) :
+                $requestRoute = array(
+                    'a_h' => $paramBundle[1],
+                    'a_m' => $paramBundle[1],
+                    'a_c' => $paramBundle[2],
+                    'a_a' => $paramBundle[3],
+                );
+                Ar::setConfig('requestRoute', $requestRoute);
+                return $requestRoute;
+            else :
+                exit('param format error' . PHP_EOL);
+            endif;
+        else :
+            exit('param start must be char "/"' . PHP_EOL);
+        endif;
 
     }
 

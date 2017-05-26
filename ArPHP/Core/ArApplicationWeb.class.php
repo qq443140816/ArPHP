@@ -45,7 +45,9 @@ class ArApplicationWeb extends ArApplication
             arComp('ext.out')->deBug('[APP_WEB_START]');
         endif;
         if (AR_AUTO_START_SESSION && ini_get('session.auto_start') == 0) :
-            session_start();
+            if (!AR_AS_WEB_CLI) :
+                session_start();
+            endif;
         endif;
 
         $this->processRequest();

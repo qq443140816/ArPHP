@@ -27,6 +27,8 @@ defined('AR_RUN_AS_SERVICE_HTTP') or define('AR_RUN_AS_SERVICE_HTTP', false);
 defined('AR_AS_CMD') or define('AR_AS_CMD', false);
 // web application 默认方式
 defined('AR_AS_WEB') or define('AR_AS_WEB', true);
+// web cli 模式
+defined('AR_AS_WEB_CLI') or define('AR_AS_WEB_CLI', false);
 // app名 main
 defined('AR_DEFAULT_APP_NAME') or define('AR_DEFAULT_APP_NAME', 'main');
 // 默认的控制器名

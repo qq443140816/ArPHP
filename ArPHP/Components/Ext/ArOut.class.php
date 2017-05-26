@@ -132,7 +132,14 @@ class ArOut extends ArComponent
                         break;
                 }
             else :
-                echo join($showContentBox, '');
+                if (AR_AS_WEB_CLI) :
+                    foreach ($showContentBox as &$showBoxMsg) :
+                        $showBoxMsg = strip_tags($showBoxMsg) . PHP_EOL;
+                    endforeach;
+                endif;
+                $outPutMsg = join($showContentBox, '');
+
+                echo $outPutMsg;
             endif;
             $deBugMsg[$tag] = '';
         endif;

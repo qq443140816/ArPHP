@@ -25,6 +25,17 @@ arphp开发了很多优秀项目稳定运行。那么如果你想告别复杂冗
 增加ArView核心视图动态渲染模板主题加载，解决传统资源文件引入混乱问题，前后端不统一资源引入问题等
 增加微信公众号组件
 
+2017/5/26    arphp2.0.1
+
+增加 WEB_CLI模式
+// 以web cli 方式运行项目 入口文件cli.php
+define('AR_AS_WEB_CLI', true);
+include 'arphp.php';
+
+
+运行   php cli.php /main/User/info     执行main/UserController/infoAction 方法
+
+
 
 更多使用帮助及例子请加官方qq群，
 
@@ -58,7 +69,7 @@ index.php
 访问index.php即可件 hello ArPHP!
 
 
-常用用法（希望好心人多整理加群贡献更多用法，感谢）
+常用用法(特别感谢JackLiu对以下常用操作使用的提供)
 
         /*
         // mysql 事物操作
@@ -170,3 +181,38 @@ index.php
 
         // 创建完整的URL
         // echo arComp('url.route')->createUrl('', array('ni' => '33', 'p' => 4));
+
+
+
+
+    // 数据库表user查询一行
+        $sp = arComp('db.mysql')->select('id')->where(array('id' => 1))->table('user')->queryRow();
+
+    // 用模型实现查询（已定义UserModel）
+        $sp = UserModel::model()->getDb()->where(array('id' => 1))->queryRow();
+
+    // 用模型实现查询（未定义UserModel）
+        $sp = arModel::model('User')->getDb()->table('user')->where(array('id' => 1))->queryRow();
+
+    // 数据库查询所有
+        $sp = arComp('db.mysql')->select('id')->where(array('id' => 1))->table('user')->queryAll();
+
+    // 数据库表user查询一行
+        $sp = arComp('db.mysql')->select('id')->where(array('id' => 1))->table('user')->queryRow();
+
+    // 数据库查询所有以指定键返回数据
+        $sp = arComp('db.mysql')->select('')->where(array('name' => 'xxx'))->table('user')->queryAll('id');
+
+    // 数据库查询所有以指定键返回原始数据
+        $sp = arComp('db.mysql')->select('')->where(array('name' => 'xxx'))->table('user')->queryColumn('id');
+
+    // 数据库更新数据
+        $sp = arComp('db.mysql')->where(array('name' => 'wyp'))->table('user')->update(array('column' => 'value'));
+
+    // 数据库插入数据
+        $sp = arComp('db.mysql')->where(array('name' => 'wyp'))->table('user')->insert(array('column' => 'value'));
+
+    // 贪婪匹配 , 生成的链接保留之前请求的参数， 非常适合做多级栏目切换传参
+        arU('', array('greedyUrl' => true, 'aid' => 2));
+
+

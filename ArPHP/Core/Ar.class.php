@@ -82,7 +82,7 @@ class Ar
                 Ar::import($comonConfigFile, true),
                 Ar::import(AR_MAN_PATH . 'Conf' . DS . 'public.config.php')
             );
-        elseif (AR_AS_WEB) :
+        elseif (AR_AS_WEB || AR_AS_WEB_CLI) :
             // 目录生成
             Ar::c('url.skeleton')->generate();
             // 公共配置

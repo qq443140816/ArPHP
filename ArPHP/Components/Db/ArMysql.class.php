@@ -833,6 +833,9 @@ class ArMysql extends ArDb
                     $valueString .= '(' . implode($valueBundle, ',') . ')';
                 endif;
             endforeach;
+            foreach ($fields as $kf => $field) :
+                $fields[$kf] = $this->quoteObj($field);
+            endforeach;
             $this->options['data'] = '(' . implode($fields, ',') . ') VALUES ' . $valueString;
         endif;
 
