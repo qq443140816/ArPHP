@@ -41,6 +41,8 @@ defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 defined('AR_FRAME_PATH') or define('AR_FRAME_PATH', dirname(__FILE__) . DS);
 // 项目根目录
 defined('AR_ROOT_PATH') or define('AR_ROOT_PATH', realpath(dirname($_SERVER['SCRIPT_FILENAME'])) . DS);
+// data path
+defined('AR_DATA_PATH') or define('AR_DATA_PATH',  AR_ROOT_PATH . 'data' . DS);
 // 核心目录
 defined('AR_CORE_PATH') or define('AR_CORE_PATH', AR_FRAME_PATH . 'Core' . DS);
 // 配置目录
@@ -53,6 +55,32 @@ defined('AR_COMP_PATH') or define('AR_COMP_PATH', AR_FRAME_PATH . 'Components' .
 defined('AR_SERVER_PATH') or define('AR_SERVER_PATH', ($dir = dirname($_SERVER['SCRIPT_NAME'])) == DS ? '/' : str_replace(DS, '/', $dir) . '/');
 // 默认配置文件
 defined('AR_PUBLIC_CONFIG_FILE') or define('AR_PUBLIC_CONFIG_FILE', '');
+
+
+define('HDOM_TYPE_ELEMENT', 1);
+define('HDOM_TYPE_COMMENT', 2);
+define('HDOM_TYPE_TEXT',    3);
+define('HDOM_TYPE_ENDTAG',  4);
+define('HDOM_TYPE_ROOT',    5);
+define('HDOM_TYPE_UNKNOWN', 6);
+define('HDOM_QUOTE_DOUBLE', 0);
+define('HDOM_QUOTE_SINGLE', 1);
+define('HDOM_QUOTE_NO',     3);
+define('HDOM_INFO_BEGIN',   0);
+define('HDOM_INFO_END',     1);
+define('HDOM_INFO_QUOTE',   2);
+define('HDOM_INFO_SPACE',   3);
+define('HDOM_INFO_TEXT',    4);
+define('HDOM_INFO_INNER',   5);
+define('HDOM_INFO_OUTER',   6);
+define('HDOM_INFO_ENDSPACE',7);
+define('DEFAULT_TARGET_CHARSET', 'UTF-8');
+define('DEFAULT_BR_TEXT', "\r\n");
+define('DEFAULT_SPAN_TEXT', " ");
+if (!defined('MAX_FILE_SIZE'))
+{
+    define('MAX_FILE_SIZE', 600000);
+}
 
 require_once AR_CORE_PATH . 'Ar.class.php';
 

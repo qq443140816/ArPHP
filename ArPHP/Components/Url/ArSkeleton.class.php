@@ -44,16 +44,15 @@ class ArSkeleton extends ArComponent
     public function generateFolders()
     {
         $folderLists = array(
-                $this->basePath,
-                AR_PUBLIC_CONFIG_PATH,
-                $this->basePath . 'Controller',
-                $this->basePath . 'View',
-                $this->basePath . 'View' . DS . 'Index',
-                $this->basePath . 'Ext',
-                $this->basePath . 'Model',
-                $this->basePath . 'Conf',
-                $this->basePath . 'Public',
-            );
+            $this->basePath,
+            AR_PUBLIC_CONFIG_PATH,
+            $this->basePath . 'Controller',
+            $this->basePath . 'View',
+            $this->basePath . 'View' . DS . 'Index',
+            $this->basePath . 'Conf',
+            $this->basePath . 'Public',
+            AR_DATA_PATH,
+        );
 
         foreach($folderLists as $folder) :
             if (!$this->check($folder)) :
@@ -111,7 +110,7 @@ class IndexController extends ArController
 /**
  * Default Model of webapp.
  */
-class MyModel extends ArModel
+class UserModel extends ArModel
 {
 
     static public function model($class = __CLASS__)
@@ -120,9 +119,10 @@ class MyModel extends ArModel
 
     }
 
-    public function yourFunction()
+    // my table name
+    public function tableName()
     {
-        echo "this is your funciton";
+        return "user";
 
     }
 
@@ -186,6 +186,9 @@ return array(
      */
     public function generate($appName = '')
     {
+        if (!is_dir(AR_DATA_PATH)) :
+            mkdir(AR_DATA_PATH);
+        endif;
         if (empty($appName) && $appGlobalConfig = Ar::import(AR_PUBLIC_CONFIG_PATH . 'public.config.php', true)) :
             if (empty($appGlobalConfig['moduleLists'])) :
                 if (!AR_DEFAULT_APP_NAME) :

@@ -137,135 +137,35 @@ class ArController
      */
     protected function display($view = '', $fetch = false)
     {
-        Ar::setConfig('BUNDLE_VIEW_ASSIGN', $this->assign);
+        $renderSourcePath = arCfg('DIR.RENDER');
 
-        $headerFile = '';
-        $footerFile = '';
-
-        // 加载模板
-        $bodyHtml = $this->fetch($view, true);
-
-        if (arCfg('LAYOUT_NAME') !== null) :
-            $this->layOutFile = arCfg('LAYOUT_NAME');
+        if (!is_dir($renderSourcePath)) :
+            mkdir($renderSourcePath);
         endif;
-
-        if ($this->layOutFile === 'NOT_INIT') :
-            $headerFile = AR_APP_VIEW_PATH . 'Layout' . DS . 'header' . '.' . arCfg('TPL_SUFFIX');
-            $footerFile = AR_APP_VIEW_PATH . 'Layout' . DS . 'footer' . '.' . arCfg('TPL_SUFFIX');
-        elseif ($this->layOutFile) :
-            $headerFile = AR_APP_VIEW_PATH . 'Layout' . DS . $this->layOutFile . '_header' . '.' . arCfg('TPL_SUFFIX');
-            $footerFile = AR_APP_VIEW_PATH . 'Layout' . DS . $this->layOutFile . '_footer' . '.' . arCfg('TPL_SUFFIX');
+        $renderSourceModulePath = $renderSourcePath . arCfg('requestRoute.a_m') . DS;
+        if (!is_dir($renderSourceModulePath)) :
+            mkdir($renderSourceModulePath);
         endif;
+        $unikey = md5(implode('_', arCfg('requestRoute')));
+        $bodyContentTplString = '';
+        $renderFile = $renderSourceModulePath . $unikey . '.aptc';
+        $renderhtmlString = $this->fetch($view, true);
 
-        $headerHtml = $footerHtml = '';
-        // 加载头
-        if ($headerFile) :
-            if (is_file($headerFile)) :
-                $headerHtml = $this->fetch($headerFile, true);
-            else :
-                if ($this->layOutFile !== 'NOT_INIT') :
-                    throw new ArException("not fount layout header file : " . $headerFile, '2000');
-                endif;
-            endif;
-        endif;
+        $compireReusltString = ArView::compile($renderhtmlString, $this->assign);
 
-        // 加载尾部
-        if ($footerFile) :
-            if (is_file($footerFile)) :
-                $footerHtml = $this->fetch($footerFile, true);
-            else :
-                if ($this->layOutFile !== 'NOT_INIT') :
-                    throw new ArException("not fount layout footer file : " . $footerFile, '2000');
-                endif;
-            endif;
-        endif;
-
-        $returnHtml = $headerHtml . $bodyHtml . $footerHtml;
-        if ($fetch === false) :
-            echo $returnHtml;
-            // 加载退出
-            exit;
-        else :
-            return $returnHtml;
-        endif;
+        file_put_contents(
+           $renderFile,
+           $compireReusltString
+        );
+        $this->fetch($renderFile, $fetch, $this->assign);
+        exit;
 
     }
 
-    /**
-     * fetch function.
-     *
-     * @param string  $view  view template.
-     * @param boolean $fetch fetch view template.
-     *
-     * @return mixed
-     */
-    protected function fetch($view = '', $fetch = false)
+    // fetch content from view
+    public function fetch($view = '', $fetch = false, $data = array())
     {
-        if (is_file($view)) :
-            $viewFile = $view;
-        else :
-            $viewPath = '';
-            $viewBasePath = arCfg('PATH.VIEW');
-            $overRide = false;
-            $absolute = false;
-
-            if (strpos($view, '@') === 0) :
-                $overRide = true;
-                $view = ltrim($view, '@');
-            endif;
-
-            $r = Ar::a('ArApplicationWeb')->route;
-
-            if (empty($view)) :
-                $viewPath .= $r['a_c'] . DS . $r['a_a'];
-            elseif(strpos($view, '/') !== false) :
-                if (substr($view, 0, 1) == '/') :
-                    $absolute = true;
-                    $viewPath .= str_replace('/', DS, ltrim($view, '/'));
-                else :
-                    $viewPath .= $r['a_c'] . DS  . str_replace('/', DS, ltrim($view, '/'));
-                endif;
-                if (substr($view, -1) == '/') :
-                    $viewPath .= $r['a_a'];
-                endif;
-            else :
-                $viewPath .= $r['a_c'] . DS . $view;
-            endif;
-
-            $currentC = $tempC = $r['a_c'] . 'Controller';
-
-            $preFix = '';
-
-            if (!$absolute) :
-                while ($cP = get_parent_class($tempC)) :
-                    if (!in_array(substr($cP, 0, -10), array('Ar', 'Base'))) :
-                        $preFix = substr($cP, 0, -10) . DS . $preFix;
-                        if (!$overRide && method_exists($cP, $r['a_a'] . 'Action')) :
-                            $viewPath = str_replace(substr($tempC, 0, -10) . DS, '', $viewPath);
-                        endif;
-                        $tempC = $cP;
-                    else :
-                        break;
-                    endif;
-                endwhile;
-            endif;
-            $viewFile = $viewBasePath . $preFix . $viewPath . '.' . arCfg('TPL_SUFFIX');
-        endif;
-
-        if (is_file($viewFile)) :
-            extract($this->assign);
-            if ($fetch === true) :
-                ob_start();
-                include $viewFile;
-                $fetchStr = ob_get_contents();
-                ob_end_clean();
-                return $fetchStr;
-            else :
-                include $viewFile;
-            endif;
-        else :
-            throw new ArException('view : ' . $viewFile . ' not found');
-        endif;
+        return ArView::fetch($view, $fetch, $data);
 
     }
 

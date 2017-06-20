@@ -28,13 +28,17 @@ return array(
     // dir
     'DIR' => array(
         // 全局缓存
-        'CACHE' => AR_ROOT_PATH . 'Cache' . DS,
-        'LOG' => AR_ROOT_PATH . (!arCfg('requestRoute.a_m', AR_MAN_NAME) ? '' : (arCfg('requestRoute.a_m', AR_MAN_NAME) . DS)) . 'Log' . DS,
+        'CACHE' => AR_DATA_PATH . 'cache' . DS,
+        // render path
+        'RENDER' => AR_DATA_PATH . 'render' . DS,
+        // log
+        'LOG' => AR_DATA_PATH . 'log' . DS . (!arCfg('requestRoute.a_m', AR_MAN_NAME) ? '' : (arCfg('requestRoute.a_m', AR_MAN_NAME) . DS)),
         'VIEW' => AR_ROOT_PATH . (!arCfg('requestRoute.a_m', AR_MAN_NAME) ? '' : (arCfg('requestRoute.a_m', AR_MAN_NAME) . DS)) . 'View' . DS,
         'UPLOAD' => AR_ROOT_PATH . (!arCfg('requestRoute.a_m', AR_MAN_NAME) ? '' : (arCfg('requestRoute.a_m', AR_MAN_NAME) . DS)) . 'Upload' . DS,
         'EXT' => AR_ROOT_PATH . (!arCfg('requestRoute.a_m', AR_MAN_NAME) ? '' : (arCfg('requestRoute.a_m', AR_MAN_NAME) . DS)) . 'Ext' . DS,
         // 片段目录
         'SEG' => AR_PUBLIC_CONFIG_PATH . 'Seg' . DS,
+
     ),
 
     // url
