@@ -11,6 +11,8 @@
  * @version  GIT: : coding-standard-tutorial.xml,v 1.0 2014-5-01 18:16:25 cweiske Exp $
  * @link     http://www.arphp.org
  */
+// version
+define('AR_VERSION', '3.0.1');
 // 启动时间
 defined('AR_START_TIME') or define('AR_START_TIME', microtime(true));
 // 开启调试 是

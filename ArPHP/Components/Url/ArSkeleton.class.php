@@ -98,35 +98,6 @@ class IndexController extends ArController
     }
 
 }',
-        $this->basePath . 'Model' . DS . 'MyModel.class.php' => '<?php
-/**
- * Powerd by ArPHP.
- *
- * Model.
- *
- * @author ycassnr <ycassnr@gmail.com>
- */
-
-/**
- * Default Model of webapp.
- */
-class UserModel extends ArModel
-{
-
-    static public function model($class = __CLASS__)
-    {
-        return parent::model($class);
-
-    }
-
-    // my table name
-    public function tableName()
-    {
-        return "user";
-
-    }
-
-}',
         $this->basePath . 'View' . DS . 'Index' . DS . 'index.php' => '<html>
     <h1>Hello, ArPHP ! </h1>
     this is your view file !
@@ -150,6 +121,35 @@ return array(
 return array(
     \'moduleLists\' => array(
         \'' . $this->appName . '\'
+    ),
+    // 关闭Trace
+    \'DEBUG_SHOW_TRACE\' => false,
+    // 组件配置
+    \'components\' => array(
+        // 依赖懒加载组件
+       \'lazy\' => true,
+       // db 组件配置
+       \'db\' => array(
+            // 定义组件名称mysql
+           \'mysql\' => array(
+                // 通用配置格式
+               \'config\' => array(
+                   \'default\' => array(
+                       \'dsn\' => \'mysql:host=localhost;dbname=arphp;port=3306\',
+                        // 用户名
+                       \'user\' => \'root\',
+                        // 密码
+                       \'pass\' => \'root\',
+                       // 连接选项 数据库需要支持PDO扩展
+                       \'option\' => array(
+                            // PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                            // PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+                            // PDO::MYSQL_ATTR_INIT_COMMAND => \'SET NAMES \\\'UTF8\\\'\',
+                        ),
+                    ),
+                ),
+            ),
+        ),
     ),
 );',
 
